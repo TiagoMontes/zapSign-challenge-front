@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-document-form',
   standalone: true,
-  template: `
-    <div>
-      <h2>Document Form</h2>
-      <p>This component will handle document creation and editing.</p>
-    </div>
-  `
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './document-form.component.html',
+  styleUrls: ['./document-form.component.scss']
 })
 export class DocumentFormComponent {}

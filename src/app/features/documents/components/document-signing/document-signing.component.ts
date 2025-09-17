@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-document-signing',
   standalone: true,
-  template: `
-    <div>
-      <h2>Document Signing</h2>
-      <p>This component will handle document signing.</p>
-    </div>
-  `
+  imports: [CommonModule],
+  templateUrl: './document-signing.component.html',
+  styleUrls: ['./document-signing.component.scss']
 })
 export class DocumentSigningComponent {}

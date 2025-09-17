@@ -4,10 +4,8 @@ import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
-  template: `
-    <router-outlet></router-outlet>
-  `,
-  styleUrl: './app.css'
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
 })
 export class App {
   protected readonly title = signal('zapsign-challenge-front');

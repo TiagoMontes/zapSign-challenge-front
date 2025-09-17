@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-documents-list',
   standalone: true,
-  template: `
-    <div>
-      <h2>Documents List</h2>
-      <p>This component will list all documents.</p>
-    </div>
-  `
+  imports: [CommonModule],
+  templateUrl: './documents-list.component.html',
+  styleUrls: ['./documents-list.component.scss']
 })
 export class DocumentsListComponent {}

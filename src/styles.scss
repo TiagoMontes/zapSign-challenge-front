@@ -1,12 +1,12 @@
-// Import Angular Material theme first
-@use './styles/theme.scss';
-
-// Import variables and mixins
+// Import variables and mixins first (required by SCSS @use rules)
 @use './styles/variables' as *;
 @use './styles/mixins' as *;
 
 // Import base styles
 @use './styles/base.scss';
+
+// Import Tailwind CSS
+@import "tailwindcss";
 
 // Global application styles
 html, body {

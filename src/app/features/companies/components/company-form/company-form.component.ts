@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, AbstractControl, AsyncValidatorFn } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormBuilder, FormGroup, Validators, AbstractControl, AsyncValidatorFn, ReactiveFormsModule } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, map, of } from 'rxjs';
-import { SharedModule } from '../../../../shared/shared.module';
+import { CommonModule } from '@angular/common';
 import { CompaniesService } from '../../../../core/services/companies.service';
 import { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../../../../core/models/company.interface';
 import { CanComponentDeactivate } from '../../../../core/guards/unsaved-changes.guard';
@@ -11,7 +10,7 @@ import { CanComponentDeactivate } from '../../../../core/guards/unsaved-changes.
 @Component({
   selector: 'app-company-form',
   standalone: true,
-  imports: [SharedModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './company-form.component.html',
   styleUrls: ['./company-form.component.scss']
 })
@@ -19,7 +18,6 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly companiesService = inject(CompaniesService);
   private readonly destroy$ = new Subject<void>();
 
@@ -127,7 +125,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
           console.error('Error loading company:', error);
           this.error.set('Failed to load company data. Please try again.');
           this.isLoading.set(false);
-          this.showErrorMessage('Failed to load company data');
+          console.error('Failed to load company data');
         }
       });
   }
@@ -210,7 +208,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (company) => {
-          this.showSuccessMessage(`Company "${company.name}" created successfully`);
+          console.log(`Company "${company.name}" created successfully`);
           this.companyForm.markAsPristine();
           this.router.navigate(['/companies', company.id]);
         },
@@ -237,7 +235,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
       .subscribe({
         next: (company) => {
           this.company.set(company);
-          this.showSuccessMessage(`Company "${company.name}" updated successfully`);
+          console.log(`Company "${company.name}" updated successfully`);
           this.companyForm.markAsPristine();
           this.router.navigate(['/companies', company.id]);
         },
@@ -276,7 +274,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
     }
 
     this.error.set(errorMessage);
-    this.showErrorMessage(errorMessage);
+    console.error(errorMessage);
   }
 
   /**
@@ -365,25 +363,6 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
     });
   }
 
-  /**
-   * Show success message
-   */
-  private showSuccessMessage(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
-  }
-
-  /**
-   * Show error message
-   */
-  private showErrorMessage(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 5000,
-      panelClass: ['error-snackbar']
-    });
-  }
 
   /**
    * Copy API token to clipboard
@@ -393,9 +372,9 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
 
     if (token && navigator.clipboard) {
       navigator.clipboard.writeText(token).then(() => {
-        this.showSuccessMessage('API token copied to clipboard');
+        console.log('API token copied to clipboard');
       }).catch(() => {
-        this.showErrorMessage('Failed to copy token to clipboard');
+        console.error('Failed to copy token to clipboard');
       });
     }
   }

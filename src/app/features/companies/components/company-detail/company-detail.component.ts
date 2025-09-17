@@ -1,12 +1,9 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil, forkJoin, switchMap } from 'rxjs';
-import { SharedModule } from '../../../../shared/shared.module';
+import { CommonModule } from '@angular/common';
 import { CompaniesService } from '../../../../core/services/companies.service';
 import { Company } from '../../../../core/models/company.interface';
-import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
 // Mock interfaces for documents and signers (replace with actual ones when available)
 interface Document {
@@ -28,15 +25,13 @@ interface Signer {
 @Component({
   selector: 'app-company-detail',
   standalone: true,
-  imports: [SharedModule],
+  imports: [CommonModule],
   templateUrl: './company-detail.component.html',
   styleUrls: ['./company-detail.component.scss']
 })
 export class CompanyDetailComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly companiesService = inject(CompaniesService);
   private readonly destroy$ = new Subject<void>();
 
@@ -120,7 +115,6 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
           console.error('Error loading company data:', error);
           this.error.set('Failed to load company details. Please try again.');
           this.isLoading.set(false);
-          this.showErrorMessage('Failed to load company details');
         }
       });
   }
@@ -240,23 +234,10 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
     const company = this.company();
     if (!company) return;
 
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Company',
-        message: `Are you sure you want to delete "${company.name}"? This will also delete all associated documents and signers. This action cannot be undone.`,
-        confirmText: 'Delete Company',
-        cancelText: 'Cancel',
-        type: 'danger'
-      }
-    });
-
-    dialogRef.afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(confirmed => {
-        if (confirmed) {
-          this.deleteCompany(company);
-        }
-      });
+    const confirmed = confirm(`Are you sure you want to delete "${company.name}"? This will also delete all associated documents and signers. This action cannot be undone.`);
+    if (confirmed) {
+      this.deleteCompany(company);
+    }
   }
 
   /**
@@ -267,12 +248,12 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.showSuccessMessage(`Company "${company.name}" deleted successfully`);
+          console.log(`Company "${company.name}" deleted successfully`);
           this.router.navigate(['/companies']);
         },
         error: (error) => {
           console.error('Error deleting company:', error);
-          this.showErrorMessage('Failed to delete company. Please try again.');
+          alert('Failed to delete company. Please try again.');
         }
       });
   }
@@ -323,9 +304,9 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(company.api_token).then(() => {
-        this.showSuccessMessage('API token copied to clipboard');
+        console.log('API token copied to clipboard');
       }).catch(() => {
-        this.showErrorMessage('Failed to copy token to clipboard');
+        console.error('Failed to copy token to clipboard');
       });
     } else {
       // Fallback for browsers without clipboard API
@@ -336,9 +317,9 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
 
       try {
         document.execCommand('copy');
-        this.showSuccessMessage('API token copied to clipboard');
+        console.log('API token copied to clipboard');
       } catch (err) {
-        this.showErrorMessage('Failed to copy token to clipboard');
+        console.error('Failed to copy token to clipboard');
       }
 
       document.body.removeChild(textArea);
@@ -444,25 +425,6 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
     return `${token.substring(0, 8)}...${token.substring(token.length - 4)}`;
   }
 
-  /**
-   * Show success message
-   */
-  private showSuccessMessage(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
-  }
-
-  /**
-   * Show error message
-   */
-  private showErrorMessage(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 5000,
-      panelClass: ['error-snackbar']
-    });
-  }
 
   /**
    * Track by function for documents list

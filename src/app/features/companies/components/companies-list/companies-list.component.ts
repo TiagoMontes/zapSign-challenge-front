@@ -1,25 +1,20 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, startWith, combineLatest } from 'rxjs';
-import { FormControl } from '@angular/forms';
-import { SharedModule } from '../../../../shared/shared.module';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, startWith } from 'rxjs';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { CompaniesService } from '../../../../core/services/companies.service';
 import { Company } from '../../../../core/models/company.interface';
-import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-companies-list',
   standalone: true,
-  imports: [SharedModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './companies-list.component.html',
   styleUrls: ['./companies-list.component.scss']
 })
 export class CompaniesListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly companiesService = inject(CompaniesService);
   private readonly destroy$ = new Subject<void>();
 
@@ -72,7 +67,6 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
           console.error('Error loading companies:', error);
           this.error.set('Failed to load companies. Please try again.');
           this.loading.set(false);
-          this.showErrorMessage('Failed to load companies');
         }
       });
   }
@@ -124,10 +118,10 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.showSuccessMessage('Companies refreshed successfully');
+          console.log('Companies refreshed successfully');
         },
         error: () => {
-          this.showErrorMessage('Failed to refresh companies');
+          console.error('Failed to refresh companies');
         }
       });
   }
@@ -171,23 +165,10 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
    * Delete company with confirmation
    */
   onDeleteCompany(company: Company): void {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Company',
-        message: `Are you sure you want to delete "${company.name}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
-        type: 'danger'
-      }
-    });
-
-    dialogRef.afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(confirmed => {
-        if (confirmed) {
-          this.deleteCompany(company);
-        }
-      });
+    const confirmed = confirm(`Are you sure you want to delete "${company.name}"? This action cannot be undone.`);
+    if (confirmed) {
+      this.deleteCompany(company);
+    }
   }
 
   /**
@@ -198,11 +179,11 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.showSuccessMessage(`Company "${company.name}" deleted successfully`);
+          console.log(`Company "${company.name}" deleted successfully`);
         },
         error: (error) => {
           console.error('Error deleting company:', error);
-          this.showErrorMessage('Failed to delete company. Please try again.');
+          alert('Failed to delete company. Please try again.');
         }
       });
   }
@@ -227,22 +208,14 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Show success message
+   * Copy token to clipboard
    */
-  private showSuccessMessage(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
-  }
-
-  /**
-   * Show error message
-   */
-  private showErrorMessage(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 5000,
-      panelClass: ['error-snackbar']
+  copyToken(token: string, event: Event): void {
+    event.stopPropagation();
+    navigator.clipboard.writeText(token).then(() => {
+      console.log('Token copied to clipboard');
+    }).catch(err => {
+      console.error('Failed to copy token:', err);
     });
   }
 

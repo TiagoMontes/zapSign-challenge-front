@@ -1,13 +1,10 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormControl } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, startWith, forkJoin } from 'rxjs';
-import { SharedModule } from '../../../../shared/shared.module';
+import { CommonModule } from '@angular/common';
 import { CompaniesService } from '../../../../core/services/companies.service';
 import { Company } from '../../../../core/models/company.interface';
-import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
 // Mock Document interface (replace with actual when available)
 interface Document {
@@ -25,15 +22,13 @@ interface Document {
 @Component({
   selector: 'app-company-documents',
   standalone: true,
-  imports: [SharedModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './company-documents.component.html',
   styleUrls: ['./company-documents.component.scss']
 })
 export class CompanyDocumentsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly companiesService = inject(CompaniesService);
   private readonly destroy$ = new Subject<void>();
 
@@ -273,23 +268,10 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
    * Delete document with confirmation
    */
   onDeleteDocument(document: Document): void {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Delete Document',
-        message: `Are you sure you want to delete "${document.name}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
-        type: 'danger'
-      }
-    });
-
-    dialogRef.afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(confirmed => {
-        if (confirmed) {
-          this.deleteDocument(document);
-        }
-      });
+    const confirmed = confirm(`Are you sure you want to delete "${document.name}"? This action cannot be undone.`);
+    if (confirmed) {
+      this.deleteDocument(document);
+    }
   }
 
   /**
@@ -395,20 +377,16 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
    * Show success message
    */
   private showSuccessMessage(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
+    console.log('Success:', message);
+    // TODO: Implement toast notification
   }
 
   /**
    * Show error message
    */
   private showErrorMessage(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 5000,
-      panelClass: ['error-snackbar']
-    });
+    console.error('Error:', message);
+    // TODO: Implement toast notification
   }
 
   /**

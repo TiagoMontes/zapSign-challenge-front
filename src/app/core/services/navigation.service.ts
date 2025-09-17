@@ -14,6 +14,7 @@ export interface NavigationItem {
   icon: string;
   route: string;
   active: boolean;
+  expanded?: boolean;
   children?: NavigationItem[];
 }
 

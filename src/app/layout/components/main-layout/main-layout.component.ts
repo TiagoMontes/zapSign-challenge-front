@@ -1,7 +1,6 @@
-import { Component, ViewChild, HostListener } from '@angular/core';
-import { MatSidenav } from '@angular/material/sidenav';
+import { Component, HostListener } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SharedModule } from '../../../shared/shared.module';
+import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
@@ -9,80 +8,49 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [SharedModule, HeaderComponent, SidebarComponent, BreadcrumbComponent, RouterOutlet],
+  imports: [CommonModule, HeaderComponent, SidebarComponent, BreadcrumbComponent, RouterOutlet],
   template: `
-    <div class="layout-container">
+    <div class="min-h-screen bg-gray-50">
       <app-header (sidebarToggle)="toggleSidebar()"></app-header>
 
-      <mat-sidenav-container class="layout-content" autosize>
-        <mat-sidenav
-          #sidenav
-          class="layout-sidenav"
-          [mode]="sidenavMode"
-          [opened]="sidenavOpened"
-          [disableClose]="sidenavMode === 'side'"
-          (openedChange)="onSidenavOpenedChange($event)">
+      <div class="flex pt-16">
+        <!-- Sidebar -->
+        <aside
+          class="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white shadow-sm border-r border-gray-200 transition-all duration-300 z-40"
+          [class.w-64]="!isSidebarCollapsed && (sidenavMode === 'side')"
+          [class.w-16]="isSidebarCollapsed && (sidenavMode === 'side')"
+          [class.-translate-x-full]="sidenavMode === 'over' && !sidenavOpened"
+          [class.translate-x-0]="sidenavMode === 'over' && sidenavOpened">
           <app-sidebar [isCollapsed]="isSidebarCollapsed"></app-sidebar>
-        </mat-sidenav>
+        </aside>
 
-        <mat-sidenav-content class="layout-main">
-          <app-breadcrumb></app-breadcrumb>
-          <main class="main-content" role="main">
-            <router-outlet></router-outlet>
-          </main>
-        </mat-sidenav-content>
-      </mat-sidenav-container>
+        <!-- Overlay for mobile -->
+        <div
+          *ngIf="sidenavMode === 'over' && sidenavOpened"
+          class="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          (click)="closeSidebar()">
+        </div>
+
+        <!-- Main Content -->
+        <main
+          class="flex-1 transition-all duration-300"
+          [class.ml-64]="!isSidebarCollapsed && sidenavMode === 'side'"
+          [class.ml-16]="isSidebarCollapsed && sidenavMode === 'side'"
+          [class.ml-0]="sidenavMode === 'over'">
+
+          <div class="p-6">
+            <app-breadcrumb></app-breadcrumb>
+            <div class="mt-4">
+              <router-outlet></router-outlet>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   `,
-  styles: [`
-    .layout-container {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .layout-content {
-      flex: 1;
-      margin-top: 64px;
-    }
-
-    .layout-sidenav {
-      width: 260px;
-      border-right: none;
-
-      &.collapsed {
-        width: 56px;
-      }
-    }
-
-    .layout-main {
-      background-color: var(--background-color);
-    }
-
-    .main-content {
-      padding: 24px;
-      min-height: calc(100vh - 64px);
-
-      @media (max-width: 768px) {
-        padding: 16px;
-      }
-
-      @media (max-width: 480px) {
-        padding: 8px;
-      }
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .layout-content {
-        margin-top: 64px;
-      }
-    }
-  `]
+  styles: []
 })
 export class MainLayoutComponent {
-  @ViewChild('sidenav') sidenav!: MatSidenav;
-
   // Responsive breakpoints
   private readonly MOBILE_BREAKPOINT = 768;
 
@@ -115,15 +83,15 @@ export class MainLayoutComponent {
 
   toggleSidebar(): void {
     if (this.sidenavMode === 'over') {
-      this.sidenav.toggle();
+      this.sidenavOpened = !this.sidenavOpened;
     } else {
       this.isSidebarCollapsed = !this.isSidebarCollapsed;
     }
   }
 
-  onSidenavOpenedChange(opened: boolean): void {
+  closeSidebar(): void {
     if (this.sidenavMode === 'over') {
-      this.sidenavOpened = opened;
+      this.sidenavOpened = false;
     }
   }
 }

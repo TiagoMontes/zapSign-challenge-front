@@ -1,8 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { Subject, takeUntil } from 'rxjs';
 import { NavigationService, BreadcrumbItem } from '../../../core/services/navigation.service';
 
@@ -11,26 +9,24 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
-    MatIconModule,
-    MatButtonModule
+    RouterModule
   ],
   template: `
-    <nav class="breadcrumb-container" aria-label="Breadcrumb navigation">
-      <ol class="breadcrumb-list">
-        <li
-          *ngFor="let item of breadcrumbs; let last = last; let first = first"
-          class="breadcrumb-item"
-          [class.active]="item.active">
-
+    <nav class="flex items-center justify-between py-3 px-6 bg-white border-b border-gray-200" aria-label="Breadcrumb navigation">
+      <ol class="flex items-center space-x-2 text-sm">
+        <li *ngFor="let item of breadcrumbs; let first = first" class="flex items-center">
           <!-- Separator (not for first item) -->
-          
+          <svg *ngIf="!first" class="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
 
           <!-- Home icon for first item -->
-          
+          <svg *ngIf="first" class="w-4 h-4 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
 
           <!-- Active item (no link) -->
-          <span *ngIf="item.active" class="breadcrumb-text active-text">
+          <span *ngIf="item.active" class="text-gray-900 font-medium">
             {{ item.label }}
           </span>
 
@@ -38,7 +34,7 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
           <a
             *ngIf="!item.active"
             [routerLink]="item.url"
-            class="breadcrumb-link"
+            class="text-gray-500 hover:text-gray-700 transition-colors duration-200"
             [attr.aria-label]="'Navigate to ' + item.label">
             {{ item.label }}
           </a>
@@ -48,204 +44,18 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
       <!-- Back button -->
       <button
         *ngIf="showBackButton && navigationService.canGoBack()"
-        mat-button
-        class="back-button"
         (click)="goBack()"
-        matTooltip="Go back"
+        class="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-200"
+        title="Go back"
         aria-label="Go back">
-        
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Back
       </button>
     </nav>
   `,
-  styles: [`
-    .breadcrumb-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 24px;
-      background-color: var(--surface-color);
-      border-bottom: 1px solid var(--divider-color);
-      min-height: 56px;
-    }
-
-    .breadcrumb-list {
-      display: flex;
-      align-items: center;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-
-    .breadcrumb-item {
-      display: flex;
-      align-items: center;
-      font-size: 14px;
-      line-height: 1.4;
-
-      &:first-child .breadcrumb-text,
-      &:first-child .breadcrumb-link {
-        margin-left: 4px;
-      }
-    }
-
-    .breadcrumb-separator {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      color: var(--text-secondary);
-      margin: 0 4px;
-    }
-
-    .breadcrumb-home-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      color: var(--text-secondary);
-    }
-
-    .breadcrumb-link {
-      color: var(--text-secondary);
-      text-decoration: none;
-      padding: 4px 8px;
-      border-radius: var(--border-radius);
-      transition: all var(--transition-fast);
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-
-      &:hover {
-        color: var(--primary-color);
-        background-color: rgba(25, 118, 210, 0.08);
-      }
-
-      &:focus {
-        outline: 2px solid var(--primary-color);
-        outline-offset: 2px;
-      }
-    }
-
-    .breadcrumb-text {
-      padding: 4px 8px;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-
-      &.active-text {
-        color: var(--text-primary);
-        font-weight: 500;
-      }
-    }
-
-    .back-button {
-      width: 40px;
-      height: 40px;
-      flex-shrink: 0;
-      margin-left: 16px;
-
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
-    }
-
-    /* Responsive design */
-    @media (max-width: 768px) {
-      .breadcrumb-container {
-        padding: 8px 16px;
-        min-height: 48px;
-      }
-
-      .breadcrumb-list {
-        gap: 2px;
-      }
-
-      .breadcrumb-link,
-      .breadcrumb-text {
-        max-width: 120px;
-        font-size: 13px;
-        padding: 2px 6px;
-      }
-
-      .breadcrumb-separator {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
-        margin: 0 2px;
-      }
-
-      .breadcrumb-home-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-      }
-
-      .back-button {
-        width: 36px;
-        height: 36px;
-        margin-left: 8px;
-
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-        }
-      }
-    }
-
-    /* Extra small screens */
-    @media (max-width: 480px) {
-      .breadcrumb-container {
-        padding: 6px 12px;
-      }
-
-      .breadcrumb-link,
-      .breadcrumb-text {
-        max-width: 80px;
-        font-size: 12px;
-      }
-
-      /* Hide intermediate breadcrumbs on very small screens, keep only first and last */
-      .breadcrumb-item:not(:first-child):not(:last-child) {
-        display: none;
-      }
-
-      .breadcrumb-item:nth-last-child(2) .breadcrumb-separator {
-        display: none;
-      }
-
-      .breadcrumb-item:last-child::before {
-        content: '...';
-        color: var(--text-secondary);
-        margin-right: 8px;
-        font-weight: bold;
-      }
-    }
-
-    /* High contrast mode support */
-    @media (prefers-contrast: high) {
-      .breadcrumb-container {
-        border-bottom: 2px solid var(--divider-color);
-      }
-
-      .breadcrumb-link {
-        border: 1px solid transparent;
-
-        &:hover {
-          border-color: var(--primary-color);
-        }
-      }
-    }
-
-    /* Reduced motion support */
-    @media (prefers-reduced-motion: reduce) {
-      .breadcrumb-link {
-        transition: none;
-      }
-    }
-  `]
+  styles: []
 })
 export class BreadcrumbComponent implements OnInit, OnDestroy {
   breadcrumbs: BreadcrumbItem[] = [];

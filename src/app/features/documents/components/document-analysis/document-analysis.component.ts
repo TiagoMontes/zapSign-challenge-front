@@ -255,6 +255,7 @@ interface AnalysisSection {
       align-items: center;
       gap: 16px;
 
+      mat-icon {
         font-size: 64px;
         width: 64px;
         height: 64px;
