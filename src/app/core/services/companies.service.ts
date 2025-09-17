@@ -42,10 +42,6 @@ export class CompaniesService extends BaseApiService {
       retry: true
     };
 
-    if (forceRefresh) {
-      this.invalidateCache(this.COMPANIES_CACHE_KEY);
-    }
-
     this.loadingSubject.next(true);
 
     return this.get<Company[]>('/companies/', options).pipe(

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -28,9 +28,9 @@ export interface CacheOptions {
 @Injectable({
   providedIn: 'root'
 })
-export class CacheService {
+export class CacheService implements OnDestroy {
   private cache = new Map<string, CacheEntry<any>>();
-  private cleanupInterval!: ReturnType<typeof setInterval>;
+  private cleanupInterval: ReturnType<typeof setInterval> | null = null;
   private readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
   private readonly CLEANUP_INTERVAL = 60 * 1000; // 1 minute
 
@@ -245,6 +245,7 @@ export class CacheService {
   ngOnDestroy(): void {
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
     }
     this.clear();
     this.invalidationSubject.complete();

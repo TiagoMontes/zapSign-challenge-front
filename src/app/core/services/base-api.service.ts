@@ -52,7 +52,7 @@ export class BaseApiService {
   protected get<T>(endpoint: string, options: RequestOptions = {}): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const cacheKey = options.cacheKey || this.generateCacheKey('GET', endpoint, options.params);
-
+    console.log(url)
     // Check cache first if caching is enabled
     if (options.cache) {
       const cachedData = this.cacheService.get<T>(cacheKey);

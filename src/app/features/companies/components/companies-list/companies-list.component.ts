@@ -99,7 +99,7 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
   private subscribeToCompaniesUpdates(): void {
     this.companiesService.companies$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(companies => {
+      .subscribe((companies: Company[]) => {
         this.companies.set(companies);
         this.applyFilter(this.searchControl.value || '');
       });
