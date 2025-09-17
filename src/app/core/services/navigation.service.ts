@@ -127,46 +127,6 @@ export class NavigationService {
           }
         ]
       },
-      {
-        label: 'Documents',
-        icon: 'description',
-        route: '/documents',
-        active: this.isRouteActive('/documents'),
-        children: [
-          {
-            label: 'All Documents',
-            icon: 'list',
-            route: '/documents',
-            active: currentRoute === '/documents'
-          },
-          {
-            label: 'Create Document',
-            icon: 'add',
-            route: '/documents/create',
-            active: currentRoute === '/documents/create'
-          }
-        ]
-      },
-      {
-        label: 'Signers',
-        icon: 'people',
-        route: '/signers',
-        active: this.isRouteActive('/signers'),
-        children: [
-          {
-            label: 'All Signers',
-            icon: 'list',
-            route: '/signers',
-            active: currentRoute === '/signers'
-          },
-          {
-            label: 'Create Signer',
-            icon: 'add',
-            route: '/signers/create',
-            active: currentRoute === '/signers/create'
-          }
-        ]
-      }
     ];
   }
 
