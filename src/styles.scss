@@ -1,0 +1,140 @@
+// Import Angular Material theme first
+@use './styles/theme.scss';
+
+// Import variables and mixins
+@use './styles/variables' as *;
+@use './styles/mixins' as *;
+
+// Import base styles
+@use './styles/base.scss';
+
+// Global application styles
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+// Application layout
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  overflow: auto;
+  padding: $spacing-lg;
+  background-color: var(--background-color);
+}
+
+// Loading overlay
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-index-modal;
+
+  &.dark {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--divider-color);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--text-secondary);
+  }
+}
+
+// Focus outline
+*:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+// Skip to content link for accessibility
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary-color);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: $z-index-tooltip;
+
+  &:focus {
+    top: 6px;
+  }
+}
+
+// Snackbar styles
+.success-snackbar {
+  --mdc-snackbar-container-color: var(--success-color);
+  --mdc-snackbar-supporting-text-color: white;
+  --mat-snack-bar-button-color: white;
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: var(--warn-color);
+  --mdc-snackbar-supporting-text-color: white;
+  --mat-snack-bar-button-color: white;
+}
+
+.warning-snackbar {
+  --mdc-snackbar-container-color: var(--accent-color);
+  --mdc-snackbar-supporting-text-color: white;
+  --mat-snack-bar-button-color: white;
+}
+
+.info-snackbar {
+  --mdc-snackbar-container-color: var(--info-color);
+  --mdc-snackbar-supporting-text-color: white;
+  --mat-snack-bar-button-color: white;
+}
+
+// Print styles
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
