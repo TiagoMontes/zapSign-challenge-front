@@ -11,6 +11,7 @@ export * from './signers.service';
 // Utility services
 export * from './loading.service';
 export * from './notification.service';
+export * from './navigation.service';
 
 // Re-export types and interfaces
 export type { RequestOptions } from './base-api.service';

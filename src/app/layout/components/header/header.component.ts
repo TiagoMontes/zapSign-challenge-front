@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { SharedModule } from '../../../shared/shared.module';
+import { NavigationService } from '../../../core/services/navigation.service';
 
 @Component({
   selector: 'app-header',
@@ -41,18 +42,43 @@ import { SharedModule } from '../../../shared/shared.module';
         </button>
 
         <mat-menu #userMenu="matMenu" xPosition="before">
-          <button mat-menu-item>
+          <button mat-menu-item (click)="navigateToProfile()">
             <mat-icon>person</mat-icon>
             <span>Profile</span>
           </button>
-          <button mat-menu-item>
+          <button mat-menu-item (click)="navigateToSettings()">
             <mat-icon>settings</mat-icon>
             <span>Settings</span>
           </button>
           <mat-divider></mat-divider>
-          <button mat-menu-item>
+          <button mat-menu-item (click)="signOut()">
             <mat-icon>exit_to_app</mat-icon>
             <span>Sign Out</span>
+          </button>
+        </mat-menu>
+
+        <!-- Quick actions menu -->
+        <button
+          mat-icon-button
+          class="header-action-button"
+          [matMenuTriggerFor]="quickMenu"
+          matTooltip="Quick Actions"
+          aria-label="Quick actions menu">
+          <mat-icon>add</mat-icon>
+        </button>
+
+        <mat-menu #quickMenu="matMenu" xPosition="before">
+          <button mat-menu-item (click)="quickCreateCompany()">
+            <mat-icon>business</mat-icon>
+            <span>New Company</span>
+          </button>
+          <button mat-menu-item (click)="quickCreateDocument()">
+            <mat-icon>description</mat-icon>
+            <span>New Document</span>
+          </button>
+          <button mat-menu-item (click)="quickCreateSigner()">
+            <mat-icon>person_add</mat-icon>
+            <span>New Signer</span>
           </button>
         </mat-menu>
       </div>
@@ -144,13 +170,45 @@ import { SharedModule } from '../../../shared/shared.module';
 export class HeaderComponent {
   @Output() sidebarToggle = new EventEmitter<void>();
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private navigationService: NavigationService
+  ) {}
 
   toggleSidebar(): void {
     this.sidebarToggle.emit();
   }
 
   navigateToHome(): void {
-    this.router.navigate(['/dashboard']);
+    this.navigationService.navigateTo('/dashboard');
+  }
+
+  // User menu actions
+  navigateToProfile(): void {
+    // TODO: Implement when profile route is available
+    console.log('Navigate to profile');
+  }
+
+  navigateToSettings(): void {
+    // TODO: Implement when settings route is available
+    console.log('Navigate to settings');
+  }
+
+  signOut(): void {
+    // TODO: Implement sign out functionality
+    console.log('Sign out');
+  }
+
+  // Quick action methods
+  quickCreateCompany(): void {
+    this.navigationService.navigateToCreateCompany();
+  }
+
+  quickCreateDocument(): void {
+    this.navigationService.navigateToCreateDocument();
+  }
+
+  quickCreateSigner(): void {
+    this.navigationService.navigateToCreateSigner();
   }
 }

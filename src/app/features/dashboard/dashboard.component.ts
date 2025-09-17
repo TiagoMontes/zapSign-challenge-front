@@ -1,10 +1,22 @@
 import { Component } from '@angular/core';
-import { SharedModule } from '../../shared/shared.module';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [SharedModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatListModule,
+    MatDividerModule
+  ],
   template: `
     <div class="dashboard-container">
       <div class="dashboard-header">

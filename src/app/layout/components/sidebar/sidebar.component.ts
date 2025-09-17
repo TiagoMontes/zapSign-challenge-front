@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, Subject, takeUntil } from 'rxjs';
 import { SharedModule } from '../../../shared/shared.module';
+import { NavigationService, NavigationItem } from '../../../core/services/navigation.service';
 
 interface MenuItem {
   label: string;
@@ -22,7 +23,7 @@ interface MenuItem {
             <mat-list-item
               *ngIf="!item.children"
               class="nav-item"
-              [class.active]="isRouteActive(item.route)"
+              [class.active]="item.active"
               (click)="navigateTo(item.route)">
               <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
               <span matListItemTitle class="nav-label">{{ item.label }}</span>
@@ -43,7 +44,7 @@ interface MenuItem {
                 <mat-list-item
                   *ngFor="let child of item.children"
                   class="nav-sub-item"
-                  [class.active]="isRouteActive(child.route)"
+                  [class.active]="child.active"
                   (click)="navigateTo(child.route)">
                   <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
                   <span matListItemTitle class="nav-label">{{ child.label }}</span>
@@ -230,74 +231,53 @@ interface MenuItem {
     }
   `]
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit, OnDestroy {
   @Input() isCollapsed = false;
 
   currentRoute = '';
+  menuItems: NavigationItem[] = [];
+  private destroy$ = new Subject<void>();
 
-  menuItems: MenuItem[] = [
-    {
-      label: 'Dashboard',
-      icon: 'dashboard',
-      route: '/dashboard'
-    },
-    {
-      label: 'Companies',
-      icon: 'business',
-      route: '/companies'
-    },
-    {
-      label: 'Documents',
-      icon: 'description',
-      route: '/documents',
-      children: [
-        {
-          label: 'All Documents',
-          icon: 'list',
-          route: '/documents'
-        },
-        {
-          label: 'Create Document',
-          icon: 'add',
-          route: '/documents/create'
-        }
-      ]
-    },
-    {
-      label: 'Signers',
-      icon: 'people',
-      route: '/signers'
-    }
-  ];
+  constructor(
+    private router: Router,
+    private navigationService: NavigationService
+  ) {}
 
-  constructor(private router: Router) {
-    // Track current route
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        this.currentRoute = event.url;
+  ngOnInit(): void {
+    // Track current route and update menu items
+    this.navigationService.currentRoute$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((route) => {
+        this.currentRoute = route;
+        this.updateMenuItems();
       });
 
-    // Set initial route
-    this.currentRoute = this.router.url;
+    // Initial menu setup
+    this.updateMenuItems();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private updateMenuItems(): void {
+    this.menuItems = this.navigationService.getNavigationItems();
   }
 
   navigateTo(route: string): void {
-    this.router.navigate([route]);
+    this.navigationService.navigateTo(route);
   }
 
   isRouteActive(route: string): boolean {
-    if (route === '/dashboard' && this.currentRoute === '/') {
-      return true;
-    }
-    return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
+    return this.navigationService.isRouteActive(route);
   }
 
-  hasActiveChild(item: MenuItem): boolean {
+  hasActiveChild(item: NavigationItem): boolean {
     if (!item.children) {
       return false;
     }
-    return item.children.some(child => this.isRouteActive(child.route));
+    return item.children.some(child => child.active);
   }
 
   toggleCollapse(): void {

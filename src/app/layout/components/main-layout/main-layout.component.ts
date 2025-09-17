@@ -4,11 +4,12 @@ import { RouterOutlet } from '@angular/router';
 import { SharedModule } from '../../../shared/shared.module';
 import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [SharedModule, HeaderComponent, SidebarComponent, RouterOutlet],
+  imports: [SharedModule, HeaderComponent, SidebarComponent, BreadcrumbComponent, RouterOutlet],
   template: `
     <div class="layout-container">
       <app-header (sidebarToggle)="toggleSidebar()"></app-header>
@@ -25,6 +26,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
         </mat-sidenav>
 
         <mat-sidenav-content class="layout-main">
+          <app-breadcrumb></app-breadcrumb>
           <main class="main-content" role="main">
             <router-outlet></router-outlet>
           </main>
