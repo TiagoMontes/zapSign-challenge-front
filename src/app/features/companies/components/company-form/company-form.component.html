@@ -1,0 +1,230 @@
+<div class="company-form-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="title-container">
+      <h1 class="page-title">
+        <mat-icon>{{ isEditMode() ? 'edit' : 'add_business' }}</mat-icon>
+        {{ pageTitle() }}
+      </h1>
+      <p class="page-subtitle" *ngIf="!isEditMode()">
+        Create a new company to organize your documents and API integrations
+      </p>
+      <p class="page-subtitle" *ngIf="isEditMode() && company()">
+        Update information for {{ company()?.name }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading company data...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !isLoading()" class="error-container">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-stroked-button color="primary" (click)="onCancel()">
+      <mat-icon>arrow_back</mat-icon>
+      Go Back
+    </button>
+  </div>
+
+  <!-- Form Container -->
+  <div *ngIf="!isLoading() && !error()" class="form-container">
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" novalidate>
+
+          <!-- Company Name Field -->
+          <div class="form-field-container">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Company Name</mat-label>
+              <input
+                matInput
+                formControlName="name"
+                placeholder="Enter company name"
+                autocomplete="organization"
+                maxlength="100">
+              <mat-icon matSuffix>business</mat-icon>
+              <mat-hint align="start">
+                This name will be used to identify your company
+              </mat-hint>
+              <mat-error *ngIf="hasFieldError('name')">
+                {{ getFieldError('name') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- API Token Field -->
+          <div class="form-field-container">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>API Token</mat-label>
+              <input
+                matInput
+                formControlName="api_token"
+                placeholder="Enter or generate API token"
+                autocomplete="off"
+                maxlength="255"
+                #tokenInput>
+              <div matSuffix class="token-actions">
+                <button
+                  type="button"
+                  mat-icon-button
+                  matTooltip="Generate random token"
+                  (click)="onGenerateToken()"
+                  class="generate-btn">
+                  <mat-icon>refresh</mat-icon>
+                </button>
+                <button
+                  type="button"
+                  mat-icon-button
+                  matTooltip="Copy to clipboard"
+                  (click)="onCopyToken()"
+                  [disabled]="!companyForm.get('api_token')?.value"
+                  class="copy-btn">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+              <mat-hint align="start">
+                API token for ZapSign integration (8+ characters, alphanumeric, underscore, dash)
+              </mat-hint>
+              <mat-error *ngIf="hasFieldError('api_token')">
+                {{ getFieldError('api_token') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Token Format Help -->
+          <div class="help-section" *ngIf="companyForm.get('api_token')?.touched">
+            <mat-card class="help-card">
+              <mat-card-header>
+                <mat-icon mat-card-avatar>info</mat-icon>
+                <mat-card-title>API Token Requirements</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <ul class="requirements-list">
+                  <li [class.valid]="companyForm.get('api_token')?.value?.length >= 8">
+                    <mat-icon>{{ companyForm.get('api_token')?.value?.length >= 8 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                    At least 8 characters long
+                  </li>
+                  <li [class.valid]="/^[a-zA-Z0-9_-]+$/.test(companyForm.get('api_token')?.value || '')">
+                    <mat-icon>{{ /^[a-zA-Z0-9_-]+$/.test(companyForm.get('api_token')?.value || '') ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                    Only letters, numbers, underscore (_), and dash (-)
+                  </li>
+                  <li [class.valid]="companyForm.get('api_token')?.valid">
+                    <mat-icon>{{ companyForm.get('api_token')?.valid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                    No special characters or spaces
+                  </li>
+                </ul>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <div class="action-buttons">
+              <button
+                type="button"
+                mat-stroked-button
+                (click)="onCancel()"
+                [disabled]="isSubmitting()">
+                <mat-icon>cancel</mat-icon>
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                mat-flat-button
+                color="primary"
+                [disabled]="companyForm.invalid || isSubmitting()"
+                class="submit-btn">
+                <mat-spinner
+                  *ngIf="isSubmitting()"
+                  diameter="20"
+                  class="submit-spinner">
+                </mat-spinner>
+                <mat-icon *ngIf="!isSubmitting()">
+                  {{ isEditMode() ? 'save' : 'add' }}
+                </mat-icon>
+                {{ submitButtonText() }}
+              </button>
+            </div>
+
+            <!-- Form Status Indicators -->
+            <div class="form-status" *ngIf="companyForm.dirty">
+              <div class="status-indicator unsaved" *ngIf="hasUnsavedChanges()">
+                <mat-icon>edit</mat-icon>
+                <span>Unsaved changes</span>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Additional Information Card for Edit Mode -->
+    <div *ngIf="isEditMode() && company()" class="info-section">
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>info</mat-icon>
+          <mat-card-title>Company Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Company ID:</label>
+              <code>{{ company()?.id }}</code>
+            </div>
+            <div class="info-item">
+              <label>Created:</label>
+              <span>{{ company()?.created_at | date:'medium' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Last Updated:</label>
+              <span>{{ company()?.last_updated_at | date:'medium' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button
+            mat-stroked-button
+            [routerLink]="['/companies', company()?.id]">
+            <mat-icon>visibility</mat-icon>
+            View Details
+          </button>
+          <button
+            mat-stroked-button
+            [routerLink]="['/companies', company()?.id, 'documents']">
+            <mat-icon>description</mat-icon>
+            View Documents
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Help -->
+  <div class="shortcuts-help" *ngIf="!isLoading() && !error()">
+    <mat-card class="shortcuts-card">
+      <mat-card-content>
+        <div class="shortcuts-content">
+          <span class="shortcuts-title">
+            <mat-icon>keyboard</mat-icon>
+            Quick Actions:
+          </span>
+          <div class="shortcuts-list">
+            <span class="shortcut">
+              <kbd>Ctrl</kbd> + <kbd>Enter</kbd> Save
+            </span>
+            <span class="shortcut">
+              <kbd>Escape</kbd> Cancel
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

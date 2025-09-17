@@ -7,7 +7,7 @@ export interface ConfirmationDialogData {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  type?: 'info' | 'warning' | 'error';
+  type?: 'info' | 'warning' | 'error' | 'danger';
 }
 
 @Component({
@@ -78,6 +78,10 @@ export interface ConfirmationDialogData {
     .icon-error {
       color: var(--warn-color);
     }
+
+    .icon-danger {
+      color: var(--warn-color);
+    }
   `]
 })
 export class ConfirmationDialogComponent {
@@ -102,6 +106,7 @@ export class ConfirmationDialogComponent {
       case 'warning':
         return 'warning';
       case 'error':
+      case 'danger':
         return 'error';
       default:
         return 'info';
@@ -113,6 +118,7 @@ export class ConfirmationDialogComponent {
       case 'warning':
         return 'accent';
       case 'error':
+      case 'danger':
         return 'warn';
       default:
         return 'primary';

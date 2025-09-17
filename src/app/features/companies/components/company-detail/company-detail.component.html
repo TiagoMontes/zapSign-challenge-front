@@ -1,0 +1,316 @@
+<div class="company-detail-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading company details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !isLoading()" class="error-container">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-stroked-button color="primary" routerLink="/companies">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Companies
+    </button>
+  </div>
+
+  <!-- Company Details -->
+  <div *ngIf="!isLoading() && !error() && hasCompany()" class="content-container">
+
+    <!-- Header Section -->
+    <div class="header-section">
+      <div class="company-header">
+        <div class="company-info">
+          <h1 class="company-name">
+            <mat-icon>business</mat-icon>
+            {{ company()?.name }}
+          </h1>
+          <p class="company-meta">
+            <span class="company-id">ID: {{ company()?.id }}</span>
+            <span class="separator">•</span>
+            <span class="created-date">Created {{ companyAge() }}</span>
+          </p>
+        </div>
+
+        <div class="header-actions">
+          <button
+            mat-icon-button
+            matTooltip="Refresh"
+            (click)="onRefresh()"
+            class="refresh-btn">
+            <mat-icon>refresh</mat-icon>
+          </button>
+
+          <button
+            mat-stroked-button
+            (click)="onEditCompany()"
+            class="edit-btn">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+
+          <button
+            mat-stroked-button
+            color="warn"
+            (click)="onDeleteCompany()"
+            class="delete-btn">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <mat-card class="stat-card documents-stat">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>description</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ totalDocuments() }}</div>
+              <div class="stat-label">Total Documents</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card signers-stat">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>people</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ totalSigners() }}</div>
+              <div class="stat-label">Total Signers</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card pending-stat">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ pendingDocuments() }}</div>
+              <div class="stat-label">Pending Documents</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card signed-stat">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>check_circle</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ signedDocuments() }}</div>
+              <div class="stat-label">Signed Documents</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="main-content">
+
+      <!-- Company Information Card -->
+      <div class="info-section">
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>info</mat-icon>
+            <mat-card-title>Company Information</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Company Name:</label>
+                <span class="value">{{ company()?.name }}</span>
+              </div>
+
+              <div class="info-item api-token-item">
+                <label>API Token:</label>
+                <div class="token-container">
+                  <code class="token-display">{{ getTruncatedToken(company()?.api_token || '') }}</code>
+                  <button
+                    mat-icon-button
+                    matTooltip="Copy full token"
+                    (click)="onCopyApiToken()"
+                    class="copy-btn">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <label>Created:</label>
+                <span class="value">{{ formatDateTime(company()?.created_at || '') }}</span>
+              </div>
+
+              <div class="info-item">
+                <label>Last Updated:</label>
+                <span class="value">{{ formatDateTime(company()?.last_updated_at || '') }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Recent Documents Section -->
+      <div class="documents-section">
+        <mat-card class="documents-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>description</mat-icon>
+            <mat-card-title>Recent Documents</mat-card-title>
+            <div class="card-actions">
+              <button
+                mat-stroked-button
+                (click)="onViewAllDocuments()"
+                class="view-all-btn">
+                <mat-icon>visibility</mat-icon>
+                View All
+              </button>
+            </div>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div *ngIf="!hasDocuments()" class="empty-state">
+              <mat-icon class="empty-icon">description</mat-icon>
+              <p>No documents found</p>
+              <button
+                mat-stroked-button
+                (click)="onViewAllDocuments()">
+                Create First Document
+              </button>
+            </div>
+
+            <div *ngIf="hasDocuments()" class="documents-list">
+              <div
+                *ngFor="let document of recentDocuments(); trackBy: trackByDocument"
+                class="document-item"
+                (click)="onViewDocument(document)">
+                <div class="document-info">
+                  <div class="document-name">{{ document.name }}</div>
+                  <div class="document-meta">
+                    <span class="created-date">{{ formatDate(document.created_at) }}</span>
+                    <span class="separator">•</span>
+                    <span class="signers-count">{{ document.signers_count }} signers</span>
+                  </div>
+                </div>
+                <div class="document-status">
+                  <mat-chip
+                    [color]="getDocumentStatusColor(document.status)"
+                    class="status-chip">
+                    <mat-icon [matChipAvatar]>{{ getDocumentStatusIcon(document.status) }}</mat-icon>
+                    {{ document.status | titlecase }}
+                  </mat-chip>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Recent Signers Section -->
+      <div class="signers-section">
+        <mat-card class="signers-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>people</mat-icon>
+            <mat-card-title>Recent Signers</mat-card-title>
+            <div class="card-actions">
+              <button
+                mat-stroked-button
+                (click)="onViewAllSigners()"
+                class="view-all-btn">
+                <mat-icon>visibility</mat-icon>
+                View All
+              </button>
+            </div>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div *ngIf="!hasSigners()" class="empty-state">
+              <mat-icon class="empty-icon">people</mat-icon>
+              <p>No signers found</p>
+            </div>
+
+            <div *ngIf="hasSigners()" class="signers-list">
+              <div
+                *ngFor="let signer of recentSigners(); trackBy: trackBySigner"
+                class="signer-item"
+                (click)="onViewSigner(signer)">
+                <div class="signer-avatar">
+                  <mat-icon>person</mat-icon>
+                </div>
+                <div class="signer-info">
+                  <div class="signer-name">{{ signer.name }}</div>
+                  <div class="signer-email">{{ signer.email }}</div>
+                  <div class="signer-meta" *ngIf="signer.signed_at">
+                    Signed {{ formatDateTime(signer.signed_at) }}
+                  </div>
+                </div>
+                <div class="signer-status">
+                  <mat-chip
+                    [color]="getSignerStatusColor(signer.status)"
+                    class="status-chip">
+                    <mat-icon [matChipAvatar]>{{ getSignerStatusIcon(signer.status) }}</mat-icon>
+                    {{ signer.status | titlecase }}
+                  </mat-chip>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Quick Actions Section -->
+      <div class="actions-section">
+        <mat-card class="actions-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>flash_on</mat-icon>
+            <mat-card-title>Quick Actions</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="actions-grid">
+              <button
+                mat-stroked-button
+                (click)="onViewAllDocuments()"
+                class="action-btn">
+                <mat-icon>add</mat-icon>
+                Create Document
+              </button>
+
+              <button
+                mat-stroked-button
+                (click)="onViewAllDocuments()"
+                class="action-btn">
+                <mat-icon>description</mat-icon>
+                Manage Documents
+              </button>
+
+              <button
+                mat-stroked-button
+                (click)="onEditCompany()"
+                class="action-btn">
+                <mat-icon>edit</mat-icon>
+                Edit Company
+              </button>
+
+              <button
+                mat-stroked-button
+                (click)="onCopyApiToken()"
+                class="action-btn">
+                <mat-icon>content_copy</mat-icon>
+                Copy API Token
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

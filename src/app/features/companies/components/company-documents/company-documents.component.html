@@ -1,0 +1,339 @@
+<div class="company-documents-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading documents...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !isLoading()" class="error-container">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-stroked-button color="primary" (click)="onGoBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Company
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading() && !error() && hasCompany()" class="content-container">
+
+    <!-- Header Section -->
+    <div class="header-section">
+      <div class="header-main">
+        <div class="title-container">
+          <button
+            mat-icon-button
+            (click)="onGoBack()"
+            matTooltip="Back to company details"
+            class="back-btn">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+
+          <div class="title-info">
+            <h1 class="page-title">
+              <mat-icon>description</mat-icon>
+              Documents
+            </h1>
+            <p class="page-subtitle">{{ company()?.name }}</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button
+            mat-icon-button
+            matTooltip="Refresh"
+            (click)="onRefresh()"
+            [disabled]="isLoading()"
+            class="refresh-btn">
+            <mat-icon>refresh</mat-icon>
+          </button>
+
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="onCreateDocument()"
+            class="create-btn">
+            <mat-icon>add</mat-icon>
+            Create Document
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <mat-card class="stat-card total-stat">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>description</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ totalDocuments() }}</div>
+              <div class="stat-label">Total Documents</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card draft-stat">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>edit</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ draftDocuments() }}</div>
+              <div class="stat-label">Drafts</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card pending-stat">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ pendingDocuments() }}</div>
+              <div class="stat-label">Pending</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card signed-stat">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>check_circle</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ signedDocuments() }}</div>
+              <div class="stat-label">Signed</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search documents</mat-label>
+        <input
+          matInput
+          [formControl]="searchControl"
+          placeholder="Search by name or status..."
+          autocomplete="off">
+        <mat-icon matSuffix>search</mat-icon>
+        <button
+          mat-icon-button
+          matSuffix
+          *ngIf="searchControl.value"
+          (click)="onClearSearch()"
+          matTooltip="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+
+    <!-- Empty State - No Documents -->
+    <div *ngIf="!hasDocuments()" class="empty-state">
+      <mat-icon class="empty-icon">description</mat-icon>
+      <h2>No Documents Yet</h2>
+      <p>Create your first document for {{ company()?.name }} to get started.</p>
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="onCreateDocument()">
+        <mat-icon>add</mat-icon>
+        Create First Document
+      </button>
+    </div>
+
+    <!-- No Search Results -->
+    <div *ngIf="hasDocuments() && showNoResults()" class="no-results">
+      <mat-icon class="no-results-icon">search_off</mat-icon>
+      <h3>No Results Found</h3>
+      <p>No documents match your search criteria: "{{ searchControl.value }}"</p>
+      <button mat-stroked-button (click)="onClearSearch()">
+        Clear Search
+      </button>
+    </div>
+
+    <!-- Documents Table -->
+    <div *ngIf="hasFilteredResults()" class="table-container">
+      <mat-table
+        [dataSource]="filteredDocuments()"
+        [trackByFn]="trackByDocument"
+        class="documents-table">
+
+        <!-- Document Name Column -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef class="name-header">
+            Document Name
+          </mat-header-cell>
+          <mat-cell *matCellDef="let document" class="name-cell">
+            <div class="document-info">
+              <div class="document-name">{{ document.name }}</div>
+              <div class="document-meta">
+                <span class="file-size" *ngIf="document.file_size">
+                  {{ formatFileSize(document.file_size) }}
+                </span>
+              </div>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef class="status-header">
+            Status
+          </mat-header-cell>
+          <mat-cell *matCellDef="let document" class="status-cell">
+            <mat-chip
+              [color]="getDocumentStatusColor(document.status)"
+              class="status-chip">
+              <mat-icon [matChipAvatar]>{{ getDocumentStatusIcon(document.status) }}</mat-icon>
+              {{ document.status | titlecase }}
+            </mat-chip>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Signers Column -->
+        <ng-container matColumnDef="signers">
+          <mat-header-cell *matHeaderCellDef class="signers-header">
+            Signers
+          </mat-header-cell>
+          <mat-cell *matCellDef="let document" class="signers-cell">
+            <div class="signers-info">
+              <mat-icon class="signers-icon">people</mat-icon>
+              <span class="signers-count">{{ document.signers_count }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Created Date Column -->
+        <ng-container matColumnDef="created_at">
+          <mat-header-cell *matHeaderCellDef class="date-header">
+            Created
+          </mat-header-cell>
+          <mat-cell *matCellDef="let document" class="date-cell">
+            <div class="date-info">
+              <div class="date-primary">{{ formatDate(document.created_at) }}</div>
+              <div class="date-secondary" *ngIf="document.updated_at !== document.created_at">
+                Updated: {{ formatDate(document.updated_at) }}
+              </div>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef class="actions-header">
+            Actions
+          </mat-header-cell>
+          <mat-cell *matCellDef="let document" class="actions-cell">
+            <div class="action-buttons">
+              <button
+                mat-icon-button
+                matTooltip="View Document"
+                (click)="onViewDocument(document); $event.stopPropagation()"
+                class="action-btn view-btn">
+                <mat-icon>visibility</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                matTooltip="Download"
+                (click)="onDownloadDocument(document); $event.stopPropagation()"
+                class="action-btn download-btn">
+                <mat-icon>download</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                matTooltip="Edit Document"
+                (click)="onEditDocument(document); $event.stopPropagation()"
+                class="action-btn edit-btn"
+                [disabled]="document.status === 'signed'">
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                matTooltip="Analyze"
+                (click)="onAnalyzeDocument(document); $event.stopPropagation()"
+                class="action-btn analyze-btn">
+                <mat-icon>analytics</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                matTooltip="Delete Document"
+                (click)="onDeleteDocument(document); $event.stopPropagation()"
+                class="action-btn delete-btn"
+                color="warn"
+                [disabled]="document.status === 'signed'">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Table Header and Rows -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row
+          *matRowDef="let document; columns: displayedColumns;"
+          (click)="onViewDocument(document)"
+          class="document-row">
+        </mat-row>
+      </mat-table>
+    </div>
+
+    <!-- Results Summary -->
+    <div *ngIf="hasFilteredResults()" class="results-summary">
+      <span class="results-count">
+        Showing {{ filteredDocuments().length }} of {{ totalDocuments() }} documents
+      </span>
+      <span *ngIf="searchControl.value" class="search-info">
+        for "{{ searchControl.value }}"
+      </span>
+    </div>
+
+    <!-- Quick Actions -->
+    <div *ngIf="hasDocuments()" class="quick-actions">
+      <mat-card class="actions-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>flash_on</mat-icon>
+          <mat-card-title>Quick Actions</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="actions-grid">
+            <button
+              mat-stroked-button
+              (click)="onCreateDocument()"
+              class="action-btn">
+              <mat-icon>add</mat-icon>
+              Create Document
+            </button>
+
+            <button
+              mat-stroked-button
+              (click)="onRefresh()"
+              class="action-btn">
+              <mat-icon>refresh</mat-icon>
+              Refresh List
+            </button>
+
+            <button
+              mat-stroked-button
+              (click)="onGoBack()"
+              class="action-btn">
+              <mat-icon>business</mat-icon>
+              Company Details
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
