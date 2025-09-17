@@ -47,8 +47,8 @@ interface AnalysisSection {
   template: `
     <div class="document-analysis-container">
       <mat-toolbar class="page-header">
-        <button mat-icon-button (click)="goBack()">
-          <mat-icon>arrow_back</mat-icon>
+        <button mat-button (click)="goBack()">
+          
         </button>
         <span class="page-title">Document Analysis</span>
         <span class="spacer"></span>
@@ -57,7 +57,7 @@ interface AnalysisSection {
           color="primary"
           (click)="regenerateAnalysis()"
           [disabled]="isAnalyzing">
-          <mat-icon>refresh</mat-icon>
+          
           Regenerate Analysis
         </button>
       </mat-toolbar>
@@ -92,7 +92,7 @@ interface AnalysisSection {
           <mat-card class="summary-card">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>summarize</mat-icon>
+                
                 Executive Summary
               </mat-card-title>
               <mat-card-subtitle>
@@ -110,7 +110,7 @@ interface AnalysisSection {
             <mat-card class="key-terms-card">
               <mat-card-header>
                 <mat-card-title>
-                  <mat-icon>label</mat-icon>
+                  
                   Key Terms
                 </mat-card-title>
               </mat-card-header>
@@ -126,7 +126,7 @@ interface AnalysisSection {
             <mat-card class="risk-factors-card">
               <mat-card-header>
                 <mat-card-title>
-                  <mat-icon color="warn">warning</mat-icon>
+                  
                   Risk Factors
                 </mat-card-title>
               </mat-card-header>
@@ -140,7 +140,7 @@ interface AnalysisSection {
             <mat-card class="recommendations-card">
               <mat-card-header>
                 <mat-card-title>
-                  <mat-icon color="accent">lightbulb</mat-icon>
+                  
                   Recommendations
                 </mat-card-title>
               </mat-card-header>
@@ -158,7 +158,7 @@ interface AnalysisSection {
           <mat-card class="detailed-analysis-card">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>analytics</mat-icon>
+                
                 Detailed Analysis
               </mat-card-title>
             </mat-card-header>
@@ -192,7 +192,7 @@ interface AnalysisSection {
         <!-- No Analysis State -->
         <mat-card *ngIf="!analysis && !isAnalyzing" class="no-analysis-card">
           <mat-card-content class="empty-state">
-            <mat-icon>analytics</mat-icon>
+            
             <h3>No Analysis Available</h3>
             <p>This document hasn't been analyzed yet. Start an AI analysis to get insights about the document content.</p>
             <button mat-raised-button color="primary" (click)="startAnalysis()">
@@ -255,7 +255,6 @@ interface AnalysisSection {
       align-items: center;
       gap: 16px;
 
-      mat-icon {
         font-size: 64px;
         width: 64px;
         height: 64px;

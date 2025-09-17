@@ -24,10 +24,10 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
           [class.active]="item.active">
 
           <!-- Separator (not for first item) -->
-          <mat-icon *ngIf="!first" class="breadcrumb-separator">chevron_right</mat-icon>
+          
 
           <!-- Home icon for first item -->
-          <mat-icon *ngIf="first" class="breadcrumb-home-icon">home</mat-icon>
+          
 
           <!-- Active item (no link) -->
           <span *ngIf="item.active" class="breadcrumb-text active-text">
@@ -48,12 +48,12 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
       <!-- Back button -->
       <button
         *ngIf="showBackButton && navigationService.canGoBack()"
-        mat-icon-button
+        mat-button
         class="back-button"
         (click)="goBack()"
         matTooltip="Go back"
         aria-label="Go back">
-        <mat-icon>arrow_back</mat-icon>
+        
       </button>
     </nav>
   `,
@@ -146,7 +146,6 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
       flex-shrink: 0;
       margin-left: 16px;
 
-      mat-icon {
         font-size: 20px;
         width: 20px;
         height: 20px;
@@ -189,7 +188,6 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
         height: 36px;
         margin-left: 8px;
 
-        mat-icon {
           font-size: 18px;
           width: 18px;
           height: 18px;

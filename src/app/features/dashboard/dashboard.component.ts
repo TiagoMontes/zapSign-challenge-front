@@ -28,7 +28,7 @@ import { MatDividerModule } from '@angular/material/divider';
         <mat-card class="dashboard-card stats-card">
           <mat-card-header>
             <mat-card-title>
-              <mat-icon>description</mat-icon>
+              
               Documents
             </mat-card-title>
           </mat-card-header>
@@ -41,7 +41,7 @@ import { MatDividerModule } from '@angular/material/divider';
         <mat-card class="dashboard-card stats-card">
           <mat-card-header>
             <mat-card-title>
-              <mat-icon>pending_actions</mat-icon>
+              
               Pending
             </mat-card-title>
           </mat-card-header>
@@ -54,7 +54,7 @@ import { MatDividerModule } from '@angular/material/divider';
         <mat-card class="dashboard-card stats-card">
           <mat-card-header>
             <mat-card-title>
-              <mat-icon>check_circle</mat-icon>
+              
               Completed
             </mat-card-title>
           </mat-card-header>
@@ -67,7 +67,7 @@ import { MatDividerModule } from '@angular/material/divider';
         <mat-card class="dashboard-card stats-card">
           <mat-card-header>
             <mat-card-title>
-              <mat-icon>business</mat-icon>
+              
               Companies
             </mat-card-title>
           </mat-card-header>
@@ -86,15 +86,15 @@ import { MatDividerModule } from '@angular/material/divider';
           <mat-card-content>
             <div class="action-buttons">
               <button mat-raised-button color="primary" class="action-button">
-                <mat-icon>add</mat-icon>
+                
                 Create Document
               </button>
               <button mat-raised-button color="accent" class="action-button">
-                <mat-icon>business</mat-icon>
+                
                 Add Company
               </button>
               <button mat-raised-button class="action-button">
-                <mat-icon>person_add</mat-icon>
+                
                 Add Signer
               </button>
             </div>
@@ -108,19 +108,19 @@ import { MatDividerModule } from '@angular/material/divider';
           <mat-card-content>
             <mat-list class="activity-list">
               <mat-list-item>
-                <mat-icon matListItemIcon color="primary">description</mat-icon>
+                
                 <div matListItemTitle>Contract Agreement</div>
                 <div matListItemLine>Created 2 hours ago</div>
               </mat-list-item>
               <mat-divider></mat-divider>
               <mat-list-item>
-                <mat-icon matListItemIcon color="accent">check_circle</mat-icon>
+                
                 <div matListItemTitle>NDA Document</div>
                 <div matListItemLine>Signed by John Doe</div>
               </mat-list-item>
               <mat-divider></mat-divider>
               <mat-list-item>
-                <mat-icon matListItemIcon>business</mat-icon>
+                
                 <div matListItemTitle>TechCorp Inc.</div>
                 <div matListItemLine>Company added yesterday</div>
               </mat-list-item>

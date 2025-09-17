@@ -17,7 +17,7 @@ export interface ConfirmationDialogData {
   template: `
     <div class="confirmation-dialog">
       <h2 mat-dialog-title class="dialog-title">
-        <mat-icon [class]="'icon-' + data.type">{{ getIcon() }}</mat-icon>
+        
         {{ data.title }}
       </h2>
 

@@ -9,18 +9,18 @@ import { SharedModule } from '../../shared.module';
   template: `
     <div class="not-found-container">
       <div class="not-found-content">
-        <mat-icon class="not-found-icon">error_outline</mat-icon>
+        
         <h1>404 - Page Not Found</h1>
         <p class="not-found-message">
           The page you are looking for doesn't exist or has been moved.
         </p>
         <div class="not-found-actions">
           <button mat-raised-button color="primary" (click)="goHome()">
-            <mat-icon>home</mat-icon>
+            
             Go to Dashboard
           </button>
           <button mat-button (click)="goBack()">
-            <mat-icon>arrow_back</mat-icon>
+            
             Go Back
           </button>
         </div>

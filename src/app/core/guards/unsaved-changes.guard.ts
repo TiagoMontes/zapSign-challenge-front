@@ -79,7 +79,7 @@ interface DialogData {
   template: `
     <div class="dialog-container">
       <div class="dialog-header">
-        <mat-icon class="warning-icon">warning</mat-icon>
+        
         <h2 mat-dialog-title>{{ data.title }}</h2>
       </div>
 

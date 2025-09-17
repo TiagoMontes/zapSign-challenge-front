@@ -7,10 +7,10 @@
 
   <!-- Error State -->
   <div *ngIf="error() && !isLoading()" class="error-container">
-    <mat-icon color="warn">error_outline</mat-icon>
+    
     <p>{{ error() }}</p>
     <button mat-stroked-button color="primary" (click)="onGoBack()">
-      <mat-icon>arrow_back</mat-icon>
+      
       Back to Company
     </button>
   </div>
@@ -23,16 +23,16 @@
       <div class="header-main">
         <div class="title-container">
           <button
-            mat-icon-button
+            mat-button
             (click)="onGoBack()"
             matTooltip="Back to company details"
             class="back-btn">
-            <mat-icon>arrow_back</mat-icon>
+            
           </button>
 
           <div class="title-info">
             <h1 class="page-title">
-              <mat-icon>description</mat-icon>
+              
               Documents
             </h1>
             <p class="page-subtitle">{{ company()?.name }}</p>
@@ -41,12 +41,12 @@
 
         <div class="header-actions">
           <button
-            mat-icon-button
+            mat-button
             matTooltip="Refresh"
             (click)="onRefresh()"
             [disabled]="isLoading()"
             class="refresh-btn">
-            <mat-icon>refresh</mat-icon>
+            
           </button>
 
           <button
@@ -54,7 +54,7 @@
             color="primary"
             (click)="onCreateDocument()"
             class="create-btn">
-            <mat-icon>add</mat-icon>
+            
             Create Document
           </button>
         </div>
@@ -67,7 +67,7 @@
         <mat-card class="stat-card total-stat">
           <mat-card-content>
             <div class="stat-icon">
-              <mat-icon>description</mat-icon>
+              
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ totalDocuments() }}</div>
@@ -79,7 +79,7 @@
         <mat-card class="stat-card draft-stat">
           <mat-card-content>
             <div class="stat-icon">
-              <mat-icon>edit</mat-icon>
+              
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ draftDocuments() }}</div>
@@ -91,7 +91,7 @@
         <mat-card class="stat-card pending-stat">
           <mat-card-content>
             <div class="stat-icon">
-              <mat-icon>schedule</mat-icon>
+              
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ pendingDocuments() }}</div>
@@ -103,7 +103,7 @@
         <mat-card class="stat-card signed-stat">
           <mat-card-content>
             <div class="stat-icon">
-              <mat-icon>check_circle</mat-icon>
+              
             </div>
             <div class="stat-info">
               <div class="stat-number">{{ signedDocuments() }}</div>
@@ -123,35 +123,35 @@
           [formControl]="searchControl"
           placeholder="Search by name or status..."
           autocomplete="off">
-        <mat-icon matSuffix>search</mat-icon>
+        
         <button
-          mat-icon-button
+          mat-button
           matSuffix
           *ngIf="searchControl.value"
           (click)="onClearSearch()"
           matTooltip="Clear search">
-          <mat-icon>close</mat-icon>
+          
         </button>
       </mat-form-field>
     </div>
 
     <!-- Empty State - No Documents -->
     <div *ngIf="!hasDocuments()" class="empty-state">
-      <mat-icon class="empty-icon">description</mat-icon>
+      
       <h2>No Documents Yet</h2>
       <p>Create your first document for {{ company()?.name }} to get started.</p>
       <button
         mat-flat-button
         color="primary"
         (click)="onCreateDocument()">
-        <mat-icon>add</mat-icon>
+        
         Create First Document
       </button>
     </div>
 
     <!-- No Search Results -->
     <div *ngIf="hasDocuments() && showNoResults()" class="no-results">
-      <mat-icon class="no-results-icon">search_off</mat-icon>
+      
       <h3>No Results Found</h3>
       <p>No documents match your search criteria: "{{ searchControl.value }}"</p>
       <button mat-stroked-button (click)="onClearSearch()">
@@ -191,7 +191,7 @@
             <mat-chip
               [color]="getDocumentStatusColor(document.status)"
               class="status-chip">
-              <mat-icon matChipAvatar>{{ getDocumentStatusIcon(document.status) }}</mat-icon>
+              
               {{ document.status | titlecase }}
             </mat-chip>
           </mat-cell>
@@ -204,7 +204,7 @@
           </mat-header-cell>
           <mat-cell *matCellDef="let document" class="signers-cell">
             <div class="signers-info">
-              <mat-icon class="signers-icon">people</mat-icon>
+              
               <span class="signers-count">{{ document.signers_count }}</span>
             </div>
           </mat-cell>
@@ -233,46 +233,46 @@
           <mat-cell *matCellDef="let document" class="actions-cell">
             <div class="action-buttons">
               <button
-                mat-icon-button
+                mat-button
                 matTooltip="View Document"
                 (click)="onViewDocument(document); $event.stopPropagation()"
                 class="action-btn view-btn">
-                <mat-icon>visibility</mat-icon>
+                
               </button>
 
               <button
-                mat-icon-button
+                mat-button
                 matTooltip="Download"
                 (click)="onDownloadDocument(document); $event.stopPropagation()"
                 class="action-btn download-btn">
-                <mat-icon>download</mat-icon>
+                
               </button>
 
               <button
-                mat-icon-button
+                mat-button
                 matTooltip="Edit Document"
                 (click)="onEditDocument(document); $event.stopPropagation()"
                 class="action-btn edit-btn"
                 [disabled]="document.status === 'signed'">
-                <mat-icon>edit</mat-icon>
+                
               </button>
 
               <button
-                mat-icon-button
+                mat-button
                 matTooltip="Analyze"
                 (click)="onAnalyzeDocument(document); $event.stopPropagation()"
                 class="action-btn analyze-btn">
-                <mat-icon>analytics</mat-icon>
+                
               </button>
 
               <button
-                mat-icon-button
+                mat-button
                 matTooltip="Delete Document"
                 (click)="onDeleteDocument(document); $event.stopPropagation()"
                 class="action-btn delete-btn"
                 color="warn"
                 [disabled]="document.status === 'signed'">
-                <mat-icon>delete</mat-icon>
+                
               </button>
             </div>
           </mat-cell>
@@ -302,7 +302,7 @@
     <div *ngIf="hasDocuments()" class="quick-actions">
       <mat-card class="actions-card">
         <mat-card-header>
-          <mat-icon mat-card-avatar>flash_on</mat-icon>
+          
           <mat-card-title>Quick Actions</mat-card-title>
         </mat-card-header>
         <mat-card-content>
@@ -311,7 +311,7 @@
               mat-stroked-button
               (click)="onCreateDocument()"
               class="action-btn">
-              <mat-icon>add</mat-icon>
+              
               Create Document
             </button>
 
@@ -319,7 +319,7 @@
               mat-stroked-button
               (click)="onRefresh()"
               class="action-btn">
-              <mat-icon>refresh</mat-icon>
+              
               Refresh List
             </button>
 
@@ -327,7 +327,7 @@
               mat-stroked-button
               (click)="onGoBack()"
               class="action-btn">
-              <mat-icon>business</mat-icon>
+              
               Company Details
             </button>
           </div>

@@ -10,15 +10,15 @@ import { NavigationService } from '../../../core/services/navigation.service';
   template: `
     <mat-toolbar class="app-header" color="primary">
       <button
-        mat-icon-button
+        mat-button
         class="menu-button"
         (click)="toggleSidebar()"
         aria-label="Toggle sidebar">
-        <mat-icon>menu</mat-icon>
+        
       </button>
 
       <div class="header-brand" (click)="navigateToHome()">
-        <mat-icon class="brand-icon">edit_document</mat-icon>
+        
         <span class="brand-text">ZapSign</span>
       </div>
 
@@ -26,58 +26,58 @@ import { NavigationService } from '../../../core/services/navigation.service';
 
       <div class="header-actions">
         <button
-          mat-icon-button
+          mat-button
           class="header-action-button"
           matTooltip="Notifications"
           aria-label="Notifications">
-          <mat-icon matBadge="3" matBadgeColor="accent" matBadgeSize="small">notifications</mat-icon>
+          
         </button>
 
         <button
-          mat-icon-button
+          mat-button
           class="header-action-button"
           [matMenuTriggerFor]="userMenu"
           aria-label="User menu">
-          <mat-icon>account_circle</mat-icon>
+          
         </button>
 
         <mat-menu #userMenu="matMenu" xPosition="before">
           <button mat-menu-item (click)="navigateToProfile()">
-            <mat-icon>person</mat-icon>
+            
             <span>Profile</span>
           </button>
           <button mat-menu-item (click)="navigateToSettings()">
-            <mat-icon>settings</mat-icon>
+            
             <span>Settings</span>
           </button>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="signOut()">
-            <mat-icon>exit_to_app</mat-icon>
+            
             <span>Sign Out</span>
           </button>
         </mat-menu>
 
         <!-- Quick actions menu -->
         <button
-          mat-icon-button
+          mat-button
           class="header-action-button"
           [matMenuTriggerFor]="quickMenu"
           matTooltip="Quick Actions"
           aria-label="Quick actions menu">
-          <mat-icon>add</mat-icon>
+          
         </button>
 
         <mat-menu #quickMenu="matMenu" xPosition="before">
           <button mat-menu-item (click)="quickCreateCompany()">
-            <mat-icon>business</mat-icon>
+            
             <span>New Company</span>
           </button>
           <button mat-menu-item (click)="quickCreateDocument()">
-            <mat-icon>description</mat-icon>
+            
             <span>New Document</span>
           </button>
           <button mat-menu-item (click)="quickCreateSigner()">
-            <mat-icon>person_add</mat-icon>
+            
             <span>New Signer</span>
           </button>
         </mat-menu>
@@ -139,7 +139,6 @@ import { NavigationService } from '../../../core/services/navigation.service';
       width: 40px;
       height: 40px;
 
-      .mat-icon {
         font-size: 24px;
         width: 24px;
         height: 24px;

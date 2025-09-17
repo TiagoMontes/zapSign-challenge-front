@@ -3,7 +3,7 @@
   <div class="header-section">
     <div class="title-container">
       <h1 class="page-title">
-        <mat-icon>business</mat-icon>
+        
         Companies Management
       </h1>
       <p class="page-subtitle">
@@ -17,16 +17,16 @@
         color="primary"
         (click)="onCreateCompany()"
         class="create-btn">
-        <mat-icon>add</mat-icon>
+        
         Create Company
       </button>
 
       <button
-        mat-icon-button
+        mat-button
         matTooltip="Refresh"
         (click)="onRefresh()"
         [disabled]="loading()">
-        <mat-icon>refresh</mat-icon>
+        
       </button>
     </div>
   </div>
@@ -40,14 +40,14 @@
         [formControl]="searchControl"
         placeholder="Search by name or API token..."
         autocomplete="off">
-      <mat-icon matSuffix>search</mat-icon>
+      
       <button
-        mat-icon-button
+        mat-button
         matSuffix
         *ngIf="searchControl.value"
         (click)="onClearSearch()"
         matTooltip="Clear search">
-        <mat-icon>close</mat-icon>
+        
       </button>
     </mat-form-field>
   </div>
@@ -60,31 +60,31 @@
 
   <!-- Error State -->
   <div *ngIf="error()" class="error-container">
-    <mat-icon color="warn">error_outline</mat-icon>
+    
     <p>{{ error() }}</p>
     <button mat-stroked-button color="primary" (click)="onRefresh()">
-      <mat-icon>refresh</mat-icon>
+      
       Try Again
     </button>
   </div>
 
   <!-- Empty State - No Companies -->
   <div *ngIf="!loading() && !error() && !hasCompanies()" class="empty-state">
-    <mat-icon class="empty-icon">business_center</mat-icon>
+    
     <h2>No Companies Yet</h2>
     <p>Create your first company to get started with document management.</p>
     <button
       mat-flat-button
       color="primary"
       (click)="onCreateCompany()">
-      <mat-icon>add</mat-icon>
+      
       Create First Company
     </button>
   </div>
 
   <!-- No Search Results -->
   <div *ngIf="!loading() && !error() && showNoResults()" class="no-results">
-    <mat-icon class="no-results-icon">search_off</mat-icon>
+    
     <h3>No Results Found</h3>
     <p>No companies match your search criteria: "{{ searchControl.value }}"</p>
     <button mat-stroked-button (click)="onClearSearch()">
@@ -120,11 +120,11 @@
           <div class="token-container">
             <code class="token-display">{{ getTruncatedToken(company.api_token) }}</code>
             <button
-              mat-icon-button
+              mat-button
               matTooltip="Copy full token"
               (click)="$event.stopPropagation()"
               class="copy-btn">
-              <mat-icon>content_copy</mat-icon>
+              
             </button>
           </div>
         </mat-cell>
@@ -153,36 +153,36 @@
         <mat-cell *matCellDef="let company" class="actions-cell">
           <div class="action-buttons">
             <button
-              mat-icon-button
+              mat-button
               matTooltip="View Details"
               (click)="onViewCompany(company); $event.stopPropagation()"
               class="action-btn view-btn">
-              <mat-icon>visibility</mat-icon>
+              
             </button>
 
             <button
-              mat-icon-button
+              mat-button
               matTooltip="View Documents"
               (click)="onViewDocuments(company); $event.stopPropagation()"
               class="action-btn documents-btn">
-              <mat-icon>description</mat-icon>
+              
             </button>
 
             <button
-              mat-icon-button
+              mat-button
               matTooltip="Edit Company"
               (click)="onEditCompany(company); $event.stopPropagation()"
               class="action-btn edit-btn">
-              <mat-icon>edit</mat-icon>
+              
             </button>
 
             <button
-              mat-icon-button
+              mat-button
               matTooltip="Delete Company"
               (click)="onDeleteCompany(company); $event.stopPropagation()"
               class="action-btn delete-btn"
               color="warn">
-              <mat-icon>delete</mat-icon>
+              
             </button>
           </div>
         </mat-cell>

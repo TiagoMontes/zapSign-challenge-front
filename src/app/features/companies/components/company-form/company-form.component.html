@@ -3,7 +3,6 @@
   <div class="header-section">
     <div class="title-container">
       <h1 class="page-title">
-        <mat-icon>{{ isEditMode() ? 'edit' : 'add_business' }}</mat-icon>
         {{ pageTitle() }}
       </h1>
       <p class="page-subtitle" *ngIf="!isEditMode()">
@@ -23,10 +22,10 @@
 
   <!-- Error State -->
   <div *ngIf="error() && !isLoading()" class="error-container">
-    <mat-icon color="warn">error_outline</mat-icon>
+    
     <p>{{ error() }}</p>
     <button mat-stroked-button color="primary" (click)="onCancel()">
-      <mat-icon>arrow_back</mat-icon>
+      
       Go Back
     </button>
   </div>
@@ -47,7 +46,7 @@
                 placeholder="Enter company name"
                 autocomplete="organization"
                 maxlength="100">
-              <mat-icon matSuffix>business</mat-icon>
+              
               <mat-hint align="start">
                 This name will be used to identify your company
               </mat-hint>
@@ -71,20 +70,20 @@
               <div matSuffix class="token-actions">
                 <button
                   type="button"
-                  mat-icon-button
+                  mat-button
                   matTooltip="Generate random token"
                   (click)="onGenerateToken()"
                   class="generate-btn">
-                  <mat-icon>refresh</mat-icon>
+                  
                 </button>
                 <button
                   type="button"
-                  mat-icon-button
+                  mat-button
                   matTooltip="Copy to clipboard"
                   (click)="onCopyToken()"
                   [disabled]="!companyForm.get('api_token')?.value"
                   class="copy-btn">
-                  <mat-icon>content_copy</mat-icon>
+                  
                 </button>
               </div>
               <mat-hint align="start">
@@ -100,21 +99,21 @@
           <div class="help-section" *ngIf="companyForm.get('api_token')?.touched">
             <mat-card class="help-card">
               <mat-card-header>
-                <mat-icon mat-card-avatar>info</mat-icon>
+                
                 <mat-card-title>API Token Requirements</mat-card-title>
               </mat-card-header>
               <mat-card-content>
                 <ul class="requirements-list">
                   <li [class.valid]="companyForm.get('api_token')?.value?.length >= 8">
-                    <mat-icon>{{ companyForm.get('api_token')?.value?.length >= 8 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                    
                     At least 8 characters long
                   </li>
                   <li [class.valid]="isTokenFormatValid()">
-                    <mat-icon>{{ isTokenFormatValid() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                    
                     Only letters, numbers, underscore (_), and dash (-)
                   </li>
                   <li [class.valid]="companyForm.get('api_token')?.valid">
-                    <mat-icon>{{ companyForm.get('api_token')?.valid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                    
                     No special characters or spaces
                   </li>
                 </ul>
@@ -130,7 +129,7 @@
                 mat-stroked-button
                 (click)="onCancel()"
                 [disabled]="isSubmitting()">
-                <mat-icon>cancel</mat-icon>
+                
                 Cancel
               </button>
 
@@ -145,9 +144,6 @@
                   diameter="20"
                   class="submit-spinner">
                 </mat-spinner>
-                <mat-icon *ngIf="!isSubmitting()">
-                  {{ isEditMode() ? 'save' : 'add' }}
-                </mat-icon>
                 {{ submitButtonText() }}
               </button>
             </div>
@@ -155,7 +151,7 @@
             <!-- Form Status Indicators -->
             <div class="form-status" *ngIf="companyForm.dirty">
               <div class="status-indicator unsaved" *ngIf="hasUnsavedChanges()">
-                <mat-icon>edit</mat-icon>
+                
                 <span>Unsaved changes</span>
               </div>
             </div>
@@ -169,7 +165,7 @@
     <div *ngIf="isEditMode() && company()" class="info-section">
       <mat-card class="info-card">
         <mat-card-header>
-          <mat-icon mat-card-avatar>info</mat-icon>
+          
           <mat-card-title>Company Information</mat-card-title>
         </mat-card-header>
         <mat-card-content>
@@ -192,13 +188,13 @@
           <button
             mat-stroked-button
             [routerLink]="['/companies', company()?.id]">
-            <mat-icon>visibility</mat-icon>
+            
             View Details
           </button>
           <button
             mat-stroked-button
             [routerLink]="['/companies', company()?.id, 'documents']">
-            <mat-icon>description</mat-icon>
+            
             View Documents
           </button>
         </mat-card-actions>
@@ -212,7 +208,7 @@
       <mat-card-content>
         <div class="shortcuts-content">
           <span class="shortcuts-title">
-            <mat-icon>keyboard</mat-icon>
+            
             Quick Actions:
           </span>
           <div class="shortcuts-list">

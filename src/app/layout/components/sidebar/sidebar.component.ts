@@ -25,7 +25,7 @@ interface MenuItem {
               class="nav-item"
               [class.active]="item.active"
               (click)="navigateTo(item.route)">
-              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              
               <span matListItemTitle class="nav-label">{{ item.label }}</span>
             </mat-list-item>
 
@@ -35,7 +35,7 @@ interface MenuItem {
               [expanded]="hasActiveChild(item)">
               <mat-expansion-panel-header class="nav-expansion-header">
                 <mat-panel-title class="nav-expansion-title">
-                  <mat-icon class="nav-expansion-icon">{{ item.icon }}</mat-icon>
+                  
                   <span class="nav-label">{{ item.label }}</span>
                 </mat-panel-title>
               </mat-expansion-panel-header>
@@ -46,7 +46,7 @@ interface MenuItem {
                   class="nav-sub-item"
                   [class.active]="child.active"
                   (click)="navigateTo(child.route)">
-                  <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
+                  
                   <span matListItemTitle class="nav-label">{{ child.label }}</span>
                 </mat-list-item>
               </mat-nav-list>
@@ -57,12 +57,12 @@ interface MenuItem {
 
       <div class="sidebar-footer">
         <button
-          mat-icon-button
+          mat-button
           class="collapse-button"
           (click)="toggleCollapse()"
           [matTooltip]="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
           matTooltipPosition="right">
-          <mat-icon>{{ isCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+          
         </button>
       </div>
     </nav>
@@ -108,7 +108,6 @@ interface MenuItem {
         background-color: rgba(25, 118, 210, 0.12);
         color: var(--primary-color);
 
-        .mat-icon {
           color: var(--primary-color);
         }
       }
@@ -167,7 +166,6 @@ interface MenuItem {
         background-color: rgba(25, 118, 210, 0.12);
         color: var(--primary-color);
 
-        .mat-icon {
           color: var(--primary-color);
         }
       }
