@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, map, of } from 'rxjs';
@@ -11,7 +11,7 @@ import { CanComponentDeactivate } from '../../../../core/guards/unsaved-changes.
 @Component({
   selector: 'app-company-form',
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule, RouterModule],
   templateUrl: './company-form.component.html',
   styleUrls: ['./company-form.component.scss']
 })
@@ -398,5 +398,13 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
         this.showErrorMessage('Failed to copy token to clipboard');
       });
     }
+  }
+
+  /**
+   * Check if API token has valid format
+   */
+  isTokenFormatValid(): boolean {
+    const token = this.companyForm.get('api_token')?.value || '';
+    return /^[a-zA-Z0-9_-]+$/.test(token);
   }
 }

@@ -96,7 +96,6 @@
   <div *ngIf="!loading() && !error() && hasFilteredResults()" class="table-container">
     <mat-table
       [dataSource]="filteredCompanies()"
-      [trackByFn]="trackByCompany"
       class="companies-table">
 
       <!-- Company Name Column -->

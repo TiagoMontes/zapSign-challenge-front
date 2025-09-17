@@ -109,8 +109,8 @@
                     <mat-icon>{{ companyForm.get('api_token')?.value?.length >= 8 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
                     At least 8 characters long
                   </li>
-                  <li [class.valid]="/^[a-zA-Z0-9_-]+$/.test(companyForm.get('api_token')?.value || '')">
-                    <mat-icon>{{ /^[a-zA-Z0-9_-]+$/.test(companyForm.get('api_token')?.value || '') ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  <li [class.valid]="isTokenFormatValid()">
+                    <mat-icon>{{ isTokenFormatValid() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
                     Only letters, numbers, underscore (_), and dash (-)
                   </li>
                   <li [class.valid]="companyForm.get('api_token')?.valid">

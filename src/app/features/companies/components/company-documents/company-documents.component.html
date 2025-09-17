@@ -163,7 +163,6 @@
     <div *ngIf="hasFilteredResults()" class="table-container">
       <mat-table
         [dataSource]="filteredDocuments()"
-        [trackByFn]="trackByDocument"
         class="documents-table">
 
         <!-- Document Name Column -->
@@ -192,7 +191,7 @@
             <mat-chip
               [color]="getDocumentStatusColor(document.status)"
               class="status-chip">
-              <mat-icon [matChipAvatar]>{{ getDocumentStatusIcon(document.status) }}</mat-icon>
+              <mat-icon matChipAvatar>{{ getDocumentStatusIcon(document.status) }}</mat-icon>
               {{ document.status | titlecase }}
             </mat-chip>
           </mat-cell>

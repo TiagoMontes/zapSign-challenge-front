@@ -205,7 +205,7 @@
                   <mat-chip
                     [color]="getDocumentStatusColor(document.status)"
                     class="status-chip">
-                    <mat-icon [matChipAvatar]>{{ getDocumentStatusIcon(document.status) }}</mat-icon>
+                    <mat-icon matChipAvatar>{{ getDocumentStatusIcon(document.status) }}</mat-icon>
                     {{ document.status | titlecase }}
                   </mat-chip>
                 </div>
@@ -257,7 +257,7 @@
                   <mat-chip
                     [color]="getSignerStatusColor(signer.status)"
                     class="status-chip">
-                    <mat-icon [matChipAvatar]>{{ getSignerStatusIcon(signer.status) }}</mat-icon>
+                    <mat-icon matChipAvatar>{{ getSignerStatusIcon(signer.status) }}</mat-icon>
                     {{ signer.status | titlecase }}
                   </mat-chip>
                 </div>
