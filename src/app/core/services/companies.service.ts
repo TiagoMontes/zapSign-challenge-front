@@ -3,7 +3,7 @@ import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, tap, catchError, shareReplay } from 'rxjs/operators';
 import { BaseApiService, RequestOptions } from './base-api.service';
 import { CacheService } from './cache.service';
-import { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../models';
+import { Company, CreateCompanyRequest, UpdateCompanyRequest, CompanyDocument } from '../models';
 
 /**
  * Service for managing companies with comprehensive CRUD operations,
@@ -242,6 +242,27 @@ export class CompaniesService extends BaseApiService {
     }
 
     return this.getCompanies();
+  }
+
+  /**
+   * Get documents for a specific company
+   */
+  getCompanyDocuments(companyId: number): Observable<CompanyDocument[]> {
+    return this.getCompany(companyId).pipe(
+      map(company => company.documents || [])
+    );
+  }
+
+  /**
+   * Get company with documents count
+   */
+  getCompanyWithDocumentsCount(companyId: number): Observable<Company & { documentsCount: number }> {
+    return this.getCompany(companyId).pipe(
+      map(company => ({
+        ...company,
+        documentsCount: company.documents?.length || 0
+      }))
+    );
   }
 
   // Private helper methods

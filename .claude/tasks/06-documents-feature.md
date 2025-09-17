@@ -90,7 +90,7 @@ Company details now includes documents:
    {
      "name": "Document Name",
      "company_id": 10,
-     "pdf_url": "https://example.com/document.pdf",
+     "url_pdf": "https://example.com/document.pdf",
      "signers": [
        {"name": "John Doe", "email": "john@example.com"},
        {"name": "Jane Smith", "email": "jane@example.com"}
@@ -141,7 +141,7 @@ analyzeDocument(id: number) -> DocumentAnalysis
 interface DocumentFormValue {
   name: string;
   company_id: number; // Pre-filled from company context
-  pdf_url: string;
+  url_pdf: string;
   signers: {
     name: string;
     email: string;

@@ -53,7 +53,7 @@ interface Document {
 interface CreateDocumentRequest {
   name: string;
   company_id: number;
-  pdf_url: string;
+  url_pdf: string;
   signers: CreateSignerRequest[];
 }
 

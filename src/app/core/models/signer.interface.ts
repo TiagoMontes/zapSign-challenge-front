@@ -25,6 +25,8 @@ export interface Signer {
   status: SignerStatus;
   /** External ID for additional reference */
   external_id: string | null;
+  /** ISO timestamp when the document was signed (if signed) */
+  signed_at?: string;
   /** ISO timestamp when the signer was created */
   created_at: string;
   /** ISO timestamp when the signer was last updated */

@@ -4,9 +4,8 @@ import { UnsavedChangesGuard } from '../../core/guards/unsaved-changes.guard';
 export const DOCUMENTS_ROUTES: Routes = [
   {
     path: '',
-    loadComponent: () => import('./components/documents-list/documents-list.component').then(m => m.DocumentsListComponent),
-    title: 'Documents - ZapSign',
-    data: { breadcrumb: 'All Documents' }
+    redirectTo: '/companies',
+    pathMatch: 'full'
   },
   {
     path: 'create',

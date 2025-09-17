@@ -31,6 +31,8 @@ export interface Document {
   /** Reference to the company this document belongs to */
   company: Company;
   /** Display name of the document */
+
+  company_id: number;
   name: string;
   /** Array of signers associated with this document */
   signers: Signer[];
@@ -45,7 +47,7 @@ export interface Document {
   /** External ID for additional reference */
   external_id: string | null;
   /** URL to the PDF document */
-  pdf_url: string;
+  url_pdf: string;
   /** Processing status of the document */
   processing_status: ProcessingStatus;
   /** Document checksum for integrity verification */

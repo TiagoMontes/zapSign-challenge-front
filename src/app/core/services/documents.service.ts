@@ -190,7 +190,7 @@ export class DocumentsService extends BaseApiService {
   /**
    * Analyze document using AI
    */
-  analyzeDocument(id: number): Observable<DocumentAnalysis> {
+  analyzeDocument(id: number, forceReanalysis: boolean = false): Observable<DocumentAnalysis> {
     const cacheKey = `document:analysis:${id}`;
 
     // Check if analysis is already in progress
@@ -206,15 +206,22 @@ export class DocumentsService extends BaseApiService {
     updatedLoading.add(id);
     this.analysisLoadingSubject.next(updatedLoading);
 
+    // Invalidate cache if force reanalysis is requested
+    if (forceReanalysis) {
+      this.invalidateCache(cacheKey);
+    }
+
+    const requestBody = forceReanalysis ? { force_reanalysis: true } : {};
+
     const options: RequestOptions = {
-      cache: true,
+      cache: !forceReanalysis,
       cacheOptions: { ttl: this.ANALYSIS_CACHE_TTL },
       cacheKey,
       retry: true,
       maxRetries: 2
     };
 
-    return this.post<DocumentAnalysis>(`/documents/${id}/analyze/`, {}, options).pipe(
+    return this.post<DocumentAnalysis>(`/documents/${id}/analyze/`, requestBody, options).pipe(
       tap(analysis => {
         // Remove from analysis loading set
         const currentLoading = this.analysisLoadingSubject.value;

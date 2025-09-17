@@ -1,98 +1,213 @@
-<div class="p-6 bg-white min-h-screen">
-  <div class="max-w-4xl mx-auto">
-    <!-- Header -->
-    <div class="mb-8">
-      <button class="text-blue-600 hover:text-blue-700 mb-4 flex items-center space-x-2 transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+<div class="max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="mb-8">
+    <button
+      (click)="onCancel()"
+      class="text-blue-600 hover:text-blue-700 mb-4 flex items-center space-x-2 transition-colors cursor-pointer">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      <span>Back</span>
+    </button>
+    <h1 class="text-3xl font-bold text-gray-900">Create New Document</h1>
+    <p class="text-gray-600 mt-2">Create and configure your document for electronic signing with ZapSign.</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error()" class="mb-6 rounded-md bg-red-50 p-4">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-2.186-.833-2.956 0L5.857 16.5c-.77.833.192 2.5 1.732 2.5z"/>
         </svg>
-        <span>Back to Documents</span>
-      </button>
-      <h1 class="text-3xl font-bold text-gray-900">Create New Document</h1>
-      <p class="text-gray-600 mt-2">Upload and configure your document for electronic signing.</p>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-red-800">Error</h3>
+        <p class="mt-1 text-sm text-red-700">{{ error() }}</p>
+      </div>
     </div>
+  </div>
 
-    <!-- Form -->
-    <div class="bg-white border border-gray-200 rounded-lg p-6">
-      <form class="space-y-6">
-        <!-- Document Name -->
-        <div>
-          <label for="documentName" class="block text-sm font-medium text-gray-700 mb-2">
-            Document Name
-          </label>
-          <input
-            type="text"
-            id="documentName"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            placeholder="Enter document name"
-          />
+  <!-- Form -->
+  <div class="bg-white border border-gray-200 rounded-md p-6">
+    <form [formGroup]="documentForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+      <!-- Document Name -->
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+          Document Name *
+        </label>
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          class="w-full px-3 py-2 border-1 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          [class.border-red-300]="hasError('name')"
+          [class.border-gray-300]="!hasError('name')"
+          placeholder="Enter document name"
+        />
+        <p *ngIf="hasError('name')" class="mt-1 text-sm text-red-600">
+          {{ getErrorMessage('name') }}
+        </p>
+      </div>
+
+      <!-- Company Selection -->
+      <div>
+        <label for="company_id" class="block text-sm font-medium text-gray-700 mb-2">
+          Company *
+        </label>
+
+        <!-- When company is preselected from context (readonly) -->
+        <div *ngIf="preselectedCompanyId(); else companySelect"
+             class="w-full px-3 py-2 border-1 border-gray-300 rounded-md bg-gray-50 text-gray-700">
+          {{ getSelectedCompanyName() }}
+          <span class="text-sm text-gray-500 ml-2">(from company context)</span>
         </div>
 
-        <!-- File Upload -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Document File
-          </label>
-          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-            <div class="text-gray-400 mb-4">
-              <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-              </svg>
-            </div>
-            <div class="text-sm text-gray-600">
-              <label for="file-upload" class="cursor-pointer text-blue-600 hover:text-blue-700 font-medium">
-                Click to upload
-              </label>
-              or drag and drop
-            </div>
-            <p class="text-xs text-gray-500 mt-1">PDF files up to 10MB</p>
-            <input id="file-upload" name="file-upload" type="file" class="sr-only" accept=".pdf">
-          </div>
-        </div>
-
-        <!-- Company Selection -->
-        <div>
-          <label for="company" class="block text-sm font-medium text-gray-700 mb-2">
-            Company
-          </label>
+        <!-- When no company is preselected (dropdown) -->
+        <ng-template #companySelect>
           <select
-            id="company"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            id="company_id"
+            formControlName="company_id"
+            class="w-full px-3 py-2 border-1 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            [class.border-red-300]="hasError('company_id')"
+            [class.border-gray-300]="!hasError('company_id')"
           >
             <option value="">Select a company</option>
-            <!-- Companies will be populated here -->
+            <option *ngFor="let company of companies()" [value]="company.id">
+              {{ company.name }}
+            </option>
           </select>
-        </div>
+        </ng-template>
 
-        <!-- Description -->
-        <div>
-          <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-            Description (Optional)
+        <p *ngIf="hasError('company_id')" class="mt-1 text-sm text-red-600">
+          {{ getErrorMessage('company_id') }}
+        </p>
+      </div>
+
+      <!-- PDF URL -->
+      <div>
+        <label for="url_pdf" class="block text-sm font-medium text-gray-700 mb-2">
+          PDF Document URL *
+        </label>
+        <input
+          type="url"
+          id="url_pdf"
+          formControlName="url_pdf"
+          class="w-full px-3 py-2 border-1 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          [class.border-red-300]="hasError('url_pdf')"
+          [class.border-gray-300]="!hasError('url_pdf')"
+          placeholder="https://example.com/document.pdf"
+        />
+        <p class="mt-1 text-sm text-gray-500">
+          Enter the URL to the PDF document that will be signed.
+        </p>
+        <p *ngIf="hasError('url_pdf')" class="mt-1 text-sm text-red-600">
+          {{ getErrorMessage('url_pdf') }}
+        </p>
+      </div>
+
+      <!-- Signers Section -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <label class="block text-sm font-medium text-gray-700">
+            Signers *
           </label>
-          <textarea
-            id="description"
-            rows="3"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-            placeholder="Add a description for this document"
-          ></textarea>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex justify-end space-x-4 pt-6">
           <button
             type="button"
-            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Create Document
+            (click)="onAddSigner()"
+            class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add Signer
           </button>
         </div>
-      </form>
-    </div>
+
+        <div formArrayName="signers" class="space-y-4">
+          <div
+            *ngFor="let signer of signersArray.controls; let i = index; trackBy: trackBySigner"
+            [formGroupName]="i"
+            class="p-4 border border-gray-200 rounded-md bg-gray-50">
+
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-sm font-medium text-gray-900">Signer {{ i + 1 }}</h4>
+              <button
+                type="button"
+                *ngIf="signersArray.length > 1"
+                (click)="onRemoveSigner(i)"
+                class="text-red-600 hover:text-red-700 transition-colors cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Signer Name -->
+              <div>
+                <label [for]="'signer-name-' + i" class="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  [id]="'signer-name-' + i"
+                  formControlName="name"
+                  class="w-full px-3 py-2 border-1 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  [class.border-red-300]="hasSignerError(i, 'name')"
+                  [class.border-gray-300]="!hasSignerError(i, 'name')"
+                  placeholder="Enter signer's full name"
+                />
+                <p *ngIf="hasSignerError(i, 'name')" class="mt-1 text-sm text-red-600">
+                  {{ getSignerErrorMessage(i, 'name') }}
+                </p>
+              </div>
+
+              <!-- Signer Email -->
+              <div>
+                <label [for]="'signer-email-' + i" class="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  [id]="'signer-email-' + i"
+                  formControlName="email"
+                  class="w-full px-3 py-2 border-1 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  [class.border-red-300]="hasSignerError(i, 'email')"
+                  [class.border-gray-300]="!hasSignerError(i, 'email')"
+                  placeholder="Enter signer's email address"
+                />
+                <p *ngIf="hasSignerError(i, 'email')" class="mt-1 text-sm text-red-600">
+                  {{ getSignerErrorMessage(i, 'email') }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors cursor-pointer">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="isSubmitting()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <span *ngIf="!isSubmitting()">Create Document</span>
+          <span *ngIf="isSubmitting()" class="flex items-center gap-2">
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Creating...
+          </span>
+        </button>
+      </div>
+    </form>
   </div>
 </div>

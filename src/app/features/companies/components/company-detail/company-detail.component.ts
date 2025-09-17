@@ -1,26 +1,9 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Subject, takeUntil, forkJoin, switchMap } from 'rxjs';
+import { Subject, takeUntil, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { CompaniesService } from '../../../../core/services/companies.service';
-import { Company } from '../../../../core/models/company.interface';
-
-// Mock interfaces for documents and signers (replace with actual ones when available)
-interface Document {
-  id: number;
-  name: string;
-  status: 'pending' | 'signed' | 'cancelled';
-  created_at: string;
-  signers_count: number;
-}
-
-interface Signer {
-  id: number;
-  name: string;
-  email: string;
-  status: 'pending' | 'signed';
-  signed_at?: string;
-}
+import { Company, CompanyDocument } from '../../../../core/models/company.interface';
 
 @Component({
   selector: 'app-company-detail',
@@ -37,21 +20,23 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
 
   // Component state
   company = signal<Company | null>(null);
-  recentDocuments = signal<Document[]>([]);
-  recentSigners = signal<Signer[]>([]);
+  companyDocuments = signal<CompanyDocument[]>([]);
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
 
-  // Stats
-  totalDocuments = signal<number>(0);
-  totalSigners = signal<number>(0);
-  pendingDocuments = signal<number>(0);
-  signedDocuments = signal<number>(0);
-
   // Computed properties
   hasCompany = computed(() => !!this.company());
-  hasDocuments = computed(() => this.recentDocuments().length > 0);
-  hasSigners = computed(() => this.recentSigners().length > 0);
+  hasDocuments = computed(() => this.companyDocuments().length > 0);
+  totalDocuments = computed(() => this.companyDocuments().length);
+  pendingDocuments = computed(() =>
+    this.companyDocuments().filter(doc => doc.status === 'pending').length
+  );
+  completedDocuments = computed(() =>
+    this.companyDocuments().filter(doc => doc.status === 'completed').length
+  );
+  totalSigners = computed(() =>
+    this.companyDocuments().reduce((total, doc) => total + (doc.signers_count || 0), 0)
+  );
   companyAge = computed(() => {
     const company = this.company();
     if (!company) return '';
@@ -91,24 +76,11 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
     this.error.set(null);
 
     this.companiesService.getCompany(+companyId)
-      .pipe(
-        switchMap(company => {
-          this.company.set(company);
-
-          // Load related data (mocked for now)
-          return forkJoin({
-            documents: this.loadRecentDocuments(company.id),
-            signers: this.loadRecentSigners(company.id),
-            stats: this.loadCompanyStats(company.id)
-          });
-        }),
-        takeUntil(this.destroy$)
-      )
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          this.recentDocuments.set(data.documents);
-          this.recentSigners.set(data.signers);
-          this.updateStats(data.stats);
+        next: (company) => {
+          this.company.set(company);
+          this.companyDocuments.set(company.documents || []);
           this.isLoading.set(false);
         },
         error: (error) => {
@@ -119,103 +91,6 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Load recent documents for the company (mocked)
-   */
-  private loadRecentDocuments(companyId: number): Promise<Document[]> {
-    // This would be replaced with actual DocumentsService call
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve([
-          {
-            id: 1,
-            name: 'Service Agreement 2024',
-            status: 'signed',
-            created_at: '2024-01-15T10:30:00Z',
-            signers_count: 2
-          },
-          {
-            id: 2,
-            name: 'NDA Template',
-            status: 'pending',
-            created_at: '2024-01-10T14:20:00Z',
-            signers_count: 1
-          },
-          {
-            id: 3,
-            name: 'Employment Contract',
-            status: 'signed',
-            created_at: '2024-01-05T09:15:00Z',
-            signers_count: 3
-          }
-        ]);
-      }, 500);
-    });
-  }
-
-  /**
-   * Load recent signers for the company (mocked)
-   */
-  private loadRecentSigners(companyId: number): Promise<Signer[]> {
-    // This would be replaced with actual SignersService call
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve([
-          {
-            id: 1,
-            name: 'John Doe',
-            email: 'john.doe@example.com',
-            status: 'signed',
-            signed_at: '2024-01-15T10:30:00Z'
-          },
-          {
-            id: 2,
-            name: 'Jane Smith',
-            email: 'jane.smith@example.com',
-            status: 'pending'
-          },
-          {
-            id: 3,
-            name: 'Bob Johnson',
-            email: 'bob.johnson@example.com',
-            status: 'signed',
-            signed_at: '2024-01-10T16:45:00Z'
-          }
-        ]);
-      }, 500);
-    });
-  }
-
-  /**
-   * Load company statistics (mocked)
-   */
-  private loadCompanyStats(companyId: number): Promise<{
-    totalDocuments: number;
-    totalSigners: number;
-    pendingDocuments: number;
-    signedDocuments: number;
-  }> {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({
-          totalDocuments: 15,
-          totalSigners: 42,
-          pendingDocuments: 3,
-          signedDocuments: 12
-        });
-      }, 300);
-    });
-  }
-
-  /**
-   * Update statistics signals
-   */
-  private updateStats(stats: any): void {
-    this.totalDocuments.set(stats.totalDocuments);
-    this.totalSigners.set(stats.totalSigners);
-    this.pendingDocuments.set(stats.pendingDocuments);
-    this.signedDocuments.set(stats.signedDocuments);
-  }
 
   /**
    * Navigate to edit company
@@ -259,40 +134,22 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Navigate to company documents
+   * Navigate to create document for this company
    */
-  onViewAllDocuments(): void {
+  onCreateDocument(): void {
     const company = this.company();
     if (company) {
-      this.router.navigate(['/companies', company.id, 'documents']);
+      this.router.navigate(['/documents/create'], {
+        queryParams: { companyId: company.id }
+      });
     }
   }
 
   /**
    * Navigate to specific document
    */
-  onViewDocument(document: Document): void {
-    // This would navigate to document details
+  onViewDocument(document: CompanyDocument): void {
     this.router.navigate(['/documents', document.id]);
-  }
-
-  /**
-   * Navigate to all signers (hypothetical route)
-   */
-  onViewAllSigners(): void {
-    const company = this.company();
-    if (company) {
-      // This would be a route to view all signers for this company
-      this.router.navigate(['/companies', company.id, 'signers']);
-    }
-  }
-
-  /**
-   * Navigate to specific signer (hypothetical route)
-   */
-  onViewSigner(signer: Signer): void {
-    // This would navigate to signer details
-    this.router.navigate(['/signers', signer.id]);
   }
 
   /**
@@ -334,62 +191,22 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get status color for documents
+   * Get status badge classes for documents
    */
-  getDocumentStatusColor(status: string): string {
+  getDocumentStatusClasses(status: string): string {
     switch (status) {
-      case 'signed':
-        return 'primary';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
       case 'pending':
-        return 'accent';
+        return 'bg-yellow-100 text-yellow-800';
       case 'cancelled':
-        return 'warn';
+        return 'bg-red-100 text-red-800';
+      case 'draft':
+        return 'bg-gray-100 text-gray-800';
+      case 'expired':
+        return 'bg-orange-100 text-orange-800';
       default:
-        return '';
-    }
-  }
-
-  /**
-   * Get status icon for documents
-   */
-  getDocumentStatusIcon(status: string): string {
-    switch (status) {
-      case 'signed':
-        return 'check_circle';
-      case 'pending':
-        return 'schedule';
-      case 'cancelled':
-        return 'cancel';
-      default:
-        return 'description';
-    }
-  }
-
-  /**
-   * Get status color for signers
-   */
-  getSignerStatusColor(status: string): string {
-    switch (status) {
-      case 'signed':
-        return 'primary';
-      case 'pending':
-        return 'accent';
-      default:
-        return '';
-    }
-  }
-
-  /**
-   * Get status icon for signers
-   */
-  getSignerStatusIcon(status: string): string {
-    switch (status) {
-      case 'signed':
-        return 'check_circle';
-      case 'pending':
-        return 'schedule';
-      default:
-        return 'person';
+        return 'bg-gray-100 text-gray-800';
     }
   }
 
@@ -429,14 +246,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
   /**
    * Track by function for documents list
    */
-  trackByDocument(index: number, document: Document): number {
+  trackByDocument(index: number, document: CompanyDocument): number {
     return document.id;
-  }
-
-  /**
-   * Track by function for signers list
-   */
-  trackBySigner(index: number, signer: Signer): number {
-    return signer.id;
   }
 }
