@@ -1,0 +1,332 @@
+<div class="max-w-4xl mx-auto">
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-12">
+    <svg class="animate-spin h-8 w-8 text-blue-600 mb-4" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    <p class="text-gray-600">Loading signer details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !isLoading()" class="rounded-md bg-red-50 p-4 mb-6">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-2.186-.833-2.956 0L5.857 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-red-800">Error</h3>
+        <p class="mt-1 text-sm text-red-700">{{ error() }}</p>
+        <div class="mt-3">
+          <button
+            (click)="onBackToSigners()"
+            class="inline-flex items-center gap-2 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Signers
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signer Details -->
+  <div *ngIf="!isLoading() && !error() && hasSigner()" class="space-y-6">
+
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center space-x-4 mb-4">
+        <button
+          (click)="onBackToDocument()"
+          class="text-blue-600 hover:text-blue-700 flex items-center space-x-2 transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          <span *ngIf="hasAssociatedDocuments(); else backToSignersText">Back to Document</span>
+          <ng-template #backToSignersText>
+            <span>Back</span>
+          </ng-template>
+        </button>
+        <span class="text-gray-300">|</span>
+        <button
+          (click)="onBackToSigners()"
+          class="text-gray-600 hover:text-gray-700 flex items-center space-x-2 transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <span>All Signers</span>
+        </button>
+      </div>
+
+      <div class="flex justify-between items-start">
+        <div class="flex items-center space-x-4">
+          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+            <span class="text-xl font-medium text-gray-600">
+              {{ getSignerInitials(signer()?.name || '') }}
+            </span>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ signer()?.name }}</h1>
+            <p class="text-gray-600 mt-1">{{ signer()?.email }}</p>
+            <div class="mt-2">
+              <app-signer-status
+                [status]="signer()?.status || ''"
+                [showIcon]="true"
+                size="md">
+              </app-signer-status>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex space-x-3">
+          <!-- Sign Document Button - Prominent Primary Action -->
+          <button
+            *ngIf="hasSignUrl()"
+            (click)="onOpenSignUrl()"
+            class="inline-flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 transition-colors cursor-pointer"
+            title="Open ZapSign URL to sign document">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+            Sign Document
+          </button>
+
+          <button
+            (click)="onRefresh()"
+            class="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
+            title="Refresh">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </button>
+          <button
+            (click)="onEditSigner()"
+            [disabled]="!canEdit()"
+            class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Edit
+          </button>
+          <button
+            (click)="onDeleteSigner()"
+            [disabled]="!canDelete()"
+            class="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <svg
+              class="w-4 h-4"
+              [class.animate-spin]="isDeleting()"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            {{ isDeleting() ? 'Deleting...' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Signer Information -->
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Signer Information</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm text-gray-500">Full Name</label>
+            <p class="text-sm text-gray-900 font-medium">{{ signer()?.name }}</p>
+          </div>
+          <div>
+            <label class="text-sm text-gray-500">Email Address</label>
+            <p class="text-sm text-gray-900 font-medium">{{ signer()?.email }}</p>
+          </div>
+          <div>
+            <label class="text-sm text-gray-500">Status</label>
+            <div class="mt-1">
+              <app-signer-status
+                [status]="signer()?.status || ''"
+                [showIcon]="true"
+                size="sm">
+              </app-signer-status>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZapSign Details -->
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">ZapSign Details</h2>
+        <div class="space-y-4">
+          <div *ngIf="hasToken()">
+            <label class="text-sm text-gray-500">ZapSign Token</label>
+            <div class="flex items-center space-x-2 mt-1">
+              <p class="text-sm text-gray-900 font-mono break-all flex-1">
+                {{ truncateString(signer()?.token || '', 40) }}
+              </p>
+              <button
+                (click)="onCopyToken()"
+                class="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 cursor-pointer"
+                title="Copy token">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="hasExternalId(); else noExternalId">
+            <label class="text-sm text-gray-500">External ID</label>
+            <div class="flex items-center space-x-2 mt-1">
+              <p class="text-sm text-gray-900 font-mono break-all flex-1">{{ signer()?.external_id }}</p>
+              <button
+                (click)="onCopyExternalId()"
+                class="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 cursor-pointer"
+                title="Copy external ID">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <ng-template #noExternalId>
+            <div>
+              <label class="text-sm text-gray-500">External ID</label>
+              <p class="text-sm text-gray-400 italic">Not set</p>
+            </div>
+          </ng-template>
+
+          <!-- Sign URL Section -->
+          <div *ngIf="hasSignUrl(); else noSignUrl" class="border-t border-gray-200 pt-4">
+            <label class="text-sm text-gray-500">Sign Document URL</label>
+            <div class="flex items-center space-x-2 mt-2">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                  <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  </svg>
+                  <p class="text-sm text-green-800 font-medium break-all flex-1">
+                    {{ truncateString(signer()?.sign_url || '', 50) }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex space-x-1">
+                <button
+                  (click)="onCopySignUrl()"
+                  class="flex-shrink-0 p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded cursor-pointer transition-colors"
+                  title="Copy sign URL">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                  </svg>
+                </button>
+                <button
+                  (click)="onOpenSignUrl()"
+                  class="flex-shrink-0 p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded cursor-pointer transition-colors"
+                  title="Open sign URL in new tab">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Click to open ZapSign document signing page</p>
+          </div>
+          <ng-template #noSignUrl>
+            <div class="border-t border-gray-200 pt-4">
+              <label class="text-sm text-gray-500">Sign Document URL</label>
+              <p class="text-sm text-gray-400 italic">Not available</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Timestamps -->
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Timeline</h2>
+        <div class="space-y-4">
+          <div *ngIf="hasCreatedAt(); else noCreatedAt">
+            <label class="text-sm text-gray-500">Created</label>
+            <p class="text-sm text-gray-900">{{ formatDateTime(signer()?.created_at || '') }}</p>
+          </div>
+          <ng-template #noCreatedAt>
+            <div>
+              <label class="text-sm text-gray-500">Created</label>
+              <p class="text-sm text-gray-400 italic">Not available</p>
+            </div>
+          </ng-template>
+
+          <div *ngIf="hasUpdatedAt(); else noUpdatedAt">
+            <label class="text-sm text-gray-500">Last Updated</label>
+            <p class="text-sm text-gray-900">{{ formatDateTime(signer()?.last_updated_at || '') }}</p>
+          </div>
+          <ng-template #noUpdatedAt>
+            <div>
+              <label class="text-sm text-gray-500">Last Updated</label>
+              <p class="text-sm text-gray-400 italic">Not available</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Associated Documents -->
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">Associated Documents</h2>
+          <div *ngIf="isLoadingDocuments()" class="flex items-center space-x-2">
+            <svg class="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-sm text-gray-600">Loading...</span>
+          </div>
+        </div>
+
+        <!-- Documents List -->
+        <div *ngIf="hasAssociatedDocuments() && !isLoadingDocuments(); else noDocuments" class="space-y-3">
+          <div
+            *ngFor="let document of associatedDocuments(); trackBy: trackByDocumentId"
+            class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <div class="flex items-center space-x-3">
+              <div class="flex-shrink-0">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900">{{ document.name }}</p>
+                <p class="text-xs text-gray-500 mt-1">Status: {{ document.status | titlecase }}</p>
+                <p *ngIf="document.created_at" class="text-xs text-gray-400 mt-1">
+                  Created: {{ formatDate(document.created_at) }}
+                </p>
+              </div>
+            </div>
+            <button
+              (click)="onNavigateToDocument(document.id)"
+              class="text-blue-600 hover:text-blue-700 cursor-pointer p-1 rounded transition-colors"
+              title="View document details">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- No Documents State -->
+        <ng-template #noDocuments>
+          <div *ngIf="!isLoadingDocuments()" class="text-center py-8">
+            <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p class="text-sm text-gray-500 mb-2">No associated documents found</p>
+            <p *ngIf="signer()?.document_ids?.length === 0" class="text-xs text-gray-400">
+              This signer is not associated with any documents.
+            </p>
+            <p *ngIf="!signer()?.document_ids" class="text-xs text-gray-400">
+              Document information is not available.
+            </p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+  </div>
+</div>

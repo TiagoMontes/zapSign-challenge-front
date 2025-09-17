@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, BehaviorSubject, of, forkJoin } from 'rxjs';
-import { map, tap, catchError, shareReplay, filter } from 'rxjs/operators';
+import { map, tap, catchError, shareReplay, filter, switchMap } from 'rxjs/operators';
 import { HttpParams } from '@angular/common/http';
 import { BaseApiService, RequestOptions } from './base-api.service';
 import { CacheService } from './cache.service';
@@ -8,7 +8,8 @@ import {
   Signer,
   CreateSignerRequest,
   UpdateSignerRequest,
-  SignerStatus
+  SignerStatus,
+  Document
 } from '../models';
 
 /**
@@ -293,13 +294,16 @@ export class SignersService extends BaseApiService {
 
         signers.forEach((signer: Signer) => {
           switch (signer.status) {
+            case SignerStatus.NEW:
             case SignerStatus.PENDING:
+            case SignerStatus.INVITED:
               stats.pending++;
               break;
             case SignerStatus.SIGNED:
               stats.signed++;
               break;
             case SignerStatus.DECLINED:
+            case SignerStatus.ERROR:
               stats.declined++;
               break;
             case SignerStatus.EXPIRED:
@@ -329,13 +333,26 @@ export class SignersService extends BaseApiService {
 
   /**
    * Get pending signers (across all documents or for specific document)
+   * Includes NEW, PENDING, and INVITED statuses
    */
   getPendingSigners(documentId?: number): Observable<Signer[]> {
-    return this.getSignersByStatus(SignerStatus.PENDING);
+    const relevantSigners$ = documentId
+      ? this.getSignersByDocument(documentId)
+      : this.signers$;
+
+    return relevantSigners$.pipe(
+      map((signers: Signer[]) =>
+        signers.filter((signer: Signer) =>
+          signer.status === SignerStatus.NEW ||
+          signer.status === SignerStatus.PENDING ||
+          signer.status === SignerStatus.INVITED
+        )
+      )
+    );
   }
 
   /**
-   * Get completed signers (signed or declined)
+   * Get completed signers (signed, declined, error, or expired)
    */
   getCompletedSigners(documentId?: number): Observable<Signer[]> {
     const relevantSigners$ = documentId
@@ -346,7 +363,9 @@ export class SignersService extends BaseApiService {
       map((signers: Signer[]) =>
         signers.filter((signer: Signer) =>
           signer.status === SignerStatus.SIGNED ||
-          signer.status === SignerStatus.DECLINED
+          signer.status === SignerStatus.DECLINED ||
+          signer.status === SignerStatus.ERROR ||
+          signer.status === SignerStatus.EXPIRED
         )
       )
     );
@@ -398,6 +417,45 @@ export class SignersService extends BaseApiService {
     }
 
     return this.getSigners(documentId ? { documentId } : {});
+  }
+
+  /**
+   * Get documents associated with a signer
+   * Uses the document_ids array from the signer to fetch document details
+   * Returns an observable of documents, filtering out any that failed to load
+   */
+  getDocumentsForSigner(signer: Signer): Observable<Document[]> {
+    if (!signer.document_ids || signer.document_ids.length === 0) {
+      return of([]);
+    }
+
+    // Fetch all documents for this signer in parallel using the base API service
+    const documentRequests = signer.document_ids.map(documentId =>
+      this.get<Document>(`/documents/${documentId}/`, {
+        retry: true,
+        cache: true,
+        cacheOptions: { ttl: this.CACHE_TTL }
+      }).pipe(
+        catchError(error => {
+          console.warn(`Failed to load document ${documentId}:`, error);
+          return of(null); // Return null for failed requests
+        })
+      )
+    );
+
+    return forkJoin(documentRequests).pipe(
+      map(documents => documents.filter(doc => doc !== null) as Document[])
+    );
+  }
+
+  /**
+   * Get documents associated with a signer by ID
+   * Convenience method that first fetches the signer, then its documents
+   */
+  getDocumentsForSignerId(signerId: number): Observable<Document[]> {
+    return this.getSigner(signerId).pipe(
+      switchMap(signer => this.getDocumentsForSigner(signer))
+    );
   }
 
   // Private helper methods

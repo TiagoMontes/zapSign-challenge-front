@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Subject, takeUntil, switchMap } from 'rxjs';
+import { Component, OnInit, OnDestroy, inject, signal, computed, AfterViewInit } from '@angular/core';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Subject, takeUntil, switchMap, filter, fromEvent } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { CompaniesService } from '../../../../core/services/companies.service';
 import { Company, CompanyDocument } from '../../../../core/models/company.interface';
@@ -12,7 +12,7 @@ import { Company, CompanyDocument } from '../../../../core/models/company.interf
   templateUrl: './company-detail.component.html',
   styleUrls: ['./company-detail.component.scss']
 })
-export class CompanyDetailComponent implements OnInit, OnDestroy {
+export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly companiesService = inject(CompaniesService);
@@ -56,6 +56,26 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
     this.loadCompanyData();
   }
 
+  ngAfterViewInit(): void {
+    // Listen for navigation events
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event: NavigationEnd) => {
+        // Check if we're navigating back to this company's page
+        if (event.url.includes('/companies/')) {
+          const urlSegments = event.url.split('/');
+          if (urlSegments.length >= 3 && urlSegments[1] === 'companies' && !isNaN(+urlSegments[2])) {
+            console.log('Navigation to company page detected - force refreshing data');
+            // Force refresh to bypass cache and get latest data
+            setTimeout(() => this.loadCompanyData(true), 100);
+          }
+        }
+      });
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -64,7 +84,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
   /**
    * Load company data and related information
    */
-  private loadCompanyData(): void {
+  private loadCompanyData(forceRefresh: boolean = false): void {
     const companyId = this.route.snapshot.paramMap.get('id');
 
     if (!companyId || isNaN(+companyId)) {
@@ -75,7 +95,8 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.companiesService.getCompany(+companyId)
+    // Force refresh to bypass cache when needed
+    this.companiesService.getCompany(+companyId, !forceRefresh)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (company) => {
@@ -187,7 +208,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy {
    * Refresh company data
    */
   onRefresh(): void {
-    this.loadCompanyData();
+    this.loadCompanyData(true);
   }
 
   /**

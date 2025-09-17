@@ -1,10 +1,14 @@
 /**
  * Signer status enumeration for tracking signing progress
+ * Updated to match ZapSign API status values
  */
 export enum SignerStatus {
+  NEW = 'new',
   PENDING = 'pending',
   SIGNED = 'signed',
   DECLINED = 'declined',
+  INVITED = 'invited',
+  ERROR = 'error',
   EXPIRED = 'expired'
 }
 
@@ -25,6 +29,10 @@ export interface Signer {
   status: SignerStatus;
   /** External ID for additional reference */
   external_id: string | null;
+  /** ZapSign URL for signing the document */
+  sign_url: string;
+  /** Array of document IDs this signer belongs to */
+  document_ids: number[];
   /** ISO timestamp when the document was signed (if signed) */
   signed_at?: string;
   /** ISO timestamp when the signer was created */

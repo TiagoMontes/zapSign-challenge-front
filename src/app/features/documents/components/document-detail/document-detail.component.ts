@@ -4,11 +4,12 @@ import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { DocumentsService } from '../../../../core/services/documents.service';
 import { Document, DocumentAnalysis, Signer } from '../../../../core/models';
+import { SignerStatusComponent } from '../../../signers/components/signer-status/signer-status.component';
 
 @Component({
   selector: 'app-document-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SignerStatusComponent],
   templateUrl: './document-detail.component.html',
   styleUrls: ['./document-detail.component.scss']
 })
@@ -200,11 +201,48 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
     switch (status) {
       case 'signed':
         return 'bg-green-100 text-green-800';
+      case 'new':
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
+      case 'declined':
+        return 'bg-red-100 text-red-800';
+      case 'invited':
+        return 'bg-blue-100 text-blue-800';
+      case 'error':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  /**
+   * Get user-friendly signer status label
+   */
+  getSignerStatusLabel(status: string): string {
+    switch (status) {
+      case 'new':
+        return 'Pending';
+      case 'signed':
+        return 'Signed';
+      case 'declined':
+        return 'Declined';
+      case 'invited':
+        return 'Invited';
+      case 'error':
+        return 'Error';
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  }
+
+  /**
+   * Navigate to signer detail page with document context
+   */
+  onSignerClick(signerId: number): void {
+    const doc = this.document();
+    this.router.navigate(['/signers', signerId], {
+      state: { documentId: doc?.id, documentName: doc?.name }
+    });
   }
 
   /**
@@ -248,6 +286,42 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
       .join('')
       .toUpperCase()
       .slice(0, 2); // Limit to 2 characters
+  }
+
+  /**
+   * Format missing topics by removing surrounding quotes
+   */
+  formatMissingTopic(topic: string): string {
+    if (!topic) return '';
+
+    // Remove surrounding quotes if they exist
+    let cleanTopic = topic.trim();
+    if ((cleanTopic.startsWith('"') && cleanTopic.endsWith('"')) ||
+        (cleanTopic.startsWith("'") && cleanTopic.endsWith("'"))) {
+      cleanTopic = cleanTopic.slice(1, -1);
+    }
+
+    return cleanTopic;
+  }
+
+  /**
+   * Format insights from numbered list to bullet points array
+   */
+  formatInsights(insights: string): string[] {
+    if (!insights) return [];
+
+    // Split by numbered pattern (1., 2., 3., etc.) followed by space
+    const items = insights.split(/\d+\.\s*/).filter(item => item.trim().length > 0);
+
+    // Remove trailing commas and clean up each item
+    return items.map(item => {
+      let cleanItem = item.trim();
+      // Remove trailing comma if it exists
+      if (cleanItem.endsWith(',')) {
+        cleanItem = cleanItem.slice(0, -1);
+      }
+      return cleanItem;
+    });
   }
 
   /**
