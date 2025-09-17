@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   HttpInterceptor,
   HttpRequest,
@@ -10,6 +10,9 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { ErrorHandlerService } from '../services/error-handler.service';
+import { environment } from '../../../environments/environment';
 
 interface ErrorMessage {
   title: string;
@@ -19,30 +22,138 @@ interface ErrorMessage {
 
 /**
  * HTTP Error Handling Interceptor (Functional)
- * Handles global error responses and displays user-friendly messages
+ * Handles global error responses with enhanced logging, user notifications,
+ * and automatic error processing using the ErrorHandlerService
  */
 export const errorHandlingInterceptor: HttpInterceptorFn = (req, next) => {
+  const errorHandlerService = inject(ErrorHandlerService);
+  const router = inject(Router);
+  const snackBar = inject(MatSnackBar);
+
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      const errorDetails = getErrorMessage(error);
+      // Process error using our enhanced error handler
+      const processedError = errorHandlerService.processHttpError(error);
 
-      // Show error message to user (you might want to inject MatSnackBar differently)
-      console.error('HTTP Error:', {
-        status: error.status,
-        statusText: error.statusText,
-        url: error.url,
-        message: errorDetails.message,
-        error: error.error
-      });
+      // Log error details for debugging
+      if (environment.enableLogging) {
+        errorHandlerService.logError(processedError, `HTTP Request: ${req.method} ${req.url}`);
+      }
 
-      // You can implement additional error handling logic here
-      // such as redirecting to login page for 401 errors,
-      // showing retry options, etc.
+      // Handle specific error scenarios
+      handleSpecificErrors(error, router, snackBar, processedError);
 
-      return throwError(() => error);
+      // Return the processed error to maintain the error chain
+      return throwError(() => processedError);
     })
   );
 };
+
+/**
+ * Handle specific error scenarios with appropriate actions
+ */
+function handleSpecificErrors(
+  error: HttpErrorResponse,
+  router: Router,
+  snackBar: MatSnackBar,
+  processedError: Error
+): void {
+  switch (error.status) {
+    case 401:
+      // Authentication required - don't show snackbar for auth errors
+      // as they should be handled by auth guards/services
+      if (environment.enableLogging) {
+        console.warn('Authentication required for:', error.url);
+      }
+      break;
+
+    case 403:
+      // Forbidden - show error but don't redirect
+      showErrorSnackbar(snackBar, 'Access denied. You do not have permission to perform this action.');
+      break;
+
+    case 404:
+      // Not found - only show snackbar for non-navigation requests
+      if (!isNavigationRequest(error.url)) {
+        showErrorSnackbar(snackBar, 'The requested resource was not found.');
+      }
+      break;
+
+    case 429:
+      // Rate limiting - show specific message with retry info
+      showErrorSnackbar(
+        snackBar,
+        'Too many requests. Please wait a moment before trying again.',
+        'Retry',
+        8000
+      );
+      break;
+
+    case 500:
+    case 502:
+    case 503:
+    case 504:
+      // Server errors - show error with retry option
+      showErrorSnackbar(
+        snackBar,
+        'Server error occurred. Please try again in a moment.',
+        'Retry',
+        6000
+      );
+      break;
+
+    case 0:
+      // Network error - show connection error
+      showErrorSnackbar(
+        snackBar,
+        'Connection failed. Please check your internet connection.',
+        'Retry',
+        8000
+      );
+      break;
+
+    default:
+      // For other errors, only show snackbar for non-auth, non-navigation requests
+      if (error.status !== 401 && !isNavigationRequest(error.url)) {
+        const userMessage = processedError.message || 'An unexpected error occurred.';
+        showErrorSnackbar(snackBar, userMessage);
+      }
+  }
+}
+
+/**
+ * Show error snackbar with consistent styling
+ */
+function showErrorSnackbar(
+  snackBar: MatSnackBar,
+  message: string,
+  action: string = 'OK',
+  duration: number = 5000
+): void {
+  snackBar.open(message, action, {
+    duration,
+    panelClass: ['error-snackbar'],
+    horizontalPosition: 'end',
+    verticalPosition: 'top'
+  });
+}
+
+/**
+ * Check if the request is a navigation request (should not show error snackbars)
+ */
+function isNavigationRequest(url: string | null): boolean {
+  if (!url) return false;
+
+  // Add patterns for requests that should not show user notifications
+  const navigationPatterns = [
+    /\/auth\//,
+    /\/login/,
+    /\/logout/,
+    /\/verify/
+  ];
+
+  return navigationPatterns.some(pattern => pattern.test(url));
+}
 
 /**
  * Get user-friendly error message based on HTTP status
