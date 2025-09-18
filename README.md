@@ -52,6 +52,7 @@ Antes de executar esta aplicação, certifique-se de ter o seguinte instalado:
 - **Node.js** (v18 or higher)
 - **npm** (v9 or higher)
 - **Angular CLI** (v20.3.1 or higher)
+- **Backend API** - Esta aplicação requer o backend ZapSign Challenge rodando. Clone e configure o repositório backend: [https://github.com/TiagoMontes/zapSign-challenge](https://github.com/TiagoMontes/zapSign-challenge)
 
 ### Instalação
 
