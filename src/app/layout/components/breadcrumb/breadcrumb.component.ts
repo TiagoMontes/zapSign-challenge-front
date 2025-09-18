@@ -40,19 +40,6 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
           </a>
         </li>
       </ol>
-
-      <!-- Back button -->
-      <button
-        *ngIf="showBackButton && navigationService.canGoBack()"
-        (click)="goBack()"
-        class="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-200"
-        title="Voltar"
-        aria-label="Voltar">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-        </svg>
-        Voltar
-      </button>
     </nav>
   `,
   styles: []
