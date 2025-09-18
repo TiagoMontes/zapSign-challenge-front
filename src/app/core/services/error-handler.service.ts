@@ -61,7 +61,7 @@ export class ErrorHandlerService {
     // Network connectivity issues
     if (error.status === 0) {
       return new NetworkException(
-        'Unable to connect to server. Please check your internet connection.',
+        'Não foi possível conectar ao servidor. Verifique sua conexão com a internet.',
         error
       );
     }
@@ -105,12 +105,12 @@ export class ErrorHandlerService {
       case HttpStatusCode.UNPROCESSABLE_ENTITY:
         if (errors && errors.length > 0) {
           return new ValidationException(
-            message || 'Validation failed',
+            message || 'Falha na validação',
             errors
           );
         }
         return new ApiException(
-          message || 'Invalid request data',
+          message || 'Dados de solicitação inválidos',
           code,
           errors,
           originalError
@@ -118,7 +118,7 @@ export class ErrorHandlerService {
 
       case HttpStatusCode.UNAUTHORIZED:
         return new ApiException(
-          'Authentication required. Please log in.',
+          'Autenticação necessária. Faça login.',
           code,
           errors,
           originalError
@@ -126,7 +126,7 @@ export class ErrorHandlerService {
 
       case HttpStatusCode.FORBIDDEN:
         return new ApiException(
-          'You do not have permission to perform this action.',
+          'Você não tem permissão para executar esta ação.',
           code,
           errors,
           originalError
@@ -134,7 +134,7 @@ export class ErrorHandlerService {
 
       case HttpStatusCode.NOT_FOUND:
         return new ApiException(
-          'The requested resource was not found.',
+          'O recurso solicitado não foi encontrado.',
           code,
           errors,
           originalError
@@ -142,7 +142,7 @@ export class ErrorHandlerService {
 
       case HttpStatusCode.CONFLICT:
         return new ApiException(
-          message || 'A conflict occurred. The resource may already exist.',
+          message || 'Ocorreu um conflito. O recurso pode já existir.',
           code,
           errors,
           originalError
@@ -150,7 +150,7 @@ export class ErrorHandlerService {
 
       case HttpStatusCode.INTERNAL_SERVER_ERROR:
         return new ApiException(
-          'Server error occurred. Please try again later.',
+          'Erro do servidor ocorreu. Tente novamente mais tarde.',
           code,
           errors,
           originalError
@@ -158,7 +158,7 @@ export class ErrorHandlerService {
 
       default:
         return new ApiException(
-          message || 'An unexpected error occurred',
+          message || 'Ocorreu um erro inesperado',
           code,
           errors,
           originalError
@@ -174,34 +174,34 @@ export class ErrorHandlerService {
 
     switch (error.status) {
       case 400:
-        message = 'Invalid request. Please check your input.';
+        message = 'Solicitação inválida. Verifique sua entrada.';
         break;
       case 401:
-        message = 'Authentication required. Please log in.';
+        message = 'Autenticação necessária. Faça login.';
         break;
       case 403:
-        message = 'You do not have permission to perform this action.';
+        message = 'Você não tem permissão para executar esta ação.';
         break;
       case 404:
-        message = 'The requested resource was not found.';
+        message = 'O recurso solicitado não foi encontrado.';
         break;
       case 409:
-        message = 'A conflict occurred. The resource may already exist.';
+        message = 'Ocorreu um conflito. O recurso pode já existir.';
         break;
       case 422:
-        message = 'Invalid data provided. Please check your input.';
+        message = 'Dados inválidos fornecidos. Verifique sua entrada.';
         break;
       case 429:
-        message = 'Too many requests. Please wait and try again.';
+        message = 'Muitas solicitações. Aguarde e tente novamente.';
         break;
       case 500:
       case 502:
       case 503:
       case 504:
-        message = 'Server error occurred. Please try again later.';
+        message = 'Erro do servidor ocorreu. Tente novamente mais tarde.';
         break;
       default:
-        message = `Unexpected error occurred (${error.status}). Please try again.`;
+        message = `Erro inesperado ocorreu (${error.status}). Tente novamente.`;
     }
 
     return new ApiException(message, error.status, undefined, error);
@@ -215,7 +215,7 @@ export class ErrorHandlerService {
       if (error.errors.length === 1) {
         return error.errors[0].message;
       }
-      return `Validation failed: ${error.errors.map(e => e.message).join(', ')}`;
+      return `Falha na validação: ${error.errors.map(e => e.message).join(', ')}`;
     }
 
     if (error instanceof NetworkException) {
@@ -226,7 +226,7 @@ export class ErrorHandlerService {
       return error.message;
     }
 
-    return 'An unexpected error occurred. Please try again.';
+    return 'Ocorreu um erro inesperado. Tente novamente.';
   }
 
   /**

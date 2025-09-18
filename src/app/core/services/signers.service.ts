@@ -177,7 +177,7 @@ export class SignersService extends BaseApiService {
    * Update an existing signer
    */
   updateSigner(id: number, signerData: UpdateSignerRequest): Observable<Signer> {
-    return this.put<Signer>(`/signers/${id}/`, signerData, { retry: true }).pipe(
+    return this.patch<Signer>(`/signers/${id}/update-external/`, signerData, { retry: true }).pipe(
       tap(updatedSigner => {
         // Update in current list
         this.updateSignerInList(updatedSigner);
@@ -376,6 +376,79 @@ export class SignersService extends BaseApiService {
    */
   refreshSigners(query?: SignersQuery): Observable<Signer[]> {
     return this.getSigners(query || {}, true);
+  }
+
+  /**
+   * Sync signer with ZapSign API
+   */
+  syncSigner(id: number): Observable<Signer> {
+    return this.put<Signer>(`/signers/${id}/sync/`, {}, { retry: true }).pipe(
+      tap(updatedSigner => {
+        // Update in current list
+        this.updateSignerInList(updatedSigner);
+
+        // Update selected signer if it matches
+        const current = this.selectedSignerSubject.value;
+        if (current?.id === id) {
+          this.selectedSignerSubject.next(updatedSigner);
+        }
+
+        // Invalidate related caches
+        this.invalidateSignerCache(id);
+      })
+    );
+  }
+
+  /**
+   * Update signer external information using ZapSign API
+   */
+  updateSignerExternal(id: number, data: { name: string; email: string }): Observable<Signer> {
+    return this.patch<Signer>(`/signers/${id}/update-external/`, data, { retry: true }).pipe(
+      tap(updatedSigner => {
+        // Update in current list
+        this.updateSignerInList(updatedSigner);
+
+        // Update selected signer if it matches
+        const current = this.selectedSignerSubject.value;
+        if (current?.id === id) {
+          this.selectedSignerSubject.next(updatedSigner);
+        }
+
+        // Invalidate related caches
+        this.invalidateSignerCache(id);
+      })
+    );
+  }
+
+  /**
+   * Remove signer from external ZapSign system
+   */
+  removeSignerExternal(id: number): Observable<void> {
+    return this.delete<void>(`/signers/${id}/remove-external/`, { retry: false }).pipe(
+      tap(() => {
+        // Get signer before removal to update document lists
+        const currentSigners = this.signersSubject.value;
+        const signerToDelete = currentSigners.find(s => s.id === id);
+
+        // Remove from current list
+        const updatedSigners = currentSigners.filter(signer => signer.id !== id);
+        this.signersSubject.next(updatedSigners);
+
+        // Update document-specific lists
+        if (signerToDelete) {
+          this.removeSignerFromDocumentLists(signerToDelete);
+        }
+
+        // Clear selected signer if it was deleted
+        const current = this.selectedSignerSubject.value;
+        if (current?.id === id) {
+          this.selectedSignerSubject.next(null);
+        }
+
+        // Invalidate caches
+        this.invalidateSignerCache(id);
+      })
+    );
   }
 
   /**

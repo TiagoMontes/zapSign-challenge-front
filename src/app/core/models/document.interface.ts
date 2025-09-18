@@ -95,8 +95,8 @@ export interface DocumentAnalysis {
   missing_topics: string[];
   /** AI-generated summary of the document */
   summary: string;
-  /** AI-generated insights about the document */
-  insights: string;
+  /** AI-generated insights about the document - can be string or array */
+  insights: string | string[];
   /** ISO timestamp when the analysis was performed */
   analyzed_at: string;
 }

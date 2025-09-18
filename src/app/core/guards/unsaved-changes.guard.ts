@@ -40,10 +40,10 @@ export class UnsavedChangesGuard implements CanDeactivate<CanComponentDeactivate
       width: '400px',
       disableClose: true,
       data: {
-        title: 'Unsaved Changes',
-        message: 'You have unsaved changes. Are you sure you want to leave this page?',
-        confirmText: 'Leave Page',
-        cancelText: 'Stay on Page'
+        title: 'Alterações não Salvas',
+        message: 'Você tem alterações não salvas. Tem certeza que deseja sair desta página?',
+        confirmText: 'Sair da Página',
+        cancelText: 'Permanecer na Página'
       }
     }).afterClosed().pipe(
       map(result => !!result)

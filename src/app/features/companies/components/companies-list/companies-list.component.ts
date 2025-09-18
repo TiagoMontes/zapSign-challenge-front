@@ -65,7 +65,7 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading companies:', error);
-          this.error.set('Failed to load companies. Please try again.');
+          this.error.set('Falhou ao carregar empresas. Tente novamente.');
           this.loading.set(false);
         }
       });
@@ -155,13 +155,6 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Navigate to company documents
-   */
-  onViewDocuments(company: Company): void {
-    this.router.navigate(['/companies', company.id, 'documents']);
-  }
-
-  /**
    * Delete company with confirmation
    */
   onDeleteCompany(company: Company): void {
@@ -183,7 +176,7 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error deleting company:', error);
-          alert('Failed to delete company. Please try again.');
+          alert('Falhou ao excluir empresa. Tente novamente.');
         }
       });
   }

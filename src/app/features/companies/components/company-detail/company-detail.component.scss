@@ -1,666 +1,101 @@
-.company-detail-container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+// Company Detail Component - Optimized for Tailwind CSS
+// Only keeping essential custom styles not covered by Tailwind
 
-  @media (max-width: 768px) {
-    padding: 16px;
-  }
+// Custom token display
+.token-display {
+  word-break: break-all;
 }
 
-// Loading State
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 64px 24px;
-  gap: 16px;
-  color: #666;
-
-  p {
-    margin: 0;
-    font-size: 1rem;
-  }
-}
-
-// Error State
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 64px 24px;
-  gap: 16px;
-  text-align: center;
-
-  mat-icon {
-    font-size: 3rem;
-    width: 3rem;
-    height: 3rem;
-  }
-
-  p {
-    margin: 0;
-    color: #666;
-    font-size: 1rem;
-    max-width: 400px;
-  }
-
-  button {
-    gap: 8px;
-  }
-}
-
-// Content Container
-.content-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-// Header Section
-.header-section {
-  margin-bottom: 8px;
-}
-
-.company-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-.company-info {
-  flex: 1;
-
-  .company-name {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0 0 8px 0;
-    font-size: 2.2rem;
-    font-weight: 500;
-    color: #1976d2;
-
-    mat-icon {
-      font-size: 2.2rem;
-      width: 2.2rem;
-      height: 2.2rem;
-    }
-
-    @media (max-width: 768px) {
-      font-size: 1.8rem;
-
-      mat-icon {
-        font-size: 1.8rem;
-        width: 1.8rem;
-        height: 1.8rem;
-      }
-    }
-  }
-
-  .company-meta {
-    margin: 0;
-    color: #666;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .company-id {
-      font-family: monospace;
-      background-color: #f5f5f5;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-
-    .separator {
-      color: #ccc;
-    }
-  }
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  @media (max-width: 768px) {
-    justify-content: flex-end;
-  }
-
-  .refresh-btn {
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-
-    &:hover {
-      opacity: 1;
-    }
-  }
-
-  .edit-btn,
-  .delete-btn {
-    gap: 6px;
-    font-weight: 500;
-
-    @media (max-width: 480px) {
-      span {
-        display: none;
-      }
-    }
-  }
-}
-
-// Statistics Section
-.stats-section {
-  margin-bottom: 8px;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-
-  @media (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-}
-
-.stat-card {
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+// Custom hover animations for interactive elements
+.hover-lift {
+  transition: transform 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  .mat-mdc-card-content {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-
-    @media (max-width: 480px) {
-      padding: 16px;
-      gap: 12px;
-    }
-  }
-
-  .stat-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-
-    mat-icon {
-      font-size: 1.5rem;
-      width: 1.5rem;
-      height: 1.5rem;
-    }
-
-    @media (max-width: 480px) {
-      width: 40px;
-      height: 40px;
-
-      mat-icon {
-        font-size: 1.3rem;
-        width: 1.3rem;
-        height: 1.3rem;
-      }
-    }
-  }
-
-  .stat-info {
-    flex: 1;
-
-    .stat-number {
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: #333;
-      line-height: 1;
-
-      @media (max-width: 480px) {
-        font-size: 1.5rem;
-      }
-    }
-
-    .stat-label {
-      font-size: 0.875rem;
-      color: #666;
-      margin-top: 4px;
-    }
-  }
-
-  // Color variations
-  &.documents-stat .stat-icon {
-    background-color: #e3f2fd;
-    color: #1976d2;
-  }
-
-  &.signers-stat .stat-icon {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
-  }
-
-  &.pending-stat .stat-icon {
-    background-color: #fff3e0;
-    color: #f57c00;
-  }
-
-  &.signed-stat .stat-icon {
-    background-color: #e8f5e8;
-    color: #4caf50;
+    transform: translateY(-1px);
   }
 }
 
-// Main Content Grid
-.main-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+// Custom status indicator animations
+.status-indicator {
+  position: relative;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .info-section,
-  .actions-section {
-    grid-column: 1 / -1;
-
-    @media (max-width: 768px) {
-      grid-column: 1;
-    }
-  }
-}
-
-// Information Card
-.info-card {
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-
-  .mat-mdc-card-header {
-    .mat-mdc-card-title {
-      font-size: 1.2rem;
-      font-weight: 500;
-    }
-
-    mat-icon {
-      color: #2196f3;
-    }
-  }
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .value {
-    font-size: 1rem;
-    color: #333;
-  }
-
-  &.api-token-item {
-    .token-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .token-display {
-        background-color: #f5f5f5;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-family: 'Roboto Mono', monospace;
-        font-size: 0.9rem;
-        color: #333;
-        border: 1px solid #e0e0e0;
-        flex: 1;
-      }
-
-      .copy-btn {
-        opacity: 0.7;
-        transition: opacity 0.2s ease;
-        color: #2196f3;
-
-        &:hover {
-          opacity: 1;
-        }
-      }
-    }
-  }
-}
-
-// Documents and Signers Cards
-.documents-card,
-.signers-card {
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-  height: fit-content;
-
-  .mat-mdc-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .mat-mdc-card-title {
-      font-size: 1.2rem;
-      font-weight: 500;
-    }
-
-    mat-icon {
-      color: #4caf50;
-    }
-
-    .card-actions {
-      margin-left: auto;
-
-      .view-all-btn {
-        gap: 6px;
-        font-size: 0.875rem;
-      }
-    }
-  }
-}
-
-// Empty States
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-
-  .empty-icon {
-    font-size: 3rem;
-    width: 3rem;
-    height: 3rem;
-    color: #ccc;
-    margin-bottom: 12px;
-  }
-
-  p {
-    margin: 0 0 16px 0;
-    color: #666;
-    font-size: 1rem;
-  }
-
-  button {
-    gap: 6px;
-  }
-}
-
-// Document Items
-.documents-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.document-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-
-  &:hover {
-    background-color: #f8f9fa;
-    border-color: #1976d2;
-  }
-
-  .document-info {
-    flex: 1;
-
-    .document-name {
-      font-weight: 500;
-      color: #333;
-      margin-bottom: 4px;
-    }
-
-    .document-meta {
-      font-size: 0.875rem;
-      color: #666;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .separator {
-        color: #ccc;
-      }
-    }
-  }
-
-  .document-status {
-    .status-chip {
-      font-size: 0.75rem;
-      height: 28px;
-    }
-  }
-}
-
-// Signer Items
-.signers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.signer-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-
-  &:hover {
-    background-color: #f8f9fa;
-    border-color: #1976d2;
-  }
-
-  .signer-avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -8px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
-    background-color: #e3f2fd;
-    color: #1976d2;
-
-    mat-icon {
-      font-size: 1.2rem;
-      width: 1.2rem;
-      height: 1.2rem;
-    }
+    transform: translateY(-50%);
   }
 
-  .signer-info {
-    flex: 1;
-
-    .signer-name {
-      font-weight: 500;
-      color: #333;
-      margin-bottom: 2px;
-    }
-
-    .signer-email {
-      font-size: 0.875rem;
-      color: #666;
-      margin-bottom: 2px;
-    }
-
-    .signer-meta {
-      font-size: 0.75rem;
-      color: #999;
-    }
+  &.status-pending::before {
+    background-color: #f59e0b;
   }
 
-  .signer-status {
-    .status-chip {
-      font-size: 0.75rem;
-      height: 28px;
-    }
+  &.status-completed::before {
+    background-color: #10b981;
+  }
+
+  &.status-cancelled::before {
+    background-color: #ef4444;
   }
 }
 
-// Actions Card
-.actions-card {
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
+// Custom scrollbar for lists
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
 
-  .mat-mdc-card-header {
-    .mat-mdc-card-title {
-      font-size: 1.2rem;
-      font-weight: 500;
-    }
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
 
-    mat-icon {
-      color: #ff9800;
-    }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
   }
 }
 
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-
-  @media (max-width: 480px) {
+// Responsive grid adjustments beyond Tailwind defaults
+@media (max-width: 480px) {
+  .responsive-grid {
     grid-template-columns: 1fr;
   }
+}
 
-  .action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 16px;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+// Print optimizations
+@media print {
+  .no-print {
+    display: none !important;
+  }
 
-    &:hover {
-      background-color: #f5f5f5;
-      border-color: #1976d2;
-    }
+  .company-actions {
+    display: none;
   }
 }
 
-// Material Chip Overrides
-.mat-mdc-chip {
-  &.status-chip {
-    border-radius: 12px;
-    font-weight: 500;
-
-    .mat-mdc-chip-avatar {
-      margin-right: 4px;
-
-      mat-icon {
-        font-size: 0.9rem;
-        width: 0.9rem;
-        height: 0.9rem;
-      }
-    }
-  }
-}
-
-// Track by functions (for performance)
-.document-item,
-.signer-item {
-  // These would be used with trackBy functions in the component
-}
-
-// Responsive adjustments
-@media (max-width: 480px) {
-  .company-detail-container {
-    padding: 12px;
-  }
-
-  .content-container {
-    gap: 20px;
-  }
-
-  .main-content {
-    gap: 16px;
-  }
-
-  .document-item,
-  .signer-item {
-    padding: 12px;
-  }
-
-  .info-grid {
-    gap: 12px;
-  }
-
-  .actions-grid {
-    gap: 10px;
-  }
-}
-
-// Accessibility improvements
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-  }
-}
-
-// High contrast mode
+// High contrast mode support
 @media (prefers-contrast: high) {
-  .stat-card,
-  .info-card,
-  .documents-card,
-  .signers-card,
-  .actions-card,
-  .document-item,
-  .signer-item {
-    border: 2px solid #333;
+  .border-enhanced {
+    border-width: 2px;
+    border-color: #000;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .hover-lift {
+    transition: none;
   }
 
-  .company-meta .company-id {
-    border: 1px solid #333;
-  }
-
-  .token-display {
-    border: 2px solid #333;
+  .hover-lift:hover {
+    transform: none;
   }
 }

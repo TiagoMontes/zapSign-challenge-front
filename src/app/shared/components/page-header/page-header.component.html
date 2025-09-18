@@ -1,0 +1,57 @@
+<div class="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <!-- Title Section -->
+    <div class="flex items-center gap-4 mb-4 sm:mb-0">
+      <!-- Back Button -->
+      <button
+        *ngIf="showBackButton"
+        type="button"
+        class="inline-flex items-center p-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        (click)="onBack()"
+        [title]="backLabel">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        <span class="ml-2 hidden sm:inline">{{ backLabel }}</span>
+      </button>
+
+      <!-- Title and Subtitle -->
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">
+          {{ title }}
+        </h1>
+        <p *ngIf="subtitle" class="mt-1 text-sm text-gray-500">
+          {{ subtitle }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Actions Section -->
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+      <button
+        *ngFor="let action of actions"
+        type="button"
+        [ngClass]="getActionClasses(action)"
+        [disabled]="action.disabled"
+        (click)="executeAction(action)">
+
+        <!-- Icon -->
+        <svg
+          *ngIf="getIconPath(action.icon)"
+          class="w-4 h-4 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            [attr.d]="getIconPath(action.icon)">
+          </path>
+        </svg>
+
+        {{ action.label }}
+      </button>
+    </div>
+  </div>
+</div>

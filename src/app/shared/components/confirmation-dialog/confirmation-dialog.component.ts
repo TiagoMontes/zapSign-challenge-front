@@ -1,6 +1,5 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SharedModule } from '../../shared.module';
+import { Component, Inject, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 export interface ConfirmationDialogData {
   title: string;
@@ -13,115 +12,63 @@ export interface ConfirmationDialogData {
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
-  imports: [SharedModule],
-  template: `
-    <div class="confirmation-dialog">
-      <h2 mat-dialog-title class="dialog-title">
-        
-        {{ data.title }}
-      </h2>
-
-      <mat-dialog-content class="dialog-content">
-        <p>{{ data.message }}</p>
-      </mat-dialog-content>
-
-      <mat-dialog-actions class="dialog-actions">
-        <button
-          mat-button
-          type="button"
-          (click)="onCancel()">
-          {{ data.cancelText || 'Cancel' }}
-        </button>
-        <button
-          mat-raised-button
-          [color]="getButtonColor()"
-          type="button"
-          (click)="onConfirm()">
-          {{ data.confirmText || 'Confirm' }}
-        </button>
-      </mat-dialog-actions>
-    </div>
-  `,
-  styles: [`
-    .confirmation-dialog {
-      min-width: 300px;
-      max-width: 500px;
-    }
-
-    .dialog-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 0 16px 0;
-    }
-
-    .dialog-content {
-      margin-bottom: 16px;
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin: 0;
-      padding: 0;
-    }
-
-    .icon-info {
-      color: var(--info-color);
-    }
-
-    .icon-warning {
-      color: var(--accent-color);
-    }
-
-    .icon-error {
-      color: var(--warn-color);
-    }
-
-    .icon-danger {
-      color: var(--warn-color);
-    }
-  `]
+  imports: [CommonModule],
+  templateUrl: './confirmation-dialog.component.html',
+  styles: []
 })
 export class ConfirmationDialogComponent {
+  @Output() confirm = new EventEmitter<boolean>();
+  @Output() cancel = new EventEmitter<void>();
+
   constructor(
-    public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmationDialogData
+    @Inject('data') public data: ConfirmationDialogData
   ) {
     // Set default type if not provided
     this.data.type = this.data.type || 'info';
   }
 
   onConfirm(): void {
-    this.dialogRef.close(true);
+    this.confirm.emit(true);
   }
 
   onCancel(): void {
-    this.dialogRef.close(false);
+    this.cancel.emit();
   }
 
-  getIcon(): string {
+  getIconPath(): string {
     switch (this.data.type) {
       case 'warning':
-        return 'warning';
+        return 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z';
       case 'error':
       case 'danger':
-        return 'error';
+        return 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z';
       default:
-        return 'info';
+        return 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
     }
   }
 
-  getButtonColor(): 'primary' | 'accent' | 'warn' {
+  getIconColorClasses(): string {
     switch (this.data.type) {
       case 'warning':
-        return 'accent';
+        return 'text-yellow-500';
       case 'error':
       case 'danger':
-        return 'warn';
+        return 'text-red-500';
       default:
-        return 'primary';
+        return 'text-blue-500';
+    }
+  }
+
+  getConfirmButtonClasses(): string {
+    const baseClasses = 'px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors';
+    switch (this.data.type) {
+      case 'warning':
+        return `${baseClasses} bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500`;
+      case 'error':
+      case 'danger':
+        return `${baseClasses} bg-red-600 text-white hover:bg-red-700 focus:ring-red-500`;
+      default:
+        return `${baseClasses} bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500`;
     }
   }
 }

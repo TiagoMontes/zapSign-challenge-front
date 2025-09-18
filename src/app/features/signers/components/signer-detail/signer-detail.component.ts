@@ -29,13 +29,15 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
   isLoading = signal<boolean>(false);
   isLoadingDocuments = signal<boolean>(false);
   isDeleting = signal<boolean>(false);
+  isSyncing = signal<boolean>(false);
   error = signal<string | null>(null);
 
   // Computed properties
   hasSigner = computed(() => !!this.signer());
   hasAssociatedDocuments = computed(() => this.associatedDocuments().length > 0);
-  canEdit = computed(() => this.hasSigner() && !this.isDeleting());
-  canDelete = computed(() => this.hasSigner() && !this.isDeleting());
+  canEdit = computed(() => this.hasSigner() && !this.isDeleting() && !this.isSyncing());
+  canDelete = computed(() => this.hasSigner() && !this.isDeleting() && !this.isSyncing());
+  canSync = computed(() => this.hasSigner() && !this.isDeleting() && !this.isSyncing());
   hasToken = computed(() => !!this.signer()?.token);
   hasExternalId = computed(() => !!this.signer()?.external_id);
   hasSignUrl = computed(() => !!this.signer()?.sign_url);
@@ -114,25 +116,25 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Delete signer with confirmation
+   * Delete signer with confirmation - removes from ZapSign external system
    */
   onDeleteSigner(): void {
     const signer = this.signer();
     if (!signer) return;
 
     const confirmed = confirm(
-      `Are you sure you want to delete signer "${signer.name}"? This action cannot be undone.`
+      `Tem certeza de que deseja remover o signatário "${signer.name}" do sistema ZapSign? Esta ação não pode ser desfeita.`
     );
 
     if (confirmed) {
       this.isDeleting.set(true);
       this.error.set(null);
 
-      this.signersService.deleteSigner(signer.id)
+      this.signersService.removeSignerExternal(signer.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.notificationService.showSuccess('Signer deleted successfully');
+            this.notificationService.showSuccess('Signatário removido com sucesso do ZapSign');
             // Navigate back to the primary document or signers list
             const documents = this.associatedDocuments();
             if (documents.length > 0) {
@@ -142,8 +144,9 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
             }
           },
           error: (error) => {
-            console.error('Error deleting signer:', error);
-            this.error.set('Failed to delete signer. Please try again.');
+            console.error('Error removing signer from external system:', error);
+            this.error.set('Falha ao remover signatário do ZapSign. Tente novamente.');
+            this.notificationService.showError('Falha ao remover signatário do ZapSign');
             this.isDeleting.set(false);
           }
         });
@@ -197,6 +200,33 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
    */
   onRefresh(): void {
     this.loadSignerData();
+  }
+
+  /**
+   * Sync signer with ZapSign API
+   */
+  onSyncSigner(): void {
+    const signer = this.signer();
+    if (!signer) return;
+
+    this.isSyncing.set(true);
+    this.error.set(null);
+
+    this.signersService.syncSigner(signer.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedSigner) => {
+          this.signer.set(updatedSigner);
+          this.notificationService.showSuccess('Signatário sincronizado com sucesso');
+          this.isSyncing.set(false);
+        },
+        error: (error) => {
+          console.error('Error syncing signer:', error);
+          this.error.set('Falha ao sincronizar signatário. Tente novamente.');
+          this.notificationService.showError('Falha ao sincronizar signatário');
+          this.isSyncing.set(false);
+        }
+      });
   }
 
   /**

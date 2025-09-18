@@ -86,7 +86,7 @@ export class SignerFormComponent implements OnInit, OnDestroy, CanComponentDeact
     const signerId = this.route.snapshot.paramMap.get('id');
 
     if (!signerId || isNaN(+signerId)) {
-      this.error.set('Invalid signer ID');
+      this.error.set('ID do signatário inválido');
       return;
     }
 
@@ -103,7 +103,7 @@ export class SignerFormComponent implements OnInit, OnDestroy, CanComponentDeact
         },
         error: (error) => {
           console.error('Error loading signer:', error);
-          this.error.set('Failed to load signer data. Please try again.');
+          this.error.set('Falhou ao carregar dados do signatário. Tente novamente.');
           this.isLoading.set(false);
         }
       });
@@ -153,7 +153,7 @@ export class SignerFormComponent implements OnInit, OnDestroy, CanComponentDeact
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (signer) => {
-          this.notificationService.showSuccess('Signer created successfully');
+          this.notificationService.showSuccess('Signatário criado com sucesso');
           this.signerForm.markAsPristine();
           this.router.navigate(['/signers', signer.id]);
         },
@@ -181,7 +181,7 @@ export class SignerFormComponent implements OnInit, OnDestroy, CanComponentDeact
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedSigner) => {
-          this.notificationService.showSuccess('Signer updated successfully');
+          this.notificationService.showSuccess('Signatário atualizado com sucesso');
           this.signer.set(updatedSigner);
           this.signerForm.markAsPristine();
           this.router.navigate(['/signers', updatedSigner.id]);
@@ -203,7 +203,7 @@ export class SignerFormComponent implements OnInit, OnDestroy, CanComponentDeact
     } else if (error.status === 409) {
       this.error.set('A signer with this email already exists');
     } else {
-      this.error.set('Failed to save signer. Please try again.');
+      this.error.set('Falhou ao salvar signatário. Tente novamente.');
     }
   }
 
@@ -250,7 +250,7 @@ export class SignerFormComponent implements OnInit, OnDestroy, CanComponentDeact
       return `${this.getFieldLabel(fieldName)} is required`;
     }
     if (errors['email']) {
-      return 'Please enter a valid email address';
+      return 'Por favor, digite um endereço de email válido';
     }
     if (errors['minlength']) {
       return `${this.getFieldLabel(fieldName)} must be at least ${errors['minlength'].requiredLength} characters`;
@@ -262,7 +262,7 @@ export class SignerFormComponent implements OnInit, OnDestroy, CanComponentDeact
       return 'Name can only contain letters, spaces, hyphens, and apostrophes';
     }
 
-    return 'Invalid input';
+    return 'Entrada inválida';
   }
 
   /**

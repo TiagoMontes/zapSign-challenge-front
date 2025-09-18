@@ -13,29 +13,29 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
-        title: 'Dashboard - ZapSign',
-        data: { breadcrumb: 'Dashboard' }
+        title: 'Painel - ZapSign',
+        data: { breadcrumb: 'Painel' }
       },
       {
         path: 'companies',
         loadChildren: () => import('./features/companies/companies.routes').then(m => m.COMPANIES_ROUTES),
-        data: { breadcrumb: 'Companies' }
+        data: { breadcrumb: 'Empresas' }
       },
       {
         path: 'documents',
         loadChildren: () => import('./features/documents/documents.routes').then(m => m.DOCUMENTS_ROUTES),
-        data: { breadcrumb: 'Documents' }
+        data: { breadcrumb: 'Documentos' }
       },
       {
         path: 'signers',
         loadChildren: () => import('./features/signers/signers.routes').then(m => m.SIGNERS_ROUTES),
-        data: { breadcrumb: 'Signers' }
+        data: { breadcrumb: 'Signatários' }
       }
     ]
   },
   {
     path: '**',
     loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent),
-    title: 'Page Not Found - ZapSign'
+    title: 'Página Não Encontrada - ZapSign'
   }
 ];

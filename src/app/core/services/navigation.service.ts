@@ -102,25 +102,25 @@ export class NavigationService {
 
     return [
       {
-        label: 'Dashboard',
+        label: 'Painel',
         icon: 'dashboard',
         route: '/dashboard',
         active: this.isRouteActive('/dashboard')
       },
       {
-        label: 'Companies',
+        label: 'Empresas',
         icon: 'business',
         route: '/companies',
         active: this.isRouteActive('/companies'),
         children: [
           {
-            label: 'All Companies',
+            label: 'Todas as Empresas',
             icon: 'list',
             route: '/companies',
             active: currentRoute === '/companies'
           },
           {
-            label: 'Create Company',
+            label: 'Criar Empresa',
             icon: 'add',
             route: '/companies/create',
             active: currentRoute === '/companies/create'
@@ -154,12 +154,8 @@ export class NavigationService {
   }
 
   /**
-   * Document navigation helpers
+   * Document navigation helpers (always through company context)
    */
-  navigateToDocuments(): Promise<boolean> {
-    return this.navigateTo('/documents');
-  }
-
   navigateToDocument(id: string): Promise<boolean> {
     return this.navigateTo(['/documents', id]);
   }
@@ -178,18 +174,10 @@ export class NavigationService {
   }
 
   /**
-   * Signer navigation helpers
+   * Signer navigation helpers (only for detail/edit views)
    */
-  navigateToSigners(): Promise<boolean> {
-    return this.navigateTo('/signers');
-  }
-
   navigateToSigner(id: string): Promise<boolean> {
     return this.navigateTo(['/signers', id]);
-  }
-
-  navigateToCreateSigner(): Promise<boolean> {
-    return this.navigateTo('/signers/create');
   }
 
   navigateToEditSigner(id: string): Promise<boolean> {
@@ -212,7 +200,7 @@ export class NavigationService {
 
       // Always add dashboard as home
       breadcrumbs.push({
-        label: 'Dashboard',
+        label: 'Painel',
         url: '/dashboard',
         active: false
       });
@@ -263,7 +251,7 @@ export class NavigationService {
 
     // Always add dashboard as home
     breadcrumbs.push({
-      label: 'Dashboard',
+      label: 'Painel',
       url: '/dashboard',
       active: false
     });
@@ -293,14 +281,14 @@ export class NavigationService {
   private getSegmentLabel(segment: string, allSegments: string[], index: number): string {
     // Check if it's a known route segment
     const routeLabels: Record<string, string> = {
-      'companies': 'Companies',
-      'documents': 'Documents',
-      'signers': 'Signers',
-      'dashboard': 'Dashboard',
-      'create': 'Create',
-      'edit': 'Edit',
-      'analysis': 'Analysis',
-      'sign': 'Sign'
+      'companies': 'Empresas',
+      'documents': 'Documentos',
+      'signers': 'Signatários',
+      'dashboard': 'Painel',
+      'create': 'Criar',
+      'edit': 'Editar',
+      'analysis': 'Análise',
+      'sign': 'Assinar'
     };
 
     if (routeLabels[segment]) {
@@ -313,13 +301,13 @@ export class NavigationService {
       // Try to determine the type based on the parent segment
       const parentSegment = allSegments[index - 1];
       if (parentSegment === 'companies') {
-        return 'Company Details';
+        return 'Detalhes da Empresa';
       } else if (parentSegment === 'documents') {
-        return 'Document Details';
+        return 'Detalhes do Documento';
       } else if (parentSegment === 'signers') {
-        return 'Signer Details';
+        return 'Detalhes do Signatário';
       }
-      return 'Details';
+      return 'Detalhes';
     }
 
     // Fallback: capitalize the segment

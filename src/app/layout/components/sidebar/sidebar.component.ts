@@ -80,7 +80,7 @@ interface MenuItem {
         <button
           (click)="toggleCollapse()"
           class="w-full flex items-center justify-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-          [title]="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+          [title]="isCollapsed ? 'Expandir barra lateral' : 'Recolher barra lateral'">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"

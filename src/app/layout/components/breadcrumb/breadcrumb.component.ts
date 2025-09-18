@@ -12,7 +12,7 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
     RouterModule
   ],
   template: `
-    <nav class="flex items-center justify-between py-3 px-6 bg-white border-b border-gray-200" aria-label="Breadcrumb navigation">
+    <nav class="flex items-center justify-between py-3 px-6 bg-white border-b border-gray-200" aria-label="Navegação breadcrumb">
       <ol class="flex items-center space-x-2 text-sm">
         <li *ngFor="let item of breadcrumbs; let first = first" class="flex items-center">
           <!-- Separator (not for first item) -->
@@ -46,12 +46,12 @@ import { NavigationService, BreadcrumbItem } from '../../../core/services/naviga
         *ngIf="showBackButton && navigationService.canGoBack()"
         (click)="goBack()"
         class="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-200"
-        title="Go back"
-        aria-label="Go back">
+        title="Voltar"
+        aria-label="Voltar">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
         </svg>
-        Back
+        Voltar
       </button>
     </nav>
   `,

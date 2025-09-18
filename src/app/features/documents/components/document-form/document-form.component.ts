@@ -82,7 +82,7 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading companies:', error);
-          this.error.set('Failed to load companies');
+          this.error.set('Falhou ao carregar empresas');
         }
       });
   }
@@ -138,7 +138,7 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error creating document:', error);
-            this.error.set('Failed to create document. Please try again.');
+            this.error.set('Falhou ao criar documento. Tente novamente.');
             this.isSubmitting.set(false);
           }
         });
@@ -195,10 +195,10 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
   getErrorMessage(controlName: string): string {
     const control = this.documentForm.get(controlName);
     if (control?.errors) {
-      if (control.errors['required']) return `${controlName} is required`;
-      if (control.errors['minlength']) return `${controlName} is too short`;
-      if (control.errors['email']) return 'Please enter a valid email';
-      if (control.errors['pattern']) return 'Please enter a valid PDF URL';
+      if (control.errors['required']) return `${controlName} é obrigatório`;
+      if (control.errors['minlength']) return `${controlName} é muito curto`;
+      if (control.errors['email']) return 'Por favor, digite um email válido';
+      if (control.errors['pattern']) return 'Por favor, digite uma URL de PDF válida';
     }
     return '';
   }
@@ -217,9 +217,9 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
   getSignerErrorMessage(index: number, controlName: string): string {
     const control = this.signersArray.at(index).get(controlName);
     if (control?.errors) {
-      if (control.errors['required']) return `${controlName} is required`;
-      if (control.errors['minlength']) return `${controlName} is too short`;
-      if (control.errors['email']) return 'Please enter a valid email';
+      if (control.errors['required']) return `${controlName} é obrigatório`;
+      if (control.errors['minlength']) return `${controlName} é muito curto`;
+      if (control.errors['email']) return 'Por favor, digite um email válido';
     }
     return '';
   }

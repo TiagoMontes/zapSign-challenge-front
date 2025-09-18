@@ -3,7 +3,9 @@ import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { Subject, takeUntil, switchMap, filter, fromEvent } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { CompaniesService } from '../../../../core/services/companies.service';
-import { Company, CompanyDocument } from '../../../../core/models/company.interface';
+import { DocumentsService } from '../../../../core/services/documents.service';
+import { Company, CompanyDocument, UpdateCompanyRequest } from '../../../../core/models/company.interface';
+import { CreateDocumentRequest, CreateDocumentSignerRequest } from '../../../../core/models/document.interface';
 
 @Component({
   selector: 'app-company-detail',
@@ -16,6 +18,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly companiesService = inject(CompaniesService);
+  private readonly documentsService = inject(DocumentsService);
   private readonly destroy$ = new Subject<void>();
 
   // Component state
@@ -23,6 +26,25 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   companyDocuments = signal<CompanyDocument[]>([]);
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
+
+  // Document creation modal state
+  showCreateDocumentModal = signal<boolean>(false);
+  isCreatingDocument = signal<boolean>(false);
+  documentCreationError = signal<string | null>(null);
+
+  // Edit company modal state
+  showEditCompanyModal = signal<boolean>(false);
+  isEditingCompany = signal<boolean>(false);
+  companyEditError = signal<string | null>(null);
+
+  // Document form state
+  documentName = signal<string>('');
+  documentUrlPdf = signal<string>('');
+  signers = signal<CreateDocumentSignerRequest[]>([{ name: '', email: '' }]);
+
+  // Edit company form state
+  editCompanyName = signal<string>('');
+  editCompanyApiToken = signal<string>('');
 
   // Computed properties
   hasCompany = computed(() => !!this.company());
@@ -37,6 +59,31 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   totalSigners = computed(() =>
     this.companyDocuments().reduce((total, doc) => total + (doc.signers_count || 0), 0)
   );
+
+  // Document form computed properties
+  isFormValid = computed(() => {
+    const name = this.documentName().trim();
+    const urlPdf = this.documentUrlPdf().trim();
+    const signersValid = this.signers().every(signer =>
+      signer.name.trim() && signer.email.trim() && this.isValidEmail(signer.email.trim())
+    );
+    return name && urlPdf && signersValid && this.signers().length > 0;
+  });
+
+  canCreateDocument = computed(() =>
+    this.isFormValid() && !this.isCreatingDocument() && this.hasCompany()
+  );
+
+  // Edit company form computed properties
+  isEditFormValid = computed(() => {
+    const name = this.editCompanyName().trim();
+    const apiToken = this.editCompanyApiToken().trim();
+    return name.length > 0 && apiToken.length > 0;
+  });
+
+  canEditCompany = computed(() =>
+    this.isEditFormValid() && !this.isEditingCompany() && this.hasCompany()
+  );
   companyAge = computed(() => {
     const company = this.company();
     if (!company) return '';
@@ -46,10 +93,10 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     const diffTime = Math.abs(now.getTime() - created.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 1) return '1 day ago';
-    if (diffDays < 30) return `${diffDays} days ago`;
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-    return `${Math.floor(diffDays / 365)} years ago`;
+    if (diffDays === 1) return '1 dia atrás';
+    if (diffDays < 30) return `${diffDays} dias atrás`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} meses atrás`;
+    return `${Math.floor(diffDays / 365)} anos atrás`;
   });
 
   ngOnInit(): void {
@@ -88,7 +135,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     const companyId = this.route.snapshot.paramMap.get('id');
 
     if (!companyId || isNaN(+companyId)) {
-      this.error.set('Invalid company ID');
+      this.error.set('ID da empresa inválido');
       return;
     }
 
@@ -106,7 +153,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
         },
         error: (error) => {
           console.error('Error loading company data:', error);
-          this.error.set('Failed to load company details. Please try again.');
+          this.error.set('Falhou ao carregar detalhes da empresa. Tente novamente.');
           this.isLoading.set(false);
         }
       });
@@ -114,12 +161,16 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
 
 
   /**
-   * Navigate to edit company
+   * Open edit company modal
    */
   onEditCompany(): void {
     const company = this.company();
     if (company) {
-      this.router.navigate(['/companies', company.id, 'edit']);
+      // Pre-fill form with current company data
+      this.editCompanyName.set(company.name);
+      this.editCompanyApiToken.set(company.api_token);
+      this.companyEditError.set(null);
+      this.showEditCompanyModal.set(true);
     }
   }
 
@@ -130,7 +181,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     const company = this.company();
     if (!company) return;
 
-    const confirmed = confirm(`Are you sure you want to delete "${company.name}"? This will also delete all associated documents and signers. This action cannot be undone.`);
+    const confirmed = confirm(`Tem certeza que deseja excluir "${company.name}"? Isso também excluirá todos os documentos e signatários associados. Esta ação não pode ser desfeita.`);
     if (confirmed) {
       this.deleteCompany(company);
     }
@@ -149,20 +200,23 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
         },
         error: (error) => {
           console.error('Error deleting company:', error);
-          alert('Failed to delete company. Please try again.');
+          alert('Falhou ao excluir empresa. Tente novamente.');
         }
       });
   }
 
   /**
-   * Navigate to create document for this company
+   * Open create document modal for this company
    */
   onCreateDocument(): void {
     const company = this.company();
     if (company) {
-      this.router.navigate(['/documents/create'], {
-        queryParams: { companyId: company.id }
-      });
+      // Reset form state
+      this.documentName.set('');
+      this.documentUrlPdf.set('');
+      this.signers.set([{ name: '', email: '' }]);
+      this.documentCreationError.set(null);
+      this.showCreateDocumentModal.set(true);
     }
   }
 
@@ -235,7 +289,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
    * Format date for display
    */
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -246,7 +300,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
    * Format date and time for display
    */
   formatDateTime(dateString: string): string {
-    return new Date(dateString).toLocaleString('en-US', {
+    return new Date(dateString).toLocaleString('pt-BR', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -265,9 +319,182 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
 
 
   /**
+   * Close create document modal
+   */
+  onCloseCreateDocumentModal(): void {
+    if (this.isCreatingDocument()) {
+      return; // Prevent closing during document creation
+    }
+    this.showCreateDocumentModal.set(false);
+    this.documentCreationError.set(null);
+  }
+
+  /**
+   * Handle modal backdrop click
+   */
+  onModalBackdropClick(event: Event): void {
+    if (event.target === event.currentTarget) {
+      this.onCloseCreateDocumentModal();
+    }
+  }
+
+  /**
+   * Create new document
+   */
+  onCreateDocumentSubmit(): void {
+    const company = this.company();
+    if (!company || !this.canCreateDocument()) {
+      return;
+    }
+
+    this.isCreatingDocument.set(true);
+    this.documentCreationError.set(null);
+
+    const documentData: CreateDocumentRequest = {
+      name: this.documentName().trim(),
+      company_id: company.id,
+      url_pdf: this.documentUrlPdf().trim(),
+      signers: this.signers().map(signer => ({
+        name: signer.name.trim(),
+        email: signer.email.trim()
+      }))
+    };
+
+    this.documentsService.createDocument(documentData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (newDocument) => {
+          console.log('Document created successfully:', newDocument);
+          this.isCreatingDocument.set(false);
+          this.showCreateDocumentModal.set(false);
+          // Refresh company data to include the new document
+          this.loadCompanyData(true);
+        },
+        error: (error) => {
+          console.error('Error creating document:', error);
+          this.isCreatingDocument.set(false);
+          this.documentCreationError.set(
+            error?.error?.message || 'Falhou ao criar documento. Tente novamente.'
+          );
+        }
+      });
+  }
+
+  /**
+   * Add a new signer to the form
+   */
+  onAddSigner(): void {
+    const currentSigners = this.signers();
+    this.signers.set([...currentSigners, { name: '', email: '' }]);
+  }
+
+  /**
+   * Remove a signer from the form
+   */
+  onRemoveSigner(index: number): void {
+    const currentSigners = this.signers();
+    if (currentSigners.length > 1) {
+      const updatedSigners = currentSigners.filter((_, i) => i !== index);
+      this.signers.set(updatedSigners);
+    }
+  }
+
+  /**
+   * Update signer name
+   */
+  onSignerNameChange(index: number, name: string): void {
+    const currentSigners = this.signers();
+    const updatedSigners = [...currentSigners];
+    updatedSigners[index] = { ...updatedSigners[index], name };
+    this.signers.set(updatedSigners);
+  }
+
+  /**
+   * Update signer email
+   */
+  onSignerEmailChange(index: number, email: string): void {
+    const currentSigners = this.signers();
+    const updatedSigners = [...currentSigners];
+    updatedSigners[index] = { ...updatedSigners[index], email };
+    this.signers.set(updatedSigners);
+  }
+
+  /**
+   * Validate email format
+   */
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  /**
    * Track by function for documents list
    */
   trackByDocument(index: number, document: CompanyDocument): number {
     return document.id;
+  }
+
+  /**
+   * Track by function for signers list
+   */
+  trackBySigner(index: number, signer: CreateDocumentSignerRequest): number {
+    return index;
+  }
+
+  /**
+   * Close edit company modal
+   */
+  onCloseEditCompanyModal(): void {
+    if (this.isEditingCompany()) {
+      return; // Prevent closing during company update
+    }
+    this.showEditCompanyModal.set(false);
+    this.companyEditError.set(null);
+  }
+
+  /**
+   * Handle edit company modal backdrop click
+   */
+  onEditCompanyModalBackdropClick(event: Event): void {
+    if (event.target === event.currentTarget) {
+      this.onCloseEditCompanyModal();
+    }
+  }
+
+  /**
+   * Submit company edit form
+   */
+  onEditCompanySubmit(): void {
+    const company = this.company();
+    if (!company || !this.canEditCompany()) {
+      return;
+    }
+
+    this.isEditingCompany.set(true);
+    this.companyEditError.set(null);
+
+    const updateData: UpdateCompanyRequest = {
+      name: this.editCompanyName().trim(),
+      api_token: this.editCompanyApiToken().trim()
+    };
+
+    this.companiesService.updateCompany(company.id, updateData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedCompany) => {
+          console.log('Company updated successfully:', updatedCompany);
+          this.isEditingCompany.set(false);
+          this.showEditCompanyModal.set(false);
+          // Refresh company data to show updated information
+          this.loadCompanyData(true);
+        },
+        error: (error) => {
+          console.error('Error updating company:', error);
+          this.isEditingCompany.set(false);
+          this.companyEditError.set(
+            error?.error?.message || 'Falha ao atualizar empresa. Tente novamente.'
+          );
+        }
+      });
   }
 }

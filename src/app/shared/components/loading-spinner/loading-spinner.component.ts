@@ -1,45 +1,35 @@
 import { Component, Input } from '@angular/core';
-import { SharedModule } from '../../shared.module';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-loading-spinner',
   standalone: true,
-  imports: [SharedModule],
-  template: `
-    <div class="loading-container" [class.centered]="centered">
-      <mat-spinner
-        [diameter]="diameter"
-        [color]="color"
-        [strokeWidth]="strokeWidth">
-      </mat-spinner>
-      <p *ngIf="message" class="loading-message">{{ message }}</p>
-    </div>
-  `,
-  styles: [`
-    .loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-
-      &.centered {
-        justify-content: center;
-        min-height: 200px;
-      }
-    }
-
-    .loading-message {
-      margin: 0;
-      color: var(--text-secondary);
-      font-size: 14px;
-      text-align: center;
-    }
-  `]
+  imports: [CommonModule],
+  templateUrl: './loading-spinner.component.html',
+  styles: []
 })
 export class LoadingSpinnerComponent {
-  @Input() diameter: number = 40;
-  @Input() color: 'primary' | 'accent' | 'warn' = 'primary';
-  @Input() strokeWidth: number = 4;
+  @Input() size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
+  @Input() color: 'primary' | 'secondary' | 'gray' = 'primary';
   @Input() message: string = '';
   @Input() centered: boolean = false;
+
+  get sizeClasses(): string {
+    const sizes = {
+      'sm': 'w-4 h-4',
+      'md': 'w-8 h-8',
+      'lg': 'w-12 h-12',
+      'xl': 'w-16 h-16'
+    };
+    return sizes[this.size];
+  }
+
+  get colorClasses(): string {
+    const colors = {
+      'primary': 'text-blue-600',
+      'secondary': 'text-gray-600',
+      'gray': 'text-gray-400'
+    };
+    return colors[this.color];
+  }
 }

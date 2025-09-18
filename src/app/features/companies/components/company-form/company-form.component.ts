@@ -30,23 +30,23 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
   error = signal<string | null>(null);
 
   // Computed properties
-  pageTitle = computed(() => this.isEditMode() ? 'Edit Company' : 'Create Company');
-  submitButtonText = computed(() => this.isEditMode() ? 'Update Company' : 'Create Company');
+  pageTitle = computed(() => this.isEditMode() ? 'Editar Empresa' : 'Criar Empresa');
+  submitButtonText = computed(() => this.isEditMode() ? 'Atualizar Empresa' : 'Criar Empresa');
   hasUnsavedChanges = computed(() => this.companyForm?.dirty && !this.isSubmitting());
 
   // Form validation messages
   validationMessages = {
     name: {
-      required: 'Company name is required',
-      minlength: 'Company name must be at least 2 characters long',
-      maxlength: 'Company name cannot exceed 100 characters',
-      nameExists: 'A company with this name already exists'
+      required: 'Nome da empresa é obrigatório',
+      minlength: 'Nome da empresa deve ter pelo menos 2 caracteres',
+      maxlength: 'Nome da empresa não pode exceder 100 caracteres',
+      nameExists: 'Já existe uma empresa com este nome'
     },
     api_token: {
-      required: 'API token is required',
-      minlength: 'API token must be at least 8 characters long',
-      maxlength: 'API token cannot exceed 255 characters',
-      pattern: 'API token contains invalid characters'
+      required: 'Token da API é obrigatório',
+      minlength: 'Token da API deve ter pelo menos 8 caracteres',
+      maxlength: 'Token da API não pode exceder 255 caracteres',
+      pattern: 'Token da API contém caracteres inválidos'
     }
   };
 
@@ -123,7 +123,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
         },
         error: (error) => {
           console.error('Error loading company:', error);
-          this.error.set('Failed to load company data. Please try again.');
+          this.error.set('Falhou ao carregar dados da empresa. Tente novamente.');
           this.isLoading.set(false);
           console.error('Failed to load company data');
         }
@@ -253,7 +253,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
    * Handle submission errors
    */
   private handleSubmissionError(error: any): void {
-    let errorMessage = 'An unexpected error occurred. Please try again.';
+    let errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
 
     if (error.status === 400 && error.error) {
       // Handle field-specific validation errors
@@ -267,9 +267,9 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
         this.companyForm.get('api_token')?.setErrors({ serverError: fieldErrors.api_token[0] });
       }
 
-      errorMessage = 'Please fix the highlighted errors and try again.';
+      errorMessage = 'Por favor, corrija os erros destacados e tente novamente.';
     } else if (error.status === 409) {
-      errorMessage = 'A company with this name already exists.';
+      errorMessage = 'Uma empresa com este nome já existe.';
       this.companyForm.get('name')?.setErrors({ nameExists: true });
     }
 
@@ -342,7 +342,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
       }
     }
 
-    return 'Invalid input';
+    return 'Entrada inválida';
   }
 
   /**

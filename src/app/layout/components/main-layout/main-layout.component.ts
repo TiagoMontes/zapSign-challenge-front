@@ -1,65 +1,37 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
+import { ToastContainerComponent } from '../../../shared/components/toast-notification/toast-container.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, SidebarComponent, BreadcrumbComponent, RouterOutlet],
-  template: `
-    <div class="min-h-screen bg-gray-50">
-      <app-header (sidebarToggle)="toggleSidebar()"></app-header>
-
-      <div class="flex pt-16">
-        <!-- Sidebar -->
-        <aside
-          class="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white shadow-sm border-r border-gray-200 transition-all duration-300 z-40"
-          [class.w-64]="!isSidebarCollapsed && (sidenavMode === 'side')"
-          [class.w-16]="isSidebarCollapsed && (sidenavMode === 'side')"
-          [class.-translate-x-full]="sidenavMode === 'over' && !sidenavOpened"
-          [class.translate-x-0]="sidenavMode === 'over' && sidenavOpened">
-          <app-sidebar [isCollapsed]="isSidebarCollapsed"></app-sidebar>
-        </aside>
-
-        <!-- Overlay for mobile -->
-        <div
-          *ngIf="sidenavMode === 'over' && sidenavOpened"
-          class="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-          (click)="closeSidebar()">
-        </div>
-
-        <!-- Main Content -->
-        <main
-          class="flex-1 transition-all duration-300"
-          [class.ml-64]="!isSidebarCollapsed && sidenavMode === 'side'"
-          [class.ml-16]="isSidebarCollapsed && sidenavMode === 'side'"
-          [class.ml-0]="sidenavMode === 'over'">
-
-          <div class="p-6">
-            <app-breadcrumb></app-breadcrumb>
-            <div class="mt-4">
-              <router-outlet></router-outlet>
-            </div>
-          </div>
-        </main>
-      </div>
-    </div>
-  `,
+  imports: [CommonModule, HeaderComponent, SidebarComponent, BreadcrumbComponent, RouterOutlet, ToastContainerComponent],
+  templateUrl: './main-layout.component.html',
   styles: []
 })
-export class MainLayoutComponent {
-  // Responsive breakpoints
-  private readonly MOBILE_BREAKPOINT = 768;
+export class MainLayoutComponent implements OnInit {
+  // Responsive breakpoints (matching Tailwind CSS breakpoints)
+  private readonly BREAKPOINTS = {
+    sm: 640,   // Small devices
+    md: 768,   // Medium devices (tablets)
+    lg: 1024,  // Large devices (laptops)
+    xl: 1280,  // Extra large devices (desktops)
+    '2xl': 1536 // 2X Large devices
+  };
 
   // Sidenav state
   sidenavMode: 'side' | 'over' = 'side';
   sidenavOpened = true;
   isSidebarCollapsed = false;
+  currentBreakpoint = 'lg';
 
-  constructor() {
+  constructor() {}
+
+  ngOnInit(): void {
     this.checkScreenSize();
   }
 
@@ -68,23 +40,53 @@ export class MainLayoutComponent {
     this.checkScreenSize();
   }
 
-  private checkScreenSize(): void {
-    const isMobile = window.innerWidth < this.MOBILE_BREAKPOINT;
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.sidenavMode === 'over' && this.sidenavOpened) {
+      this.closeSidebar();
+    }
+  }
 
-    if (isMobile) {
-      this.sidenavMode = 'over';
-      this.sidenavOpened = false;
-      this.isSidebarCollapsed = false;
+  private checkScreenSize(): void {
+    const width = window.innerWidth;
+
+    // Determine current breakpoint
+    if (width >= this.BREAKPOINTS['2xl']) {
+      this.currentBreakpoint = '2xl';
+    } else if (width >= this.BREAKPOINTS.xl) {
+      this.currentBreakpoint = 'xl';
+    } else if (width >= this.BREAKPOINTS.lg) {
+      this.currentBreakpoint = 'lg';
+    } else if (width >= this.BREAKPOINTS.md) {
+      this.currentBreakpoint = 'md';
+    } else if (width >= this.BREAKPOINTS.sm) {
+      this.currentBreakpoint = 'sm';
     } else {
+      this.currentBreakpoint = 'xs';
+    }
+
+    // Configure sidebar behavior based on screen size
+    const isLargeScreen = width >= this.BREAKPOINTS.lg;
+
+    if (isLargeScreen) {
+      // Large screens: sidebar as permanent side panel
       this.sidenavMode = 'side';
       this.sidenavOpened = true;
+      // Preserve collapsed state for large screens
+    } else {
+      // Small/medium screens: sidebar as overlay
+      this.sidenavMode = 'over';
+      this.sidenavOpened = false;
+      this.isSidebarCollapsed = false; // Always expanded when overlay
     }
   }
 
   toggleSidebar(): void {
     if (this.sidenavMode === 'over') {
+      // Mobile/tablet mode: toggle overlay
       this.sidenavOpened = !this.sidenavOpened;
     } else {
+      // Desktop mode: toggle collapsed state
       this.isSidebarCollapsed = !this.isSidebarCollapsed;
     }
   }
@@ -93,5 +95,18 @@ export class MainLayoutComponent {
     if (this.sidenavMode === 'over') {
       this.sidenavOpened = false;
     }
+  }
+
+  // Utility getter for debugging/template use
+  get isLargeScreen(): boolean {
+    return window.innerWidth >= this.BREAKPOINTS.lg;
+  }
+
+  get isMediumScreen(): boolean {
+    return window.innerWidth >= this.BREAKPOINTS.md && window.innerWidth < this.BREAKPOINTS.lg;
+  }
+
+  get isSmallScreen(): boolean {
+    return window.innerWidth < this.BREAKPOINTS.md;
   }
 }

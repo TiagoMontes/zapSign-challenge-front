@@ -5,33 +5,27 @@ export const COMPANIES_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./components/companies-list/companies-list.component').then(m => m.CompaniesListComponent),
-    title: 'Companies - ZapSign',
-    data: { breadcrumb: 'All Companies' }
+    title: 'Empresas - ZapSign',
+    data: { breadcrumb: 'Todas as Empresas' }
   },
   {
     path: 'create',
     loadComponent: () => import('./components/company-form/company-form.component').then(m => m.CompanyFormComponent),
     canDeactivate: [UnsavedChangesGuard],
-    title: 'Create Company - ZapSign',
-    data: { breadcrumb: 'Create Company' }
+    title: 'Criar Empresa - ZapSign',
+    data: { breadcrumb: 'Criar Empresa' }
   },
   {
     path: ':id',
     loadComponent: () => import('./components/company-detail/company-detail.component').then(m => m.CompanyDetailComponent),
-    title: 'Company Details - ZapSign',
-    data: { breadcrumb: 'Company Details' }
+    title: 'Detalhes da Empresa - ZapSign',
+    data: { breadcrumb: 'Detalhes da Empresa' }
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./components/company-form/company-form.component').then(m => m.CompanyFormComponent),
     canDeactivate: [UnsavedChangesGuard],
-    title: 'Edit Company - ZapSign',
-    data: { breadcrumb: 'Edit Company' }
-  },
-  {
-    path: ':id/documents',
-    loadComponent: () => import('./components/company-documents/company-documents.component').then(m => m.CompanyDocumentsComponent),
-    title: 'Company Documents - ZapSign',
-    data: { breadcrumb: 'Documents' }
+    title: 'Editar Empresa - ZapSign',
+    data: { breadcrumb: 'Editar Empresa' }
   }
 ];

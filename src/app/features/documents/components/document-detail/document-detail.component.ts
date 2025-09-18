@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { DocumentsService } from '../../../../core/services/documents.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 import { Document, DocumentAnalysis, Signer } from '../../../../core/models';
 import { SignerStatusComponent } from '../../../signers/components/signer-status/signer-status.component';
 
@@ -17,6 +18,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly documentsService = inject(DocumentsService);
+  private readonly notificationService = inject(NotificationService);
   private readonly destroy$ = new Subject<void>();
 
   // Component state
@@ -25,6 +27,12 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
   isLoading = signal<boolean>(false);
   isAnalyzing = signal<boolean>(false);
   error = signal<string | null>(null);
+
+  // Add signer modal state
+  showAddSignerModal = signal<boolean>(false);
+  isAddingSigner = signal<boolean>(false);
+  newSignerName = signal<string>('');
+  newSignerEmail = signal<string>('');
 
   // Computed properties
   hasDocument = computed(() => !!this.document());
@@ -41,6 +49,15 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
   );
   canAnalyze = computed(() =>
     this.hasDocument() && !this.isAnalyzing()
+  );
+  canOpenModal = computed(() =>
+    this.hasDocument() && !this.isAddingSigner()
+  );
+  canAddSigner = computed(() =>
+    this.hasDocument() && !this.isAddingSigner() &&
+    this.newSignerName().trim().length > 0 &&
+    this.newSignerEmail().trim().length > 0 &&
+    this.isValidEmail(this.newSignerEmail().trim())
   );
 
   ngOnInit(): void {
@@ -59,7 +76,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
     const documentId = this.route.snapshot.paramMap.get('id');
 
     if (!documentId || isNaN(+documentId)) {
-      this.error.set('Invalid document ID');
+      this.error.set('ID do documento inválido');
       return;
     }
 
@@ -82,7 +99,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading document data:', error);
-          this.error.set('Failed to load document details. Please try again.');
+          this.error.set('Falhou ao carregar detalhes do documento. Tente novamente.');
           this.isLoading.set(false);
         }
       });
@@ -107,7 +124,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error analyzing document:', error);
-          this.error.set('Failed to analyze document. Please try again.');
+          this.error.set('Falhou ao analisar documento. Tente novamente.');
           this.isAnalyzing.set(false);
         }
       });
@@ -133,7 +150,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error deleting document:', error);
-            this.error.set('Failed to delete document. Please try again.');
+            this.error.set('Falhou ao excluir documento. Tente novamente.');
           }
         });
     }
@@ -221,7 +238,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
   getSignerStatusLabel(status: string): string {
     switch (status) {
       case 'new':
-        return 'Pending';
+        return 'Pendente';
       case 'signed':
         return 'Signed';
       case 'declined':
@@ -229,7 +246,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
       case 'invited':
         return 'Invited';
       case 'error':
-        return 'Error';
+        return 'Erro';
       default:
         return status.charAt(0).toUpperCase() + status.slice(1);
     }
@@ -307,10 +324,24 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
   /**
    * Format insights from numbered list to bullet points array
    */
-  formatInsights(insights: string): string[] {
+  formatInsights(insights: string | string[]): string[] {
     if (!insights) return [];
 
-    // Split by numbered pattern (1., 2., 3., etc.) followed by space
+    // If insights is already an array, process each item
+    if (Array.isArray(insights)) {
+      return insights.map(item => {
+        // Remove leading numbers and dots (e.g., "1. " becomes "")
+        let cleanItem = item.replace(/^\d+\.\s*/, '').trim();
+        // Remove surrounding quotes if they exist
+        if ((cleanItem.startsWith('"') && cleanItem.endsWith('"')) ||
+            (cleanItem.startsWith("'") && cleanItem.endsWith("'"))) {
+          cleanItem = cleanItem.slice(1, -1);
+        }
+        return cleanItem;
+      });
+    }
+
+    // If insights is a string, split by numbered pattern
     const items = insights.split(/\d+\.\s*/).filter(item => item.trim().length > 0);
 
     // Remove trailing commas and clean up each item
@@ -359,5 +390,93 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Open add signer modal
+   */
+  onOpenAddSignerModal(): void {
+    console.log('Opening add signer modal');
+    this.showAddSignerModal.set(true);
+    console.log('Modal state after set:', this.showAddSignerModal());
+    this.resetAddSignerForm();
+  }
+
+  /**
+   * Close add signer modal
+   */
+  onCloseAddSignerModal(): void {
+    this.showAddSignerModal.set(false);
+    this.resetAddSignerForm();
+  }
+
+  /**
+   * Reset add signer form
+   */
+  private resetAddSignerForm(): void {
+    this.newSignerName.set('');
+    this.newSignerEmail.set('');
+    this.isAddingSigner.set(false);
+  }
+
+  /**
+   * Add signer to document
+   */
+  onAddSigner(): void {
+    const doc = this.document();
+    if (!doc || !this.canAddSigner() || this.isAddingSigner()) return;
+
+    const signerData = {
+      name: this.newSignerName().trim(),
+      email: this.newSignerEmail().trim()
+    };
+
+    // Check if signer email already exists
+    const existingSigners = this.signers();
+    const emailExists = existingSigners.some(
+      signer => signer.email.toLowerCase() === signerData.email.toLowerCase()
+    );
+
+    if (emailExists) {
+      this.notificationService.showError('Este email já está associado a um signatário neste documento');
+      return;
+    }
+
+    this.isAddingSigner.set(true);
+    this.error.set(null);
+
+    this.documentsService.addSignerToDocument(doc.id, signerData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.notificationService.showSuccess(`Signatário ${signerData.name} adicionado com sucesso`);
+          this.onCloseAddSignerModal();
+          // Refresh document to get updated signers list
+          this.loadDocumentData();
+        },
+        error: (error) => {
+          console.error('Error adding signer to document:', error);
+          this.error.set('Falha ao adicionar signatário. Tente novamente.');
+          this.notificationService.showError('Falha ao adicionar signatário');
+          this.isAddingSigner.set(false);
+        }
+      });
+  }
+
+  /**
+   * Validate email format
+   */
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  /**
+   * Handle modal backdrop click
+   */
+  onModalBackdropClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.onCloseAddSignerModal();
+    }
   }
 }

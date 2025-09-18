@@ -165,6 +165,24 @@ export class DocumentsService extends BaseApiService {
   }
 
   /**
+   * Add a new signer to an existing document
+   */
+  addSignerToDocument(documentId: number, signerData: { name: string; email: string }): Observable<any> {
+    return this.post<any>(`/documents/${documentId}/add-signer/`, signerData, {
+      retry: true,
+      maxRetries: 2
+    }).pipe(
+      tap(() => {
+        // Refresh the document to get updated signer information
+        this.getDocument(documentId, false).subscribe();
+
+        // Invalidate related caches
+        this.invalidateDocumentCache(documentId);
+      })
+    );
+  }
+
+  /**
    * Delete a document
    */
   deleteDocument(id: number): Observable<void> {

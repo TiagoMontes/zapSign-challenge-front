@@ -91,19 +91,19 @@ export class SignerStatusComponent {
   getStatusLabel(): string {
     switch (this.status) {
       case 'new':
-        return 'Pending';
+        return 'Pendente';
       case 'signed':
-        return 'Signed';
+        return 'Assinado';
       case 'declined':
-        return 'Declined';
+        return 'Recusado';
       case 'invited':
-        return 'Invited';
+        return 'Convidado';
       case 'error':
-        return 'Error';
+        return 'Erro';
       case 'expired':
-        return 'Expired';
+        return 'Expirado';
       case 'pending':
-        return 'Pending';
+        return 'Pendente';
       default:
         return this.status.charAt(0).toUpperCase() + this.status.slice(1);
     }

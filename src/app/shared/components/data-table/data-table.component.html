@@ -1,0 +1,127 @@
+<!-- Data Table Container -->
+<div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex items-center justify-center py-12">
+    <app-loading-spinner size="lg" message="Carregando dados..."></app-loading-spinner>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && data.length === 0" class="flex flex-col items-center justify-center py-12 px-4">
+    <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    </svg>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhum dado disponível</h3>
+    <p class="text-gray-500 text-center">{{ emptyMessage }}</p>
+  </div>
+
+  <!-- Data Table -->
+  <div *ngIf="!loading && data.length > 0" class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <!-- Table Header -->
+      <thead class="bg-gray-50">
+        <tr>
+          <!-- Select All Checkbox -->
+          <th *ngIf="selectable" class="w-12 px-6 py-3">
+            <input
+              type="checkbox"
+              [checked]="allSelected"
+              [indeterminate]="selectedRows.length > 0 && selectedRows.length < data.length"
+              (change)="onSelectAll()"
+              class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+          </th>
+
+          <!-- Column Headers -->
+          <th
+            *ngFor="let column of columns"
+            scope="col"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            [style.width]="column.width"
+            [class.cursor-pointer]="column.sortable"
+            [class.hover:bg-gray-100]="column.sortable"
+            (click)="onSort(column)">
+            <div class="flex items-center gap-2">
+              <span>{{ column.title }}</span>
+              <svg
+                *ngIf="column.sortable"
+                class="w-4 h-4 transition-colors"
+                [ngClass]="getSortIconClasses(column)"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  [attr.d]="getSortIcon(column)">
+                </path>
+              </svg>
+            </div>
+          </th>
+
+          <!-- Actions Column -->
+          <th *ngIf="actions.length > 0" scope="col" class="relative px-6 py-3">
+            <span class="sr-only">Ações</span>
+          </th>
+        </tr>
+      </thead>
+
+      <!-- Table Body -->
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr
+          *ngFor="let row of data"
+          class="hover:bg-gray-50 transition-colors"
+          [class.cursor-pointer]="rowClick.observed"
+          (click)="onRowClick(row)">
+
+          <!-- Row Selection Checkbox -->
+          <td *ngIf="selectable" class="w-12 px-6 py-4">
+            <input
+              type="checkbox"
+              [checked]="isRowSelected(row)"
+              (change)="onSelectRow(row)"
+              (click)="$event.stopPropagation()"
+              class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+          </td>
+
+          <!-- Data Cells -->
+          <td
+            *ngFor="let column of columns"
+            class="px-6 py-4 whitespace-nowrap text-sm">
+
+            <!-- Text Content -->
+            <div *ngIf="column.type !== 'badge'" class="text-gray-900">
+              {{ getCellValue(row, column) }}
+            </div>
+
+            <!-- Badge Content -->
+            <div *ngIf="column.type === 'badge'">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    [ngClass]="getBadgeClasses(getCellValue(row, column))">
+                {{ getCellValue(row, column) }}
+              </span>
+            </div>
+          </td>
+
+          <!-- Actions Cell -->
+          <td *ngIf="actions.length > 0" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <div class="flex items-center gap-2 justify-end">
+              <button
+                *ngFor="let action of actions"
+                type="button"
+                [ngClass]="getActionButtonClasses(action)"
+                [disabled]="action.disabled?.(row)"
+                (click)="action.action(row); $event.stopPropagation()"
+                [title]="action.label">
+                <!-- Icon if provided -->
+                <svg *ngIf="action.icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <!-- Add icon paths based on action.icon -->
+                </svg>
+                {{ action.label }}
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -8,7 +8,7 @@ export class NotificationService {
   private snackBar = inject(MatSnackBar);
 
   showSuccess(message: string, duration: number = 3000): void {
-    this.snackBar.open(message, 'Close', {
+    this.snackBar.open(message, 'Fechar', {
       duration,
       panelClass: ['success-snackbar'],
       horizontalPosition: 'right',
@@ -17,7 +17,7 @@ export class NotificationService {
   }
 
   showError(message: string, duration: number = 5000): void {
-    this.snackBar.open(message, 'Close', {
+    this.snackBar.open(message, 'Fechar', {
       duration,
       panelClass: ['error-snackbar'],
       horizontalPosition: 'right',
@@ -26,7 +26,7 @@ export class NotificationService {
   }
 
   showInfo(message: string, duration: number = 3000): void {
-    this.snackBar.open(message, 'Close', {
+    this.snackBar.open(message, 'Fechar', {
       duration,
       panelClass: ['info-snackbar'],
       horizontalPosition: 'right',
@@ -35,7 +35,7 @@ export class NotificationService {
   }
 
   showWarning(message: string, duration: number = 4000): void {
-    this.snackBar.open(message, 'Close', {
+    this.snackBar.open(message, 'Fechar', {
       duration,
       panelClass: ['warning-snackbar'],
       horizontalPosition: 'right',

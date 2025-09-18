@@ -7,10 +7,10 @@
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
       </svg>
-      <span>Back</span>
+      <span>Voltar</span>
     </button>
-    <h1 class="text-3xl font-bold text-gray-900">Create New Document</h1>
-    <p class="text-gray-600 mt-2">Create and configure your document for electronic signing with ZapSign.</p>
+    <h1 class="text-3xl font-bold text-gray-900">Criar Novo Documento</h1>
+    <p class="text-gray-600 mt-2">Crie e configure seu documento para assinatura eletrônica com ZapSign.</p>
   </div>
 
   <!-- Error Message -->
@@ -22,7 +22,7 @@
         </svg>
       </div>
       <div class="ml-3">
-        <h3 class="text-sm font-medium text-red-800">Error</h3>
+        <h3 class="text-sm font-medium text-red-800">Erro</h3>
         <p class="mt-1 text-sm text-red-700">{{ error() }}</p>
       </div>
     </div>
@@ -35,7 +35,7 @@
       <!-- Document Name -->
       <div>
         <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-          Document Name *
+          Nome do Documento *
         </label>
         <input
           type="text"
@@ -44,7 +44,7 @@
           class="w-full px-3 py-2 border-1 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           [class.border-red-300]="hasError('name')"
           [class.border-gray-300]="!hasError('name')"
-          placeholder="Enter document name"
+          placeholder="Digite o nome do documento"
         />
         <p *ngIf="hasError('name')" class="mt-1 text-sm text-red-600">
           {{ getErrorMessage('name') }}
@@ -54,14 +54,14 @@
       <!-- Company Selection -->
       <div>
         <label for="company_id" class="block text-sm font-medium text-gray-700 mb-2">
-          Company *
+          Empresa *
         </label>
 
         <!-- When company is preselected from context (readonly) -->
         <div *ngIf="preselectedCompanyId(); else companySelect"
              class="w-full px-3 py-2 border-1 border-gray-300 rounded-md bg-gray-50 text-gray-700">
           {{ getSelectedCompanyName() }}
-          <span class="text-sm text-gray-500 ml-2">(from company context)</span>
+          <span class="text-sm text-gray-500 ml-2">(do contexto da empresa)</span>
         </div>
 
         <!-- When no company is preselected (dropdown) -->
@@ -73,7 +73,7 @@
             [class.border-red-300]="hasError('company_id')"
             [class.border-gray-300]="!hasError('company_id')"
           >
-            <option value="">Select a company</option>
+            <option value="">Selecione uma empresa</option>
             <option *ngFor="let company of companies()" [value]="company.id">
               {{ company.name }}
             </option>
@@ -88,7 +88,7 @@
       <!-- PDF URL -->
       <div>
         <label for="url_pdf" class="block text-sm font-medium text-gray-700 mb-2">
-          PDF Document URL *
+          URL do Documento PDF *
         </label>
         <input
           type="url"
@@ -100,7 +100,7 @@
           placeholder="https://example.com/document.pdf"
         />
         <p class="mt-1 text-sm text-gray-500">
-          Enter the URL to the PDF document that will be signed.
+          Digite a URL do documento PDF que será assinado.
         </p>
         <p *ngIf="hasError('url_pdf')" class="mt-1 text-sm text-red-600">
           {{ getErrorMessage('url_pdf') }}
@@ -111,7 +111,7 @@
       <div>
         <div class="flex items-center justify-between mb-4">
           <label class="block text-sm font-medium text-gray-700">
-            Signers *
+            Signatários *
           </label>
           <button
             type="button"
@@ -120,7 +120,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Add Signer
+            Adicionar Signatário
           </button>
         </div>
 
@@ -131,7 +131,7 @@
             class="p-4 border border-gray-200 rounded-md bg-gray-50">
 
             <div class="flex items-center justify-between mb-3">
-              <h4 class="text-sm font-medium text-gray-900">Signer {{ i + 1 }}</h4>
+              <h4 class="text-sm font-medium text-gray-900">Signatário {{ i + 1 }}</h4>
               <button
                 type="button"
                 *ngIf="signersArray.length > 1"
@@ -147,7 +147,7 @@
               <!-- Signer Name -->
               <div>
                 <label [for]="'signer-name-' + i" class="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name *
+                  Nome Completo *
                 </label>
                 <input
                   type="text"
@@ -156,7 +156,7 @@
                   class="w-full px-3 py-2 border-1 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   [class.border-red-300]="hasSignerError(i, 'name')"
                   [class.border-gray-300]="!hasSignerError(i, 'name')"
-                  placeholder="Enter signer's full name"
+                  placeholder="Digite o nome completo do signatário"
                 />
                 <p *ngIf="hasSignerError(i, 'name')" class="mt-1 text-sm text-red-600">
                   {{ getSignerErrorMessage(i, 'name') }}
@@ -166,7 +166,7 @@
               <!-- Signer Email -->
               <div>
                 <label [for]="'signer-email-' + i" class="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address *
+                  Endereço de E-mail *
                 </label>
                 <input
                   type="email"
@@ -175,7 +175,7 @@
                   class="w-full px-3 py-2 border-1 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   [class.border-red-300]="hasSignerError(i, 'email')"
                   [class.border-gray-300]="!hasSignerError(i, 'email')"
-                  placeholder="Enter signer's email address"
+                  placeholder="Digite o endereço de e-mail do signatário"
                 />
                 <p *ngIf="hasSignerError(i, 'email')" class="mt-1 text-sm text-red-600">
                   {{ getSignerErrorMessage(i, 'email') }}
@@ -192,19 +192,19 @@
           type="button"
           (click)="onCancel()"
           class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors cursor-pointer">
-          Cancel
+          Cancelar
         </button>
         <button
           type="submit"
           [disabled]="isSubmitting()"
           class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          <span *ngIf="!isSubmitting()">Create Document</span>
+          <span *ngIf="!isSubmitting()">Criar Documento</span>
           <span *ngIf="isSubmitting()" class="flex items-center gap-2">
             <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Creating...
+            Criando...
           </span>
         </button>
       </div>
