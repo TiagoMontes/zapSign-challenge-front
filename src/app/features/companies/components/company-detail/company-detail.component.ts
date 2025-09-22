@@ -11,8 +11,7 @@ import { CreateDocumentRequest, CreateDocumentSignerRequest } from '../../../../
   selector: 'app-company-detail',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './company-detail.component.html',
-  styleUrls: ['./company-detail.component.scss']
+  templateUrl: './company-detail.component.html'
 })
 export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly router = inject(Router);

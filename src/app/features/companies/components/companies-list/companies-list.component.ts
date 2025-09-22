@@ -10,8 +10,7 @@ import { Company } from '../../../../core/models/company.interface';
   selector: 'app-companies-list',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './companies-list.component.html',
-  styleUrls: ['./companies-list.component.scss']
+  templateUrl: './companies-list.component.html'
 })
 export class CompaniesListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);

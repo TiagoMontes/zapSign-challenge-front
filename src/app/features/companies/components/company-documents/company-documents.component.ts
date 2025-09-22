@@ -23,8 +23,7 @@ interface Document {
   selector: 'app-company-documents',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './company-documents.component.html',
-  styleUrls: ['./company-documents.component.scss']
+  templateUrl: './company-documents.component.html'
 })
 export class CompanyDocumentsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);

@@ -11,8 +11,7 @@ import { CanComponentDeactivate } from '../../../../core/guards/unsaved-changes.
   selector: 'app-company-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './company-form.component.html',
-  styleUrls: ['./company-form.component.scss']
+  templateUrl: './company-form.component.html'
 })
 export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeactivate {
   private readonly router = inject(Router);
