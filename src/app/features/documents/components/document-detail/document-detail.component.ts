@@ -11,8 +11,7 @@ import { SignerStatusComponent } from '../../../signers/components/signer-status
   selector: 'app-document-detail',
   standalone: true,
   imports: [CommonModule, SignerStatusComponent],
-  templateUrl: './document-detail.component.html',
-  styleUrls: ['./document-detail.component.scss']
+  templateUrl: './document-detail.component.html'
 })
 export class DocumentDetailComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);

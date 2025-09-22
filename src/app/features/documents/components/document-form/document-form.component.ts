@@ -11,8 +11,7 @@ import { Company, CreateDocumentRequest, CreateDocumentSignerRequest } from '../
   selector: 'app-document-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './document-form.component.html',
-  styleUrls: ['./document-form.component.scss']
+  templateUrl: './document-form.component.html'
 })
 export class DocumentFormComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
