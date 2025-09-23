@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, AfterViewInit }
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { Subject, takeUntil, switchMap, filter, fromEvent } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { CompaniesService } from '../../../../core/services/companies.service';
 import { DocumentsService } from '../../../../core/services/documents.service';
 import { Company, CompanyDocument, UpdateCompanyRequest } from '../../../../core/models/company.interface';
@@ -10,7 +11,7 @@ import { CreateDocumentRequest, CreateDocumentSignerRequest } from '../../../../
 @Component({
   selector: 'app-company-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ModalComponent],
   templateUrl: './company-detail.component.html'
 })
 export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit {

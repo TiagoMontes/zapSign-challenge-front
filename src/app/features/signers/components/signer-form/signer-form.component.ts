@@ -12,8 +12,7 @@ import { CanComponentDeactivate } from '../../../../core/guards/unsaved-changes.
   selector: 'app-signer-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './signer-form.component.html',
-  styleUrls: ['./signer-form.component.scss']
+  templateUrl: './signer-form.component.html'
 })
 export class SignerFormComponent implements OnInit, OnDestroy, CanComponentDeactivate {
   private readonly router = inject(Router);

@@ -7,13 +7,13 @@ import { DocumentsService } from '../../../../core/services/documents.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Signer, Document } from '../../../../core/models';
 import { SignerStatusComponent } from '../signer-status/signer-status.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-signer-detail',
   standalone: true,
-  imports: [CommonModule, SignerStatusComponent],
-  templateUrl: './signer-detail.component.html',
-  styleUrls: ['./signer-detail.component.scss']
+  imports: [CommonModule, SignerStatusComponent, ModalComponent],
+  templateUrl: './signer-detail.component.html'
 })
 export class SignerDetailComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
@@ -31,6 +31,21 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
   isDeleting = signal<boolean>(false);
   isSyncing = signal<boolean>(false);
   error = signal<string | null>(null);
+
+  // Edit signer modal state
+  showEditSignerModal = signal<boolean>(false);
+  isEditingSigner = signal<boolean>(false);
+  signerEditError = signal<string | null>(null);
+  editSignerName = signal<string>('');
+  editSignerEmail = signal<string>('');
+
+  // Edit form computed
+  isEditFormValid = computed(() => {
+    const name = this.editSignerName().trim();
+    const email = this.editSignerEmail().trim();
+    return name.length >= 2 && this.isValidEmail(email);
+  });
+  canEditSigner = computed(() => this.isEditFormValid() && !this.isEditingSigner() && this.hasSigner());
 
   // Computed properties
   hasSigner = computed(() => !!this.signer());
@@ -106,13 +121,17 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
 
 
   /**
-   * Navigate to edit signer form
+   * Open edit signer modal
    */
   onEditSigner(): void {
     const signer = this.signer();
-    if (signer) {
-      this.router.navigate(['/signers', signer.id, 'edit']);
-    }
+    if (!signer) return;
+
+    // Pre-fill modal fields
+    this.editSignerName.set(signer.name);
+    this.editSignerEmail.set(signer.email);
+    this.signerEditError.set(null);
+    this.showEditSignerModal.set(true);
   }
 
   /**
@@ -279,6 +298,66 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
         this.notificationService.showError('Failed to copy sign URL');
       });
     }
+  }
+
+  /**
+   * Close edit signer modal
+   */
+  onCloseEditSignerModal(): void {
+    if (this.isEditingSigner()) return;
+    this.showEditSignerModal.set(false);
+    this.signerEditError.set(null);
+  }
+
+  /**
+   * Handle edit signer modal backdrop click
+   */
+  onEditSignerModalBackdropClick(event: Event): void {
+    if (event.target === event.currentTarget) {
+      this.onCloseEditSignerModal();
+    }
+  }
+
+  /**
+   * Submit edit signer form
+   */
+  onEditSignerSubmit(): void {
+    const signer = this.signer();
+    if (!signer || !this.canEditSigner()) return;
+
+    this.isEditingSigner.set(true);
+    this.signerEditError.set(null);
+
+    const update = {
+      name: this.editSignerName().trim(),
+      email: this.editSignerEmail().trim().toLowerCase()
+    };
+
+    this.signersService.updateSigner(signer.id, update)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedSigner) => {
+          this.signer.set(updatedSigner);
+          this.notificationService.showSuccess('Signatário atualizado com sucesso');
+          this.isEditingSigner.set(false);
+          this.showEditSignerModal.set(false);
+        },
+        error: (error) => {
+          console.error('Error updating signer:', error);
+          this.isEditingSigner.set(false);
+          this.signerEditError.set(
+            error?.error?.message || 'Falha ao atualizar signatário. Tente novamente.'
+          );
+        }
+      });
+  }
+
+  /**
+   * Validate email format
+   */
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   /**

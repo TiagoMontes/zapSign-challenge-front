@@ -6,11 +6,12 @@ import { DocumentsService } from '../../../../core/services/documents.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Document, DocumentAnalysis, Signer } from '../../../../core/models';
 import { SignerStatusComponent } from '../../../signers/components/signer-status/signer-status.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-document-detail',
   standalone: true,
-  imports: [CommonModule, SignerStatusComponent],
+  imports: [CommonModule, SignerStatusComponent, ModalComponent],
   templateUrl: './document-detail.component.html'
 })
 export class DocumentDetailComponent implements OnInit, OnDestroy {
