@@ -1,18 +1,33 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+  AfterViewInit,
+} from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
-import { Subject, takeUntil, switchMap, filter, fromEvent } from 'rxjs';
+import { Subject, takeUntil, filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { CompaniesService } from '../../../../core/services/companies.service';
 import { DocumentsService } from '../../../../core/services/documents.service';
-import { Company, CompanyDocument, UpdateCompanyRequest } from '../../../../core/models/company.interface';
-import { CreateDocumentRequest, CreateDocumentSignerRequest } from '../../../../core/models/document.interface';
+import {
+  Company,
+  CompanyDocument,
+  UpdateCompanyRequest,
+} from '../../../../core/models/company.interface';
+import {
+  CreateDocumentRequest,
+  CreateDocumentSignerRequest,
+} from '../../../../core/models/document.interface';
 
 @Component({
   selector: 'app-company-detail',
   standalone: true,
   imports: [CommonModule, ModalComponent],
-  templateUrl: './company-detail.component.html'
+  templateUrl: './company-detail.component.html',
 })
 export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly router = inject(Router);
@@ -50,28 +65,29 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   hasCompany = computed(() => !!this.company());
   hasDocuments = computed(() => this.companyDocuments().length > 0);
   totalDocuments = computed(() => this.companyDocuments().length);
-  pendingDocuments = computed(() =>
-    this.companyDocuments().filter(doc => doc.status === 'pending').length
+  pendingDocuments = computed(
+    () => this.companyDocuments().filter((doc) => doc.status === 'pending').length,
   );
-  completedDocuments = computed(() =>
-    this.companyDocuments().filter(doc => doc.status === 'completed').length
+  completedDocuments = computed(
+    () => this.companyDocuments().filter((doc) => doc.status === 'completed').length,
   );
   totalSigners = computed(() =>
-    this.companyDocuments().reduce((total, doc) => total + (doc.signers_count || 0), 0)
+    this.companyDocuments().reduce((total, doc) => total + (doc.signers_count || 0), 0),
   );
 
   // Document form computed properties
   isFormValid = computed(() => {
     const name = this.documentName().trim();
     const urlPdf = this.documentUrlPdf().trim();
-    const signersValid = this.signers().every(signer =>
-      signer.name.trim() && signer.email.trim() && this.isValidEmail(signer.email.trim())
+    const signersValid = this.signers().every(
+      (signer) =>
+        signer.name.trim() && signer.email.trim() && this.isValidEmail(signer.email.trim()),
     );
     return name && urlPdf && signersValid && this.signers().length > 0;
   });
 
-  canCreateDocument = computed(() =>
-    this.isFormValid() && !this.isCreatingDocument() && this.hasCompany()
+  canCreateDocument = computed(
+    () => this.isFormValid() && !this.isCreatingDocument() && this.hasCompany(),
   );
 
   // Edit company form computed properties
@@ -81,8 +97,8 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     return name.length > 0 && apiToken.length > 0;
   });
 
-  canEditCompany = computed(() =>
-    this.isEditFormValid() && !this.isEditingCompany() && this.hasCompany()
+  canEditCompany = computed(
+    () => this.isEditFormValid() && !this.isEditingCompany() && this.hasCompany(),
   );
   companyAge = computed(() => {
     const company = this.company();
@@ -107,15 +123,19 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     // Listen for navigation events
     this.router.events
       .pipe(
-        filter(event => event instanceof NavigationEnd),
-        takeUntil(this.destroy$)
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.destroy$),
       )
       .subscribe((event: NavigationEnd) => {
         // Check if we're navigating back to this company's page
         if (event.url.includes('/companies/')) {
           const urlSegments = event.url.split('/');
-          if (urlSegments.length >= 3 && urlSegments[1] === 'companies' && !isNaN(+urlSegments[2])) {
-            console.log('Navigation to company page detected - force refreshing data');
+          if (
+            urlSegments.length >= 3 &&
+            urlSegments[1] === 'companies' &&
+            !isNaN(+urlSegments[2])
+          ) {
+            
             // Force refresh to bypass cache and get latest data
             setTimeout(() => this.loadCompanyData(true), 100);
           }
@@ -143,7 +163,8 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     this.error.set(null);
 
     // Force refresh to bypass cache when needed
-    this.companiesService.getCompany(+companyId, !forceRefresh)
+    this.companiesService
+      .getCompany(+companyId, !forceRefresh)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (company) => {
@@ -155,10 +176,9 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
           console.error('Error loading company data:', error);
           this.error.set('Falhou ao carregar detalhes da empresa. Tente novamente.');
           this.isLoading.set(false);
-        }
+        },
       });
   }
-
 
   /**
    * Open edit company modal
@@ -181,7 +201,9 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     const company = this.company();
     if (!company) return;
 
-    const confirmed = confirm(`Tem certeza que deseja excluir "${company.name}"? Isso também excluirá todos os documentos e signatários associados. Esta ação não pode ser desfeita.`);
+    const confirmed = confirm(
+      `Tem certeza que deseja excluir "${company.name}"? Isso também excluirá todos os documentos e signatários associados. Esta ação não pode ser desfeita.`,
+    );
     if (confirmed) {
       this.deleteCompany(company);
     }
@@ -191,17 +213,17 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
    * Execute company deletion
    */
   private deleteCompany(company: Company): void {
-    this.companiesService.deleteCompany(company.id)
+    this.companiesService
+      .deleteCompany(company.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log(`Company "${company.name}" deleted successfully`);
           this.router.navigate(['/companies']);
         },
         error: (error) => {
           console.error('Error deleting company:', error);
           alert('Falhou ao excluir empresa. Tente novamente.');
-        }
+        },
       });
   }
 
@@ -235,11 +257,12 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     if (!company) return;
 
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(company.api_token).then(() => {
-        console.log('API token copied to clipboard');
-      }).catch(() => {
-        console.error('Failed to copy token to clipboard');
-      });
+      navigator.clipboard
+        .writeText(company.api_token)
+        .then(() => {})
+        .catch(() => {
+          console.error('Failed to copy token to clipboard');
+        });
     } else {
       // Fallback for browsers without clipboard API
       const textArea = document.createElement('textarea');
@@ -249,7 +272,6 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
 
       try {
         document.execCommand('copy');
-        console.log('API token copied to clipboard');
       } catch (err) {
         console.error('Failed to copy token to clipboard');
       }
@@ -292,7 +314,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     return new Date(dateString).toLocaleDateString('pt-BR', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -305,7 +327,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 
@@ -316,7 +338,6 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     if (token.length <= 12) return token;
     return `${token.substring(0, 8)}...${token.substring(token.length - 4)}`;
   }
-
 
   /**
    * Close create document modal
@@ -354,17 +375,17 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
       name: this.documentName().trim(),
       company_id: company.id,
       url_pdf: this.documentUrlPdf().trim(),
-      signers: this.signers().map(signer => ({
+      signers: this.signers().map((signer) => ({
         name: signer.name.trim(),
-        email: signer.email.trim()
-      }))
+        email: signer.email.trim(),
+      })),
     };
 
-    this.documentsService.createDocument(documentData)
+    this.documentsService
+      .createDocument(documentData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (newDocument) => {
-          console.log('Document created successfully:', newDocument);
+        next: () => {
           this.isCreatingDocument.set(false);
           this.showCreateDocumentModal.set(false);
           // Refresh company data to include the new document
@@ -374,9 +395,9 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
           console.error('Error creating document:', error);
           this.isCreatingDocument.set(false);
           this.documentCreationError.set(
-            error?.error?.message || 'Falhou ao criar documento. Tente novamente.'
+            error?.error?.message || 'Falhou ao criar documento. Tente novamente.',
           );
-        }
+        },
       });
   }
 
@@ -430,14 +451,14 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   /**
    * Track by function for documents list
    */
-  trackByDocument(index: number, document: CompanyDocument): number {
+  trackByDocument(_index: number, document: CompanyDocument): number {
     return document.id;
   }
 
   /**
    * Track by function for signers list
    */
-  trackBySigner(index: number, signer: CreateDocumentSignerRequest): number {
+  trackBySigner(index: number, _signer: CreateDocumentSignerRequest): number {
     return index;
   }
 
@@ -475,14 +496,14 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
 
     const updateData: UpdateCompanyRequest = {
       name: this.editCompanyName().trim(),
-      api_token: this.editCompanyApiToken().trim()
+      api_token: this.editCompanyApiToken().trim(),
     };
 
-    this.companiesService.updateCompany(company.id, updateData)
+    this.companiesService
+      .updateCompany(company.id, updateData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (updatedCompany) => {
-          console.log('Company updated successfully:', updatedCompany);
+        next: () => {
           this.isEditingCompany.set(false);
           this.showEditCompanyModal.set(false);
           // Refresh company data to show updated information
@@ -492,9 +513,9 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
           console.error('Error updating company:', error);
           this.isEditingCompany.set(false);
           this.companyEditError.set(
-            error?.error?.message || 'Falha ao atualizar empresa. Tente novamente.'
+            error?.error?.message || 'Falha ao atualizar empresa. Tente novamente.',
           );
-        }
+        },
       });
   }
 }

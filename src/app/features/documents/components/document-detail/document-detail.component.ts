@@ -12,7 +12,7 @@ import { ModalComponent } from '../../../../shared/components/modal/modal.compon
   selector: 'app-document-detail',
   standalone: true,
   imports: [CommonModule, SignerStatusComponent, ModalComponent],
-  templateUrl: './document-detail.component.html'
+  templateUrl: './document-detail.component.html',
 })
 export class DocumentDetailComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
@@ -38,26 +38,18 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
   hasDocument = computed(() => !!this.document());
   hasAnalysis = computed(() => !!this.analysis());
   signers = computed(() => this.document()?.signers || []);
-  pendingSigners = computed(() =>
-    this.signers().filter(signer => signer.status === 'pending')
-  );
-  completedSigners = computed(() =>
-    this.signers().filter(signer => signer.status === 'signed')
-  );
-  isDocumentCompleted = computed(() =>
-    this.document()?.status === 'completed'
-  );
-  canAnalyze = computed(() =>
-    this.hasDocument() && !this.isAnalyzing()
-  );
-  canOpenModal = computed(() =>
-    this.hasDocument() && !this.isAddingSigner()
-  );
-  canAddSigner = computed(() =>
-    this.hasDocument() && !this.isAddingSigner() &&
-    this.newSignerName().trim().length > 0 &&
-    this.newSignerEmail().trim().length > 0 &&
-    this.isValidEmail(this.newSignerEmail().trim())
+  pendingSigners = computed(() => this.signers().filter((signer) => signer.status === 'pending'));
+  completedSigners = computed(() => this.signers().filter((signer) => signer.status === 'signed'));
+  isDocumentCompleted = computed(() => this.document()?.status === 'completed');
+  canAnalyze = computed(() => this.hasDocument() && !this.isAnalyzing());
+  canOpenModal = computed(() => this.hasDocument() && !this.isAddingSigner());
+  canAddSigner = computed(
+    () =>
+      this.hasDocument() &&
+      !this.isAddingSigner() &&
+      this.newSignerName().trim().length > 0 &&
+      this.newSignerEmail().trim().length > 0 &&
+      this.isValidEmail(this.newSignerEmail().trim()),
   );
 
   ngOnInit(): void {
@@ -83,7 +75,8 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.documentsService.getDocument(+documentId)
+    this.documentsService
+      .getDocument(+documentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (document) => {
@@ -101,7 +94,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
           console.error('Error loading document data:', error);
           this.error.set('Falhou ao carregar detalhes do documento. Tente novamente.');
           this.isLoading.set(false);
-        }
+        },
       });
   }
 
@@ -115,7 +108,8 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
     this.isAnalyzing.set(true);
     this.error.set(null);
 
-    this.documentsService.analyzeDocument(doc.id, forceReanalysis)
+    this.documentsService
+      .analyzeDocument(doc.id, forceReanalysis)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (analysis) => {
@@ -126,7 +120,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
           console.error('Error analyzing document:', error);
           this.error.set('Falhou ao analisar documento. Tente novamente.');
           this.isAnalyzing.set(false);
-        }
+        },
       });
   }
 
@@ -138,11 +132,12 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
     if (!doc) return;
 
     const confirmed = confirm(
-      `Are you sure you want to delete "${doc.name}"? This action cannot be undone.`
+      `Are you sure you want to delete "${doc.name}"? This action cannot be undone.`,
     );
 
     if (confirmed) {
-      this.documentsService.deleteDocument(doc.id)
+      this.documentsService
+        .deleteDocument(doc.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -151,7 +146,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
           error: (error) => {
             console.error('Error deleting document:', error);
             this.error.set('Falhou ao excluir documento. Tente novamente.');
-          }
+          },
         });
     }
   }
@@ -258,7 +253,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
   onSignerClick(signerId: number): void {
     const doc = this.document();
     this.router.navigate(['/signers', signerId], {
-      state: { documentId: doc?.id, documentName: doc?.name }
+      state: { documentId: doc?.id, documentName: doc?.name },
     });
   }
 
@@ -269,7 +264,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -282,14 +277,14 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 
   /**
    * Track by function for signers list
    */
-  trackBySigner(index: number, signer: Signer): number {
+  trackBySigner(_index: number, signer: Signer): number {
     return signer.id;
   }
 
@@ -299,7 +294,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
   getSignerInitials(name: string): string {
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2); // Limit to 2 characters
@@ -313,8 +308,10 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
 
     // Remove surrounding quotes if they exist
     let cleanTopic = topic.trim();
-    if ((cleanTopic.startsWith('"') && cleanTopic.endsWith('"')) ||
-        (cleanTopic.startsWith("'") && cleanTopic.endsWith("'"))) {
+    if (
+      (cleanTopic.startsWith('"') && cleanTopic.endsWith('"')) ||
+      (cleanTopic.startsWith("'") && cleanTopic.endsWith("'"))
+    ) {
       cleanTopic = cleanTopic.slice(1, -1);
     }
 
@@ -329,12 +326,14 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
 
     // If insights is already an array, process each item
     if (Array.isArray(insights)) {
-      return insights.map(item => {
+      return insights.map((item) => {
         // Remove leading numbers and dots (e.g., "1. " becomes "")
         let cleanItem = item.replace(/^\d+\.\s*/, '').trim();
         // Remove surrounding quotes if they exist
-        if ((cleanItem.startsWith('"') && cleanItem.endsWith('"')) ||
-            (cleanItem.startsWith("'") && cleanItem.endsWith("'"))) {
+        if (
+          (cleanItem.startsWith('"') && cleanItem.endsWith('"')) ||
+          (cleanItem.startsWith("'") && cleanItem.endsWith("'"))
+        ) {
           cleanItem = cleanItem.slice(1, -1);
         }
         return cleanItem;
@@ -342,10 +341,10 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
     }
 
     // If insights is a string, split by numbered pattern
-    const items = insights.split(/\d+\.\s*/).filter(item => item.trim().length > 0);
+    const items = insights.split(/\d+\.\s*/).filter((item) => item.trim().length > 0);
 
     // Remove trailing commas and clean up each item
-    return items.map(item => {
+    return items.map((item) => {
       let cleanItem = item.trim();
       // Remove trailing comma if it exists
       if (cleanItem.endsWith(',')) {
@@ -369,17 +368,17 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
         name: doc.name,
         company: doc.company?.name || `Company ID: ${doc.company_id}`,
         status: doc.status,
-        analyzed_at: analysis.analyzed_at
+        analyzed_at: analysis.analyzed_at,
       },
       analysis: {
         summary: analysis.summary,
         insights: analysis.insights,
-        missing_topics: analysis.missing_topics
-      }
+        missing_topics: analysis.missing_topics,
+      },
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: 'application/json'
+      type: 'application/json',
     });
 
     const url = window.URL.createObjectURL(blob);
@@ -396,9 +395,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
    * Open add signer modal
    */
   onOpenAddSignerModal(): void {
-    console.log('Opening add signer modal');
     this.showAddSignerModal.set(true);
-    console.log('Modal state after set:', this.showAddSignerModal());
     this.resetAddSignerForm();
   }
 
@@ -428,28 +425,33 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
 
     const signerData = {
       name: this.newSignerName().trim(),
-      email: this.newSignerEmail().trim()
+      email: this.newSignerEmail().trim(),
     };
 
     // Check if signer email already exists
     const existingSigners = this.signers();
     const emailExists = existingSigners.some(
-      signer => signer.email.toLowerCase() === signerData.email.toLowerCase()
+      (signer) => signer.email.toLowerCase() === signerData.email.toLowerCase(),
     );
 
     if (emailExists) {
-      this.notificationService.showError('Este email já está associado a um signatário neste documento');
+      this.notificationService.showError(
+        'Este email já está associado a um signatário neste documento',
+      );
       return;
     }
 
     this.isAddingSigner.set(true);
     this.error.set(null);
 
-    this.documentsService.addSignerToDocument(doc.id, signerData)
+    this.documentsService
+      .addSignerToDocument(doc.id, signerData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.notificationService.showSuccess(`Signatário ${signerData.name} adicionado com sucesso`);
+          this.notificationService.showSuccess(
+            `Signatário ${signerData.name} adicionado com sucesso`,
+          );
           this.onCloseAddSignerModal();
           // Refresh document to get updated signers list
           this.loadDocumentData();
@@ -459,7 +461,7 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
           this.error.set('Falha ao adicionar signatário. Tente novamente.');
           this.notificationService.showError('Falha ao adicionar signatário');
           this.isAddingSigner.set(false);
-        }
+        },
       });
   }
 

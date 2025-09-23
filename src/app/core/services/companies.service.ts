@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, tap, catchError, shareReplay } from 'rxjs/operators';
 import { BaseApiService, RequestOptions } from './base-api.service';
@@ -10,10 +10,9 @@ import { Company, CreateCompanyRequest, UpdateCompanyRequest, CompanyDocument } 
  * caching, error handling, and real-time state management.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CompaniesService extends BaseApiService {
-
   // State management for companies
   private companiesSubject = new BehaviorSubject<Company[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
@@ -36,20 +35,20 @@ export class CompaniesService extends BaseApiService {
       cache: !forceRefresh,
       cacheOptions: {
         ttl: this.CACHE_TTL,
-        staleWhileRevalidate: true
+        staleWhileRevalidate: true,
       },
       cacheKey: this.COMPANIES_CACHE_KEY,
-      retry: true
+      retry: true,
     };
 
     this.loadingSubject.next(true);
 
     return this.get<Company[]>('/companies/', options).pipe(
-      tap(companies => {
+      tap((companies) => {
         this.companiesSubject.next(companies);
         this.loadingSubject.next(false);
       }),
-      catchError(error => {
+      catchError((error) => {
         this.loadingSubject.next(false);
         // Return cached data if available on error
         const cached = this.cacheService.get<Company[]>(this.COMPANIES_CACHE_KEY);
@@ -59,7 +58,7 @@ export class CompaniesService extends BaseApiService {
         }
         throw error;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -72,11 +71,11 @@ export class CompaniesService extends BaseApiService {
       cache: useCache,
       cacheOptions: { ttl: this.CACHE_TTL },
       cacheKey,
-      retry: true
+      retry: true,
     };
 
     return this.get<Company>(`/companies/${id}/`, options).pipe(
-      tap(company => {
+      tap((company) => {
         // Update selected company if it matches
         const current = this.selectedCompanySubject.value;
         if (current?.id === id) {
@@ -86,7 +85,7 @@ export class CompaniesService extends BaseApiService {
         // Update company in the list if loaded
         this.updateCompanyInList(company);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -95,14 +94,14 @@ export class CompaniesService extends BaseApiService {
    */
   createCompany(companyData: CreateCompanyRequest): Observable<Company> {
     return this.post<Company>('/companies/', companyData, { retry: true }).pipe(
-      tap(newCompany => {
+      tap((newCompany) => {
         // Add to current list
         const currentCompanies = this.companiesSubject.value;
         this.companiesSubject.next([...currentCompanies, newCompany]);
 
         // Invalidate list cache to ensure consistency
         this.invalidateCache(this.COMPANIES_CACHE_KEY);
-      })
+      }),
     );
   }
 
@@ -111,7 +110,7 @@ export class CompaniesService extends BaseApiService {
    */
   updateCompany(id: number, companyData: UpdateCompanyRequest): Observable<Company> {
     return this.put<Company>(`/companies/${id}/`, companyData, { retry: true }).pipe(
-      tap(updatedCompany => {
+      tap((updatedCompany) => {
         // Update in current list
         this.updateCompanyInList(updatedCompany);
 
@@ -123,7 +122,7 @@ export class CompaniesService extends BaseApiService {
 
         // Invalidate related caches
         this.invalidateCompanyCache(id);
-      })
+      }),
     );
   }
 
@@ -132,7 +131,7 @@ export class CompaniesService extends BaseApiService {
    */
   patchCompany(id: number, companyData: Partial<UpdateCompanyRequest>): Observable<Company> {
     return this.patch<Company>(`/companies/${id}/`, companyData, { retry: true }).pipe(
-      tap(updatedCompany => {
+      tap((updatedCompany) => {
         this.updateCompanyInList(updatedCompany);
 
         const current = this.selectedCompanySubject.value;
@@ -141,7 +140,7 @@ export class CompaniesService extends BaseApiService {
         }
 
         this.invalidateCompanyCache(id);
-      })
+      }),
     );
   }
 
@@ -153,7 +152,7 @@ export class CompaniesService extends BaseApiService {
       tap(() => {
         // Remove from current list
         const currentCompanies = this.companiesSubject.value;
-        const updatedCompanies = currentCompanies.filter(company => company.id !== id);
+        const updatedCompanies = currentCompanies.filter((company) => company.id !== id);
         this.companiesSubject.next(updatedCompanies);
 
         // Clear selected company if it was deleted
@@ -164,7 +163,7 @@ export class CompaniesService extends BaseApiService {
 
         // Invalidate caches
         this.invalidateCompanyCache(id);
-      })
+      }),
     );
   }
 
@@ -186,9 +185,9 @@ export class CompaniesService extends BaseApiService {
     return this.companies$.pipe(
       map((companies: Company[]) =>
         companies.filter((company: Company) =>
-          company.name.toLowerCase().includes(query.toLowerCase())
-        )
-      )
+          company.name.toLowerCase().includes(query.toLowerCase()),
+        ),
+      ),
     );
   }
 
@@ -196,9 +195,7 @@ export class CompaniesService extends BaseApiService {
    * Get companies count
    */
   getCompaniesCount(): Observable<number> {
-    return this.companies$.pipe(
-      map((companies: Company[]) => companies.length)
-    );
+    return this.companies$.pipe(map((companies: Company[]) => companies.length));
   }
 
   /**
@@ -207,11 +204,11 @@ export class CompaniesService extends BaseApiService {
   companyExistsByName(name: string, excludeId?: number): Observable<boolean> {
     return this.companies$.pipe(
       map((companies: Company[]) =>
-        companies.some((company: Company) =>
-          company.name.toLowerCase() === name.toLowerCase() &&
-          company.id !== excludeId
-        )
-      )
+        companies.some(
+          (company: Company) =>
+            company.name.toLowerCase() === name.toLowerCase() && company.id !== excludeId,
+        ),
+      ),
     );
   }
 
@@ -248,20 +245,20 @@ export class CompaniesService extends BaseApiService {
    * Get documents for a specific company
    */
   getCompanyDocuments(companyId: number): Observable<CompanyDocument[]> {
-    return this.getCompany(companyId).pipe(
-      map(company => company.documents || [])
-    );
+    return this.getCompany(companyId).pipe(map((company) => company.documents || []));
   }
 
   /**
    * Get company with documents count
    */
-  getCompanyWithDocumentsCount(companyId: number): Observable<Company & { documentsCount: number }> {
+  getCompanyWithDocumentsCount(
+    companyId: number,
+  ): Observable<Company & { documentsCount: number }> {
     return this.getCompany(companyId).pipe(
-      map(company => ({
+      map((company) => ({
         ...company,
-        documentsCount: company.documents?.length || 0
-      }))
+        documentsCount: company.documents?.length || 0,
+      })),
     );
   }
 
@@ -272,7 +269,7 @@ export class CompaniesService extends BaseApiService {
    */
   private updateCompanyInList(updatedCompany: Company): void {
     const currentCompanies = this.companiesSubject.value;
-    const index = currentCompanies.findIndex(company => company.id === updatedCompany.id);
+    const index = currentCompanies.findIndex((company) => company.id === updatedCompany.id);
 
     if (index !== -1) {
       const updatedCompanies = [...currentCompanies];

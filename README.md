@@ -10,18 +10,21 @@ Um sistema moderno de gerenciamento de documentos Angular 20 com integração Za
 ## 🌟 Funcionalidades
 
 ### 📊 Painel
+
 - **Métricas gerais** - Estatísticas em tempo real de empresas, documentos e signatários
 - **Atividade recente** - Últimas criações de documentos e assinaturas
 - **Ações rápidas** - Acesso rápido a tarefas comuns
 - **Gráficos responsivos** - Representação visual de métricas principais
 
 ### 🏢 Gerenciamento de Empresas
+
 - **Operações CRUD** - Criar, ler, atualizar e excluir empresas
 - **Gerenciamento de token API** - Armazenamento seguro e validação de tokens da API ZapSign
 - **Perfis de empresa** - Informações detalhadas e configurações
 - **Associação de documentos** - Visualizar todos os documentos vinculados a cada empresa
 
 ### 📄 Gerenciamento de Documentos
+
 - **Criação de documentos** - Upload e processamento de documentos através da API ZapSign
 - **Análise com IA** - Análise automática de documentos com insights e resumos
 - **Visualizador de documentos** - Visualizador PDF integrado para revisão de documentos
@@ -30,6 +33,7 @@ Um sistema moderno de gerenciamento de documentos Angular 20 com integração Za
 - **Opções de download** - Acesso aos documentos originais e assinados
 
 ### ✍️ Gerenciamento de Signatários
+
 - **Perfis de signatários** - Informações detalhadas sobre cada signatário
 - **Monitoramento de status** - Acompanhar progresso e conclusão de assinaturas
 - **Sincronização ZapSign** - Sincronização em tempo real com a plataforma ZapSign
@@ -37,6 +41,7 @@ Um sistema moderno de gerenciamento de documentos Angular 20 com integração Za
 - **Histórico de assinaturas** - Trilha de auditoria completa das atividades do signatário
 
 ### 🎨 Interface do Usuário
+
 - **Localização em português** - Interface completa em português brasileiro
 - **Fluxos baseados em modais** - Interações suaves e não disruptivas
 - **Design responsivo** - Otimizado para desktop, tablet e dispositivos móveis
@@ -57,12 +62,14 @@ Antes de executar esta aplicação, certifique-se de ter o seguinte instalado:
 ### Instalação
 
 1. **Clone o repositório**
+
    ```bash
    git clone <repository-url>
    cd zapsign-challenge-front
    ```
 
 2. **Instale as dependências**
+
    ```bash
    npm install
    ```
@@ -70,20 +77,24 @@ Antes de executar esta aplicação, certifique-se de ter o seguinte instalado:
 3. **Configuração do ambiente**
 
    Atualize a URL da API em `src/environments/environment.ts`:
+
    ```typescript
    export const environment = {
      production: false,
      apiUrl: 'http://localhost:8000/api', // URL da sua API backend
      enableLogging: true,
-     enableDebugMode: true
+     enableDebugMode: true,
    };
    ```
 
 4. **Inicie o servidor de desenvolvimento**
+
    ```bash
    npm start
    ```
+
    or
+
    ```bash
    ng serve
    ```
@@ -123,12 +134,14 @@ Antes de executar esta aplicação, certifique-se de ter o seguinte instalado:
 ### Funcionalidades Avançadas
 
 #### Análise de Documentos
+
 - Após fazer upload de um documento, clique em "Analisar" para executar análise de IA
 - Visualize resumos automáticos e insights
 - Identifique tópicos em falta ou informações necessárias
 - Use os resultados da análise para melhorar a qualidade do documento
 
 #### Integração ZapSign
+
 - Todos os documentos são automaticamente processados através da API ZapSign
 - Signatários recebem notificações por email com links de assinatura
 - Acompanhe o progresso de assinatura em tempo real
@@ -198,12 +211,12 @@ npx webpack-bundle-analyzer dist/stats.json
 - **External Templates** - All components use separate `.html` files
 - **Tailwind CSS** - Utility-first CSS framework for styling
 - **TypeScript Strict Mode** - Enabled for enhanced type safety
-- **Prettier** - Automated code formatting
-- **ESLint** - Code quality and consistency
+- **Prettier** - Formatação automática de código (`npm run format`)
 
 ### Architecture Patterns
 
 #### Service-Based State Management
+
 ```typescript
 // Example: CompanyService with BehaviorSubject
 @Injectable({ providedIn: 'root' })
@@ -218,6 +231,7 @@ export class CompanyService extends BaseApiService<Company> {
 ```
 
 #### API Integration Pattern
+
 ```typescript
 // All services extend BaseApiService for consistency
 export abstract class BaseApiService<T> {
@@ -230,6 +244,7 @@ export abstract class BaseApiService<T> {
 ```
 
 #### Modal-Based UI Pattern
+
 ```typescript
 // Modal service for consistent modal management
 @Injectable({ providedIn: 'root' })
@@ -238,7 +253,7 @@ export class ModalService {
     return this.dialog.open(component, {
       data,
       width: '600px',
-      disableClose: false
+      disableClose: false,
     });
   }
 }
@@ -297,7 +312,7 @@ export const environment = {
   production: true,
   apiUrl: 'https://your-api-domain.com/api',
   enableLogging: false,
-  enableDebugMode: false
+  enableDebugMode: false,
 };
 ```
 
@@ -368,16 +383,19 @@ When reporting issues, please include:
 ## 📚 Additional Resources
 
 ### Documentation
+
 - [Angular Documentation](https://angular.io/docs) - Official Angular guides
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs) - Styling framework
 - [RxJS Documentation](https://rxjs.dev/) - Reactive programming
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/) - TypeScript reference
 
 ### API Integration
+
 - [ZapSign API Documentation](https://docs.zapsign.com.br/) - Electronic signature platform
 - [Django REST Framework](https://www.django-rest-framework.org/) - Backend API framework
 
 ### Tools and Libraries
+
 - [Angular Material](https://material.angular.io/) - UI component library
 - [Angular CDK](https://material.angular.io/cdk) - Component development kit
 - [Angular DevTools](https://angular.io/guide/devtools) - Browser debugging extension

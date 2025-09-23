@@ -1,12 +1,11 @@
 import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, forkJoin, map, takeUntil, catchError, of, Observable, combineLatest } from 'rxjs';
+import { Subject, forkJoin, takeUntil, catchError, of } from 'rxjs';
 
 import { CompaniesService } from '../../core/services/companies.service';
 import { DocumentsService } from '../../core/services/documents.service';
 import { SignersService } from '../../core/services/signers.service';
 import { NavigationService } from '../../core/services/navigation.service';
-import { LoadingService } from '../../core/services/loading.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Company, Document, DocumentStatus, Signer } from '../../core/models';
 
@@ -31,7 +30,7 @@ interface RecentActivity {
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './dashboard.component.html'
+  templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -41,7 +40,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private documentsService = inject(DocumentsService);
   private signersService = inject(SignersService);
   private navigationService = inject(NavigationService);
-  private loadingService = inject(LoadingService);
   private notificationService = inject(NotificationService);
 
   // Signals for reactive state management
@@ -50,7 +48,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     pendingDocuments: 0,
     completedDocuments: 0,
     totalCompanies: 0,
-    totalSigners: 0
+    totalSigners: 0,
   });
 
   recentActivity = signal<RecentActivity[]>([]);
@@ -79,54 +77,54 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Load all data in parallel
     const companies$ = this.companiesService.getCompanies().pipe(
-      catchError(error => {
+      catchError((error) => {
         console.error('Error loading companies:', error);
         return of([]);
-      })
+      }),
     );
 
     const documents$ = this.documentsService.getDocuments().pipe(
-      catchError(error => {
+      catchError((error) => {
         console.error('Error loading documents:', error);
         return of([]);
-      })
+      }),
     );
 
     const signers$ = this.signersService.getSigners().pipe(
-      catchError(error => {
+      catchError((error) => {
         console.error('Error loading signers:', error);
         return of([]);
-      })
+      }),
     );
 
     forkJoin({
       companies: companies$,
       documents: documents$,
-      signers: signers$
-    }).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: ({ companies, documents, signers }) => {
-        this.updateStats(companies, documents, signers);
-        this.updateRecentActivity(companies, documents, signers);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading dashboard data:', error);
-        this.hasError.set(true);
-        this.isLoading.set(false);
-        this.notificationService.showError('Failed to load dashboard data');
-      }
-    });
+      signers: signers$,
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ companies, documents, signers }) => {
+          this.updateStats(companies, documents, signers);
+          this.updateRecentActivity(companies, documents, signers);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading dashboard data:', error);
+          this.hasError.set(true);
+          this.isLoading.set(false);
+          this.notificationService.showError('Failed to load dashboard data');
+        },
+      });
   }
 
   private updateStats(companies: Company[], documents: Document[], signers: Signer[]): void {
-    const pendingDocuments = documents.filter(doc =>
-      doc.status === DocumentStatus.PENDING || doc.status === DocumentStatus.DRAFT
+    const pendingDocuments = documents.filter(
+      (doc) => doc.status === DocumentStatus.PENDING || doc.status === DocumentStatus.DRAFT,
     ).length;
 
-    const completedDocuments = documents.filter(doc =>
-      doc.status === DocumentStatus.COMPLETED
+    const completedDocuments = documents.filter(
+      (doc) => doc.status === DocumentStatus.COMPLETED,
     ).length;
 
     this.stats.set({
@@ -134,11 +132,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
       pendingDocuments,
       completedDocuments,
       totalCompanies: companies.length,
-      totalSigners: signers.length
+      totalSigners: signers.length,
     });
   }
 
-  private updateRecentActivity(companies: Company[], documents: Document[], signers: Signer[]): void {
+  private updateRecentActivity(
+    companies: Company[],
+    documents: Document[],
+    _signers: Signer[],
+  ): void {
     const activities: RecentActivity[] = [];
 
     // Add recent documents (last 5)
@@ -146,14 +148,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 3);
 
-    recentDocuments.forEach(doc => {
+    recentDocuments.forEach((doc) => {
       activities.push({
         id: `doc-${doc.id}`,
         type: 'document',
         title: doc.name,
         description: this.getDocumentActivityDescription(doc),
         timestamp: new Date(doc.created_at),
-        icon: 'document'
+        icon: 'document',
       });
     });
 
@@ -162,14 +164,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 2);
 
-    recentCompanies.forEach(company => {
+    recentCompanies.forEach((company) => {
       activities.push({
         id: `company-${company.id}`,
         type: 'company',
         title: company.name,
         description: 'Company added',
         timestamp: new Date(company.created_at),
-        icon: 'building'
+        icon: 'building',
       });
     });
 
@@ -328,7 +330,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  trackActivityById(index: number, activity: RecentActivity): string {
+  trackActivityById(_index: number, activity: RecentActivity): string {
     return activity.id;
   }
 }

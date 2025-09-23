@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { ApiError, ApiResponse, HttpStatusCode } from '../models';
@@ -11,7 +11,7 @@ export class ApiException extends Error {
     message: string,
     public readonly statusCode: number,
     public readonly errors?: ApiError[],
-    public readonly originalError?: HttpErrorResponse
+    public readonly originalError?: HttpErrorResponse,
   ) {
     super(message);
     this.name = 'ApiException';
@@ -22,7 +22,10 @@ export class ApiException extends Error {
  * Custom error class for network-related errors
  */
 export class NetworkException extends Error {
-  constructor(message: string, public readonly originalError?: HttpErrorResponse) {
+  constructor(
+    message: string,
+    public readonly originalError?: HttpErrorResponse,
+  ) {
     super(message);
     this.name = 'NetworkException';
   }
@@ -34,7 +37,7 @@ export class NetworkException extends Error {
 export class ValidationException extends Error {
   constructor(
     message: string,
-    public readonly errors: ApiError[]
+    public readonly errors: ApiError[],
   ) {
     super(message);
     this.name = 'ValidationException';
@@ -46,10 +49,9 @@ export class ValidationException extends Error {
  * Provides consistent error handling, logging, and user-friendly error messages.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ErrorHandlerService {
-
   /**
    * Process HTTP error response and return appropriate error instance
    */
@@ -62,7 +64,7 @@ export class ErrorHandlerService {
     if (error.status === 0) {
       return new NetworkException(
         'Não foi possível conectar ao servidor. Verifique sua conexão com a internet.',
-        error
+        error,
       );
     }
 
@@ -104,16 +106,13 @@ export class ErrorHandlerService {
       case HttpStatusCode.BAD_REQUEST:
       case HttpStatusCode.UNPROCESSABLE_ENTITY:
         if (errors && errors.length > 0) {
-          return new ValidationException(
-            message || 'Falha na validação',
-            errors
-          );
+          return new ValidationException(message || 'Falha na validação', errors);
         }
         return new ApiException(
           message || 'Dados de solicitação inválidos',
           code,
           errors,
-          originalError
+          originalError,
         );
 
       case HttpStatusCode.UNAUTHORIZED:
@@ -121,7 +120,7 @@ export class ErrorHandlerService {
           'Autenticação necessária. Faça login.',
           code,
           errors,
-          originalError
+          originalError,
         );
 
       case HttpStatusCode.FORBIDDEN:
@@ -129,7 +128,7 @@ export class ErrorHandlerService {
           'Você não tem permissão para executar esta ação.',
           code,
           errors,
-          originalError
+          originalError,
         );
 
       case HttpStatusCode.NOT_FOUND:
@@ -137,7 +136,7 @@ export class ErrorHandlerService {
           'O recurso solicitado não foi encontrado.',
           code,
           errors,
-          originalError
+          originalError,
         );
 
       case HttpStatusCode.CONFLICT:
@@ -145,7 +144,7 @@ export class ErrorHandlerService {
           message || 'Ocorreu um conflito. O recurso pode já existir.',
           code,
           errors,
-          originalError
+          originalError,
         );
 
       case HttpStatusCode.INTERNAL_SERVER_ERROR:
@@ -153,7 +152,7 @@ export class ErrorHandlerService {
           'Erro do servidor ocorreu. Tente novamente mais tarde.',
           code,
           errors,
-          originalError
+          originalError,
         );
 
       default:
@@ -161,7 +160,7 @@ export class ErrorHandlerService {
           message || 'Ocorreu um erro inesperado',
           code,
           errors,
-          originalError
+          originalError,
         );
     }
   }
@@ -215,7 +214,7 @@ export class ErrorHandlerService {
       if (error.errors.length === 1) {
         return error.errors[0].message;
       }
-      return `Falha na validação: ${error.errors.map(e => e.message).join(', ')}`;
+      return `Falha na validação: ${error.errors.map((e) => e.message).join(', ')}`;
     }
 
     if (error instanceof NetworkException) {
@@ -259,8 +258,8 @@ export class ErrorHandlerService {
       timestamp: new Date().toISOString(),
       ...(error instanceof ApiException && {
         statusCode: error.statusCode,
-        apiErrors: error.errors
-      })
+        apiErrors: error.errors,
+      }),
     };
 
     console.error('Application Error:', logData);

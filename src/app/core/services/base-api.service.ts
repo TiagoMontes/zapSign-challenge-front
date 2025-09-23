@@ -24,7 +24,9 @@ export interface RequestOptions {
   /** Delay between retries in milliseconds */
   retryDelay?: number;
   /** HTTP query parameters */
-  params?: HttpParams | { [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean> };
+  params?:
+    | HttpParams
+    | { [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean> };
 }
 
 /**
@@ -32,7 +34,7 @@ export interface RequestOptions {
  * retry logic, and caching capabilities for all API interactions.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BaseApiService {
   private http = inject(HttpClient);
@@ -44,7 +46,6 @@ export class BaseApiService {
   // Default retry configuration
   private readonly DEFAULT_MAX_RETRIES = 3;
   private readonly DEFAULT_RETRY_DELAY = 1000; // 1 second
-  private readonly RETRY_STATUS_CODES = [500, 502, 503, 504, 429];
 
   /**
    * Perform GET request with optional caching and retry logic
@@ -52,7 +53,6 @@ export class BaseApiService {
   protected get<T>(endpoint: string, options: RequestOptions = {}): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const cacheKey = options.cacheKey || this.generateCacheKey('GET', endpoint, options.params);
-    console.log(url)
     // Check cache first if caching is enabled
     if (options.cache) {
       const cachedData = this.cacheService.get<T>(cacheKey);
@@ -60,7 +60,7 @@ export class BaseApiService {
         return this.cacheService.cacheObservable(
           cacheKey,
           this.performGetRequest<T>(url, options),
-          options.cacheOptions
+          options.cacheOptions,
         );
       }
     }
@@ -80,11 +80,10 @@ export class BaseApiService {
   protected post<T>(endpoint: string, data: any, options: RequestOptions = {}): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    return this.performRequest<T>(() =>
-      this.http.post<ApiResponse<T>>(url, data, { params: options.params })
-    , options).pipe(
-      finalize(() => this.invalidateRelatedCache(endpoint, 'POST'))
-    );
+    return this.performRequest<T>(
+      () => this.http.post<ApiResponse<T>>(url, data, { params: options.params }),
+      options,
+    ).pipe(finalize(() => this.invalidateRelatedCache(endpoint, 'POST')));
   }
 
   /**
@@ -93,11 +92,10 @@ export class BaseApiService {
   protected put<T>(endpoint: string, data: any, options: RequestOptions = {}): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    return this.performRequest<T>(() =>
-      this.http.put<ApiResponse<T>>(url, data, { params: options.params })
-    , options).pipe(
-      finalize(() => this.invalidateRelatedCache(endpoint, 'PUT'))
-    );
+    return this.performRequest<T>(
+      () => this.http.put<ApiResponse<T>>(url, data, { params: options.params }),
+      options,
+    ).pipe(finalize(() => this.invalidateRelatedCache(endpoint, 'PUT')));
   }
 
   /**
@@ -106,11 +104,10 @@ export class BaseApiService {
   protected patch<T>(endpoint: string, data: any, options: RequestOptions = {}): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    return this.performRequest<T>(() =>
-      this.http.patch<ApiResponse<T>>(url, data, { params: options.params })
-    , options).pipe(
-      finalize(() => this.invalidateRelatedCache(endpoint, 'PATCH'))
-    );
+    return this.performRequest<T>(
+      () => this.http.patch<ApiResponse<T>>(url, data, { params: options.params }),
+      options,
+    ).pipe(finalize(() => this.invalidateRelatedCache(endpoint, 'PATCH')));
   }
 
   /**
@@ -119,20 +116,20 @@ export class BaseApiService {
   protected delete<T>(endpoint: string, options: RequestOptions = {}): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    return this.performRequest<T>(() =>
-      this.http.delete<ApiResponse<T>>(url, { params: options.params })
-    , options).pipe(
-      finalize(() => this.invalidateRelatedCache(endpoint, 'DELETE'))
-    );
+    return this.performRequest<T>(
+      () => this.http.delete<ApiResponse<T>>(url, { params: options.params }),
+      options,
+    ).pipe(finalize(() => this.invalidateRelatedCache(endpoint, 'DELETE')));
   }
 
   /**
    * Perform the actual GET request
    */
   private performGetRequest<T>(url: string, options: RequestOptions): Observable<T> {
-    return this.performRequest<T>(() =>
-      this.http.get<ApiResponse<T>>(url, { params: options.params })
-    , options);
+    return this.performRequest<T>(
+      () => this.http.get<ApiResponse<T>>(url, { params: options.params }),
+      options,
+    );
   }
 
   /**
@@ -140,11 +137,11 @@ export class BaseApiService {
    */
   private performRequest<T>(
     requestFn: () => Observable<ApiResponse<T>>,
-    options: RequestOptions
+    options: RequestOptions,
   ): Observable<T> {
     let request$ = requestFn().pipe(
-      map(response => this.extractData<T>(response)),
-      catchError(error => this.handleError(error))
+      map((response) => this.extractData<T>(response)),
+      catchError((error) => this.handleError(error)),
     );
 
     // Apply retry logic if enabled
@@ -153,7 +150,7 @@ export class BaseApiService {
       const retryDelay = options.retryDelay || this.DEFAULT_RETRY_DELAY;
 
       request$ = request$.pipe(
-        retryWhen(errors =>
+        retryWhen((errors) =>
           errors.pipe(
             take(maxRetries),
             concatMap((error, index) => {
@@ -161,14 +158,16 @@ export class BaseApiService {
               if (this.shouldRetry(error) && index < maxRetries) {
                 const delay = retryDelay * Math.pow(2, index); // Exponential backoff
                 if (environment.enableLogging) {
-                  console.warn(`Retrying request in ${delay}ms (attempt ${index + 1}/${maxRetries})`);
+                  console.warn(
+                    `Retrying request in ${delay}ms (attempt ${index + 1}/${maxRetries})`,
+                  );
                 }
                 return timer(delay);
               }
               return throwError(() => error);
-            })
-          )
-        )
+            }),
+          ),
+        ),
       );
     }
 
@@ -185,7 +184,7 @@ export class BaseApiService {
         error: response,
         status: response.code,
         statusText: response.message,
-        message: response.message
+        message: response.message,
       } as HttpErrorResponse;
 
       throw this.errorHandler.processHttpError(fakeError);

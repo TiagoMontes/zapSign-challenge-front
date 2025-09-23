@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-signer-status',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './signer-status.component.html'
+  templateUrl: './signer-status.component.html',
 })
 export class SignerStatusComponent {
   @Input() status: string = '';

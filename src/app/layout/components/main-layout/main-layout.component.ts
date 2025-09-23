@@ -9,18 +9,25 @@ import { ToastContainerComponent } from '../../../shared/components/toast-notifi
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, SidebarComponent, BreadcrumbComponent, RouterOutlet, ToastContainerComponent],
+  imports: [
+    CommonModule,
+    HeaderComponent,
+    SidebarComponent,
+    BreadcrumbComponent,
+    RouterOutlet,
+    ToastContainerComponent,
+  ],
   templateUrl: './main-layout.component.html',
-  styles: []
+  styles: [],
 })
 export class MainLayoutComponent implements OnInit {
   // Responsive breakpoints (matching Tailwind CSS breakpoints)
   private readonly BREAKPOINTS = {
-    sm: 640,   // Small devices
-    md: 768,   // Medium devices (tablets)
-    lg: 1024,  // Large devices (laptops)
-    xl: 1280,  // Extra large devices (desktops)
-    '2xl': 1536 // 2X Large devices
+    sm: 640, // Small devices
+    md: 768, // Medium devices (tablets)
+    lg: 1024, // Large devices (laptops)
+    xl: 1280, // Extra large devices (desktops)
+    '2xl': 1536, // 2X Large devices
   };
 
   // Sidenav state
@@ -36,7 +43,7 @@ export class MainLayoutComponent implements OnInit {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event): void {
+  onResize(_event: Event): void {
     this.checkScreenSize();
   }
 

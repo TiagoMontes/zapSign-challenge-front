@@ -9,7 +9,7 @@ export enum DocumentStatus {
   PENDING = 'pending',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
-  EXPIRED = 'expired'
+  EXPIRED = 'expired',
 }
 
 /**
@@ -18,7 +18,7 @@ export enum DocumentStatus {
 export enum ProcessingStatus {
   PROCESSING = 'processing',
   COMPLETED = 'completed',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 /**

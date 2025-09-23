@@ -1,10 +1,13 @@
 # Signers Feature Implementation
 
 ## Overview
+
 Implement signer management functionality with document-first approach. Signers are accessed and managed through document details page, with navigation to individual signer pages for detailed management.
 
 ## Architecture Changes
+
 Signers are now managed within the document context:
+
 - Document details page includes signers section with clickable signer items
 - Individual signer pages accessible via `/signers/{id}` for detailed management
 - Signers displayed with status and clickable navigation
@@ -12,7 +15,9 @@ Signers are now managed within the document context:
 ## API Integration
 
 ### Updated Document Response
+
 Documents now include signers array in the response:
+
 ```json
 {
   "success": true,
@@ -54,12 +59,14 @@ Documents now include signers array in the response:
 ## Components to Create
 
 ### 1. Document Signers Section (Update Existing)
+
 - [x] Already exists in document-detail component
 - [ ] Make signer items clickable to navigate to individual signer pages
 - [ ] Update signer display to show proper status from API
 - [ ] Add proper routing to `/signers/{id}` when clicking on signers
 
 ### 2. Signer Detail Component (NEW)
+
 - [ ] Display signer information at `/signers/{id}`
 - [ ] Show associated document details
 - [ ] Show signing status and ZapSign token
@@ -68,6 +75,7 @@ Documents now include signers array in the response:
 - [ ] Display signer-specific ZapSign details
 
 ### 3. Signer Form Component (Create/Edit)
+
 - [ ] Reactive form with validation for signer management
 - [ ] Edit mode for individual signer updates
 - [ ] Form fields: name, email, status
@@ -76,6 +84,7 @@ Documents now include signers array in the response:
 - [ ] Loading states during submission
 
 ### 4. Signer Status Component
+
 - [ ] Visual status indicators for different signing states
 - [ ] Status mapping: "new" → "Pending", "signed" → "Signed", etc.
 - [ ] Color-coded status badges
@@ -84,6 +93,7 @@ Documents now include signers array in the response:
 ## Features Implementation
 
 ### User Flow
+
 1. **Document Navigation**: User views document details at `/documents/{id}`
 2. **Signers Section**: Document details displays signers with status and names
 3. **Signer Access**: User clicks on a signer to navigate to `/signers/{id}`
@@ -91,6 +101,7 @@ Documents now include signers array in the response:
 5. **Back Navigation**: Easy return to document details from signer page
 
 ### CRUD Operations
+
 ```typescript
 // Get Signer Details (standalone endpoint)
 getSigner(id: number) -> Signer & { documents: Document[] }
@@ -106,6 +117,7 @@ getDocument(id: number) -> Document & { signers: Signer[] }
 ```
 
 ### Status Management
+
 - [ ] Status mapping from API: "new" → "Pending", "signed" → "Signed", "declined" → "Declined"
 - [ ] Show ZapSign token for each signer
 - [ ] Display external_id when available
@@ -113,6 +125,7 @@ getDocument(id: number) -> Document & { signers: Signer[] }
 - [ ] Visual indicators for different statuses
 
 ### Form Validation (Signer Edit)
+
 - [ ] Name: required, min 2 characters, max 100 characters
 - [ ] Email: required, valid email format
 - [ ] Status: read-only (managed by ZapSign)
@@ -121,6 +134,7 @@ getDocument(id: number) -> Document & { signers: Signer[] }
 ## User Interface
 
 ### Document Signers Section (Updated)
+
 ```
 +---------------------------------------------------+
 |  Signers (2)                                      |
@@ -133,6 +147,7 @@ getDocument(id: number) -> Document & { signers: Signer[] }
 ```
 
 ### Individual Signer Page
+
 ```
 +---------------------------------------------------+
 |  Signer Details                   [Edit] [Delete]|
@@ -152,6 +167,7 @@ getDocument(id: number) -> Document & { signers: Signer[] }
 ```
 
 ### Signer Edit Form
+
 ```
 +---------------------------------------------------+
 |  Edit Signer                                      |
@@ -166,6 +182,7 @@ getDocument(id: number) -> Document & { signers: Signer[] }
 ```
 
 ### Signer Status Indicators
+
 ```
 🟢 Signed (Green) - status: "signed"
 🟡 Pending (Yellow/Orange) - status: "new"
@@ -175,6 +192,7 @@ getDocument(id: number) -> Document & { signers: Signer[] }
 ```
 
 ### Routing Structure
+
 ```
 /documents/{id}          # Document details with signers section
 /signers/{id}           # Individual signer details page
@@ -182,6 +200,7 @@ getDocument(id: number) -> Document & { signers: Signer[] }
 ```
 
 ## File Structure
+
 ```
 src/app/features/signers/
 ├── components/
@@ -207,6 +226,7 @@ src/app/features/documents/components/document-detail/
 ## Navigation Flow
 
 ### From Document to Signer
+
 1. User views document at `/documents/{id}`
 2. Document displays signers section with list of signers
 3. Each signer is clickable and navigates to `/signers/{signer_id}`
@@ -214,6 +234,7 @@ src/app/features/documents/components/document-detail/
 5. "Back to Document" returns to original document
 
 ### Signer Management
+
 - Individual signer pages for detailed management
 - Edit functionality for signer information
 - Status tracking and ZapSign integration
@@ -222,12 +243,14 @@ src/app/features/documents/components/document-detail/
 ## Tasks
 
 ### 1. Update Document Detail Component
+
 - [ ] Make signer items in document detail clickable
 - [ ] Add navigation to `/signers/{id}` when clicking on signers
 - [ ] Update signer status display to use new API format
 - [ ] Handle empty state when no signers exist
 
 ### 2. Create Signer Detail Component
+
 - [ ] Create individual signer page at `/signers/{id}`
 - [ ] Display comprehensive signer information
 - [ ] Show associated documents
@@ -235,30 +258,35 @@ src/app/features/documents/components/document-detail/
 - [ ] Implement Edit and Delete actions
 
 ### 3. Create Signer Form Component
+
 - [ ] Setup reactive form for signer editing
 - [ ] Implement name and email validation
 - [ ] Handle form submission and API integration
 - [ ] Add proper error handling and loading states
 
 ### 4. Create Signer Status Component
+
 - [ ] Visual status indicators for different signing states
 - [ ] Map API status values to user-friendly labels
 - [ ] Color-coded status badges with proper styling
 - [ ] Responsive status display
 
 ### 5. Implement Signer Service Integration
+
 - [ ] Add getSigner method to retrieve individual signer details
 - [ ] Add updateSigner method for editing signer information
 - [ ] Add deleteSigner method with proper error handling
 - [ ] Implement proper caching and state management
 
 ### 6. Setup Routing
+
 - [ ] Create signers routes module
 - [ ] Configure routing for `/signers/{id}` and `/signers/{id}/edit`
 - [ ] Add proper route guards and navigation
 - [ ] Integrate with main app routing
 
 ## Acceptance Criteria
+
 - Signers accessible through document details page (document-first approach)
 - Clickable signer items that navigate to individual signer pages
 - Individual signer management at `/signers/{id}` with full details

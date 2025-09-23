@@ -9,7 +9,7 @@ export enum SignerStatus {
   DECLINED = 'declined',
   INVITED = 'invited',
   ERROR = 'error',
-  EXPIRED = 'expired'
+  EXPIRED = 'expired',
 }
 
 /**

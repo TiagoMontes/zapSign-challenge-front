@@ -23,7 +23,7 @@ interface Document {
   selector: 'app-company-documents',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './company-documents.component.html'
+  templateUrl: './company-documents.component.html',
 })
 export class CompanyDocumentsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
@@ -51,8 +51,8 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
   hasCompany = computed(() => !!this.company());
   hasDocuments = computed(() => this.documents().length > 0);
   hasFilteredResults = computed(() => this.filteredDocuments().length > 0);
-  showNoResults = computed(() =>
-    this.hasDocuments() && !this.hasFilteredResults() && this.searchControl.value?.trim()
+  showNoResults = computed(
+    () => this.hasDocuments() && !this.hasFilteredResults() && this.searchControl.value?.trim(),
   );
 
   // Table configuration
@@ -84,24 +84,24 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
 
     forkJoin({
       company: this.companiesService.getCompany(+companyId),
-      documents: this.loadDocuments(+companyId)
+      documents: this.loadDocuments(+companyId),
     })
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (data) => {
-        this.company.set(data.company);
-        this.documents.set(data.documents);
-        this.applyFilter(this.searchControl.value || '');
-        this.updateStatistics(data.documents);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading company documents:', error);
-        this.error.set('Failed to load company documents. Please try again.');
-        this.isLoading.set(false);
-        this.showErrorMessage('Failed to load company documents');
-      }
-    });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.company.set(data.company);
+          this.documents.set(data.documents);
+          this.applyFilter(this.searchControl.value || '');
+          this.updateStatistics(data.documents);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading company documents:', error);
+          this.error.set('Failed to load company documents. Please try again.');
+          this.isLoading.set(false);
+          this.showErrorMessage('Failed to load company documents');
+        },
+      });
   }
 
   /**
@@ -109,7 +109,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
    */
   private loadDocuments(companyId: number): Promise<Document[]> {
     // This would be replaced with actual DocumentsService call
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         resolve([
           {
@@ -120,7 +120,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
             updated_at: '2024-01-16T14:20:00Z',
             company_id: companyId,
             signers_count: 2,
-            file_size: 1024000
+            file_size: 1024000,
           },
           {
             id: 2,
@@ -130,7 +130,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
             updated_at: '2024-01-10T14:20:00Z',
             company_id: companyId,
             signers_count: 1,
-            file_size: 512000
+            file_size: 512000,
           },
           {
             id: 3,
@@ -140,7 +140,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
             updated_at: '2024-01-05T09:15:00Z',
             company_id: companyId,
             signers_count: 0,
-            file_size: 256000
+            file_size: 256000,
           },
           {
             id: 4,
@@ -150,7 +150,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
             updated_at: '2023-12-31T23:59:59Z',
             company_id: companyId,
             signers_count: 1,
-            file_size: 128000
+            file_size: 128000,
           },
           {
             id: 5,
@@ -160,8 +160,8 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
             updated_at: '2024-01-09T10:15:00Z',
             company_id: companyId,
             signers_count: 0,
-            file_size: 64000
-          }
+            file_size: 64000,
+          },
         ]);
       }, 800);
     });
@@ -172,13 +172,8 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
    */
   private setupSearch(): void {
     this.searchControl.valueChanges
-      .pipe(
-        startWith(''),
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(searchTerm => {
+      .pipe(startWith(''), debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((searchTerm) => {
         this.applyFilter(searchTerm || '');
       });
   }
@@ -187,9 +182,10 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
    * Apply search filter to documents
    */
   private applyFilter(searchTerm: string): void {
-    const filtered = this.documents().filter(document =>
-      document.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      document.status.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = this.documents().filter(
+      (document) =>
+        document.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        document.status.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     this.filteredDocuments.set(filtered);
   }
@@ -199,9 +195,9 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
    */
   private updateStatistics(documents: Document[]): void {
     this.totalDocuments.set(documents.length);
-    this.draftDocuments.set(documents.filter(d => d.status === 'draft').length);
-    this.pendingDocuments.set(documents.filter(d => d.status === 'pending').length);
-    this.signedDocuments.set(documents.filter(d => d.status === 'signed').length);
+    this.draftDocuments.set(documents.filter((d) => d.status === 'draft').length);
+    this.pendingDocuments.set(documents.filter((d) => d.status === 'pending').length);
+    this.signedDocuments.set(documents.filter((d) => d.status === 'signed').length);
   }
 
   /**
@@ -237,7 +233,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
     const company = this.company();
     if (company) {
       this.router.navigate(['/documents/create'], {
-        queryParams: { companyId: company.id }
+        queryParams: { companyId: company.id },
       });
     }
   }
@@ -267,7 +263,9 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
    * Delete document with confirmation
    */
   onDeleteDocument(document: Document): void {
-    const confirmed = confirm(`Are you sure you want to delete "${document.name}"? This action cannot be undone.`);
+    const confirmed = confirm(
+      `Are you sure you want to delete "${document.name}"? This action cannot be undone.`,
+    );
     if (confirmed) {
       this.deleteDocument(document);
     }
@@ -279,7 +277,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
   private deleteDocument(document: Document): void {
     // This would be replaced with actual DocumentsService call
     const currentDocuments = this.documents();
-    const updatedDocuments = currentDocuments.filter(d => d.id !== document.id);
+    const updatedDocuments = currentDocuments.filter((d) => d.id !== document.id);
 
     this.documents.set(updatedDocuments);
     this.applyFilter(this.searchControl.value || '');
@@ -355,7 +353,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -368,7 +366,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 
@@ -376,7 +374,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
    * Show success message
    */
   private showSuccessMessage(message: string): void {
-    console.log('Success:', message);
+    // TODO: Implement toast notification
     // TODO: Implement toast notification
   }
 
@@ -391,7 +389,7 @@ export class CompanyDocumentsComponent implements OnInit, OnDestroy {
   /**
    * Track by function for documents list
    */
-  trackByDocument(index: number, document: Document): number {
+  trackByDocument(_index: number, document: Document): number {
     return document.id;
   }
 }

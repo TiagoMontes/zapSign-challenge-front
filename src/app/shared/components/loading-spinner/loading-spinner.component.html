@@ -1,7 +1,13 @@
-<div class="flex flex-col items-center gap-4" [class.justify-center]="centered" [class.min-h-[200px]]="centered">
+<div
+  class="flex flex-col items-center gap-4"
+  [class.justify-center]="centered"
+  [class.min-h-[200px]]="centered"
+>
   <!-- Tailwind CSS Spinner -->
-  <div class="animate-spin rounded-full border-2 border-gray-200 border-t-current" [ngClass]="[sizeClasses, colorClasses]">
-  </div>
+  <div
+    class="animate-spin rounded-full border-2 border-gray-200 border-t-current"
+    [ngClass]="[sizeClasses, colorClasses]"
+  ></div>
 
   <!-- Loading Message -->
   <p *ngIf="message" class="text-sm text-gray-600 text-center m-0">

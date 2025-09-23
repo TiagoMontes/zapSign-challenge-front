@@ -14,15 +14,13 @@ export interface ConfirmationDialogData {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './confirmation-dialog.component.html',
-  styles: []
+  styles: [],
 })
 export class ConfirmationDialogComponent {
   @Output() confirm = new EventEmitter<boolean>();
   @Output() cancel = new EventEmitter<void>();
 
-  constructor(
-    @Inject('data') public data: ConfirmationDialogData
-  ) {
+  constructor(@Inject('data') public data: ConfirmationDialogData) {
     // Set default type if not provided
     this.data.type = this.data.type || 'info';
   }
@@ -60,7 +58,8 @@ export class ConfirmationDialogComponent {
   }
 
   getConfirmButtonClasses(): string {
-    const baseClasses = 'px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors';
+    const baseClasses =
+      'px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors';
     switch (this.data.type) {
       case 'warning':
         return `${baseClasses} bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500`;

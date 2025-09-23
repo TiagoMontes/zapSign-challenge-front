@@ -40,17 +40,20 @@ ng build --configuration=development
 ## Architecture
 
 ### API Integration Pattern
+
 - **BaseApiService** (`src/app/core/services/base-api.service.ts`): Abstract base class handling common HTTP operations with standardized API response format
 - All API services extend BaseApiService and implement entity-specific logic
 - API responses follow standardized format: `{ success: boolean, code: number, message: string, data: T | null }`
 - HTTP interceptor for global loading state management (`loading.interceptor.ts`)
 
 ### State Management
+
 - Service-based state management using RxJS BehaviorSubjects
 - LoadingService manages global loading states
 - NotificationService handles user feedback across the application
 
 ### Project Structure
+
 ```
 src/app/
 ├── core/               # Singleton services, interceptors, models
@@ -63,6 +66,7 @@ src/app/
 ```
 
 ### Environment Configuration
+
 - Environment files in `src/environments/`
 - API URL configured via `environment.apiUrl`
 - Development: `http://localhost:8000/api`
@@ -71,32 +75,38 @@ src/app/
 ## Backend API Endpoints
 
 ### Companies (`/api/companies/`)
+
 - GET, POST, PUT, PATCH, DELETE operations
 - Required fields: name, api_token
 
 ### Documents (`/api/documents/`)
+
 - GET, POST, DELETE operations (no PUT/PATCH)
 - POST creates document via ZapSign integration
 - POST `/api/documents/{id}/analyze/` for AI analysis
 
 ### Signers (`/api/signers/`)
+
 - Full CRUD operations
 - Linked to documents via foreign key relationship
 
 ## Key Implementation Notes
 
 ### Document Creation Flow
+
 1. Document created via POST to backend
 2. Backend integrates with ZapSign API using company's api_token
 3. Signers automatically created and linked
 4. Document PDF URL and metadata returned
 
 ### AI Analysis Feature
+
 - Triggered via `/api/documents/{id}/analyze/` endpoint
 - Returns missing_topics, summary, and insights
 - Use `force_reanalysis=true` to regenerate analysis
 
 ### Error Handling
+
 - Global error interceptor in place
 - Standardized error response format from API
 - NotificationService displays user-friendly error messages
@@ -104,6 +114,7 @@ src/app/
 ## Task Management
 
 Implementation tasks are organized in `.claude/tasks/`:
+
 - 01-project-setup.md: Initial configuration and dependencies
 - 02-data-models.md: TypeScript interfaces and models
 - 03-service-layer.md: API services implementation
@@ -118,6 +129,7 @@ Implementation tasks are organized in `.claude/tasks/`:
 ## Angular Material Integration
 
 Project uses Angular Material for UI components:
+
 - Material modules imported as needed
 - Custom theme configuration available
 - Use Material components for consistent UX
@@ -132,6 +144,6 @@ Project uses Angular Material for UI components:
 ## Performance Considerations
 
 - Implement OnPush change detection for components
-- Use trackBy functions in *ngFor loops
+- Use trackBy functions in \*ngFor loops
 - Lazy load feature modules
 - Implement virtual scrolling for large lists

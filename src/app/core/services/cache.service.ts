@@ -26,7 +26,7 @@ export interface CacheOptions {
  * Provides efficient caching for API responses with automatic cleanup.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CacheService implements OnDestroy {
   private cache = new Map<string, CacheEntry<any>>();
@@ -69,7 +69,7 @@ export class CacheService implements OnDestroy {
     const entry: CacheEntry<T> = {
       data,
       timestamp: Date.now(),
-      ttl
+      ttl,
     };
 
     this.cache.set(key, entry);
@@ -81,7 +81,7 @@ export class CacheService implements OnDestroy {
   cacheObservable<T>(
     key: string,
     source$: Observable<T>,
-    options: CacheOptions = {}
+    options: CacheOptions = {},
   ): Observable<T> {
     // Check if we have valid cached data
     const cachedData = this.get<T>(key);
@@ -101,9 +101,7 @@ export class CacheService implements OnDestroy {
     }
 
     // No cached data, fetch from source and cache result
-    return source$.pipe(
-      tap(data => this.set(key, data, options))
-    );
+    return source$.pipe(tap((data) => this.set(key, data, options)));
   }
 
   /**
@@ -117,14 +115,10 @@ export class CacheService implements OnDestroy {
   /**
    * Refresh data in background without returning the Observable
    */
-  private refreshInBackground<T>(
-    key: string,
-    source$: Observable<T>,
-    options: CacheOptions
-  ): void {
+  private refreshInBackground<T>(key: string, source$: Observable<T>, options: CacheOptions): void {
     source$.subscribe({
-      next: data => this.set(key, data, options),
-      error: error => console.warn('Background cache refresh failed:', error)
+      next: (data) => this.set(key, data, options),
+      error: (error) => console.warn('Background cache refresh failed:', error),
     });
   }
 
@@ -140,7 +134,7 @@ export class CacheService implements OnDestroy {
    * Remove multiple keys from cache
    */
   invalidateMultiple(keys: string[]): void {
-    keys.forEach(key => this.cache.delete(key));
+    keys.forEach((key) => this.cache.delete(key));
     this.emitInvalidation(keys);
   }
 
@@ -219,7 +213,7 @@ export class CacheService implements OnDestroy {
     return {
       size: this.cache.size,
       keys: Array.from(this.cache.keys()),
-      totalMemoryUsage: this.estimateMemoryUsage()
+      totalMemoryUsage: this.estimateMemoryUsage(),
     };
   }
 

@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { ToastData, ToastType } from '../components/toast-notification/toast-notification.component';
+import {
+  ToastData,
+  ToastType,
+} from '../components/toast-notification/toast-notification.component';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   private toastsSubject = new BehaviorSubject<ToastData[]>([]);
@@ -13,7 +16,7 @@ export class ToastService {
     success: 4000,
     info: 5000,
     warning: 6000,
-    error: 0 // Don't auto-dismiss errors
+    error: 0, // Don't auto-dismiss errors
   };
 
   show(toast: Partial<ToastData> & { type: ToastType; title: string }): void {
@@ -21,7 +24,7 @@ export class ToastService {
       id: this.generateId(),
       duration: this.defaultDurations[toast.type],
       dismissible: true,
-      ...toast
+      ...toast,
     };
 
     const currentToasts = this.toastsSubject.value;
@@ -33,7 +36,7 @@ export class ToastService {
       type: 'success',
       title,
       message,
-      ...options
+      ...options,
     });
   }
 
@@ -42,7 +45,7 @@ export class ToastService {
       type: 'error',
       title,
       message,
-      ...options
+      ...options,
     });
   }
 
@@ -51,7 +54,7 @@ export class ToastService {
       type: 'warning',
       title,
       message,
-      ...options
+      ...options,
     });
   }
 
@@ -60,13 +63,13 @@ export class ToastService {
       type: 'info',
       title,
       message,
-      ...options
+      ...options,
     });
   }
 
   remove(id: string): void {
     const currentToasts = this.toastsSubject.value;
-    const filteredToasts = currentToasts.filter(toast => toast.id !== id);
+    const filteredToasts = currentToasts.filter((toast) => toast.id !== id);
     this.toastsSubject.next(filteredToasts);
   }
 

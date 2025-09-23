@@ -7,7 +7,7 @@ type ModalSize = 'sm' | 'md' | 'lg';
   selector: 'app-modal',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './modal.component.html'
+  templateUrl: './modal.component.html',
 })
 export class ModalComponent {
   @Input() open = false;

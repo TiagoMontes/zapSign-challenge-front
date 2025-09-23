@@ -1,16 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  HttpInterceptor,
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpErrorResponse,
-  HttpInterceptorFn
-} from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { environment } from '../../../environments/environment';
 
@@ -27,7 +19,6 @@ interface ErrorMessage {
  */
 export const errorHandlingInterceptor: HttpInterceptorFn = (req, next) => {
   const errorHandlerService = inject(ErrorHandlerService);
-  const router = inject(Router);
   const snackBar = inject(MatSnackBar);
 
   return next(req).pipe(
@@ -41,11 +32,11 @@ export const errorHandlingInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       // Handle specific error scenarios
-      handleSpecificErrors(error, router, snackBar, processedError);
+      handleSpecificErrors(error, snackBar, processedError);
 
       // Return the processed error to maintain the error chain
       return throwError(() => processedError);
-    })
+    }),
   );
 };
 
@@ -54,9 +45,8 @@ export const errorHandlingInterceptor: HttpInterceptorFn = (req, next) => {
  */
 function handleSpecificErrors(
   error: HttpErrorResponse,
-  router: Router,
   snackBar: MatSnackBar,
-  processedError: Error
+  processedError: Error,
 ): void {
   switch (error.status) {
     case 401:
@@ -69,7 +59,10 @@ function handleSpecificErrors(
 
     case 403:
       // Forbidden - show error but don't redirect
-      showErrorSnackbar(snackBar, 'Access denied. You do not have permission to perform this action.');
+      showErrorSnackbar(
+        snackBar,
+        'Access denied. You do not have permission to perform this action.',
+      );
       break;
 
     case 404:
@@ -85,7 +78,7 @@ function handleSpecificErrors(
         snackBar,
         'Too many requests. Please wait a moment before trying again.',
         'Retry',
-        8000
+        8000,
       );
       break;
 
@@ -98,7 +91,7 @@ function handleSpecificErrors(
         snackBar,
         'Server error occurred. Please try again in a moment.',
         'Retry',
-        6000
+        6000,
       );
       break;
 
@@ -108,7 +101,7 @@ function handleSpecificErrors(
         snackBar,
         'Connection failed. Please check your internet connection.',
         'Retry',
-        8000
+        8000,
       );
       break;
 
@@ -128,13 +121,13 @@ function showErrorSnackbar(
   snackBar: MatSnackBar,
   message: string,
   action: string = 'OK',
-  duration: number = 5000
+  duration: number = 5000,
 ): void {
   snackBar.open(message, action, {
     duration,
     panelClass: ['error-snackbar'],
     horizontalPosition: 'end',
-    verticalPosition: 'top'
+    verticalPosition: 'top',
   });
 }
 
@@ -145,14 +138,9 @@ function isNavigationRequest(url: string | null): boolean {
   if (!url) return false;
 
   // Add patterns for requests that should not show user notifications
-  const navigationPatterns = [
-    /\/auth\//,
-    /\/login/,
-    /\/logout/,
-    /\/verify/
-  ];
+  const navigationPatterns = [/\/auth\//, /\/login/, /\/logout/, /\/verify/];
 
-  return navigationPatterns.some(pattern => pattern.test(url));
+  return navigationPatterns.some((pattern) => pattern.test(url));
 }
 
 /**
@@ -164,63 +152,63 @@ function getErrorMessage(error: HttpErrorResponse): ErrorMessage {
       return {
         title: 'Connection Error',
         message: 'Unable to connect to the server. Please check your internet connection.',
-        action: 'Retry'
+        action: 'Retry',
       };
 
     case 400:
       return {
         title: 'Invalid Request',
         message: error.error?.message || 'The request contains invalid data.',
-        action: 'OK'
+        action: 'OK',
       };
 
     case 401:
       return {
         title: 'Authentication Required',
         message: 'You need to sign in to access this resource.',
-        action: 'Sign In'
+        action: 'Sign In',
       };
 
     case 403:
       return {
         title: 'Access Denied',
         message: 'You do not have permission to access this resource.',
-        action: 'OK'
+        action: 'OK',
       };
 
     case 404:
       return {
         title: 'Not Found',
         message: 'The requested resource could not be found.',
-        action: 'OK'
+        action: 'OK',
       };
 
     case 409:
       return {
         title: 'Conflict',
         message: error.error?.message || 'The request conflicts with the current state.',
-        action: 'OK'
+        action: 'OK',
       };
 
     case 422:
       return {
         title: 'Validation Error',
         message: error.error?.message || 'The provided data is invalid.',
-        action: 'OK'
+        action: 'OK',
       };
 
     case 429:
       return {
         title: 'Too Many Requests',
         message: 'You have made too many requests. Please wait before trying again.',
-        action: 'OK'
+        action: 'OK',
       };
 
     case 500:
       return {
         title: 'Server Error',
         message: 'An internal server error occurred. Please try again later.',
-        action: 'Retry'
+        action: 'Retry',
       };
 
     case 502:
@@ -229,14 +217,14 @@ function getErrorMessage(error: HttpErrorResponse): ErrorMessage {
       return {
         title: 'Service Unavailable',
         message: 'The service is temporarily unavailable. Please try again later.',
-        action: 'Retry'
+        action: 'Retry',
       };
 
     default:
       return {
         title: 'Unexpected Error',
         message: error.error?.message || `An unexpected error occurred (${error.status}).`,
-        action: 'OK'
+        action: 'OK',
       };
   }
 }
@@ -246,7 +234,7 @@ function getErrorMessage(error: HttpErrorResponse): ErrorMessage {
  * Provides methods for displaying error messages and handling specific error scenarios
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ErrorHandlingService {
   constructor(private snackBar: MatSnackBar) {}
@@ -261,70 +249,54 @@ export class ErrorHandlingService {
       errorDetails = {
         title: 'Error',
         message: error,
-        action: 'OK'
+        action: 'OK',
       };
     } else {
       errorDetails = getErrorMessage(error);
     }
 
-    this.snackBar.open(
-      errorDetails.message,
-      errorDetails.action,
-      {
-        duration: 5000,
-        panelClass: ['error-snackbar'],
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      }
-    );
+    this.snackBar.open(errorDetails.message, errorDetails.action, {
+      duration: 5000,
+      panelClass: ['error-snackbar'],
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+    });
   }
 
   /**
    * Display success message to user
    */
   showSuccess(message: string, action: string = 'OK'): void {
-    this.snackBar.open(
-      message,
-      action,
-      {
-        duration: 3000,
-        panelClass: ['success-snackbar'],
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      }
-    );
+    this.snackBar.open(message, action, {
+      duration: 3000,
+      panelClass: ['success-snackbar'],
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+    });
   }
 
   /**
    * Display warning message to user
    */
   showWarning(message: string, action: string = 'OK'): void {
-    this.snackBar.open(
-      message,
-      action,
-      {
-        duration: 4000,
-        panelClass: ['warning-snackbar'],
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      }
-    );
+    this.snackBar.open(message, action, {
+      duration: 4000,
+      panelClass: ['warning-snackbar'],
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+    });
   }
 
   /**
    * Display info message to user
    */
   showInfo(message: string, action: string = 'OK'): void {
-    this.snackBar.open(
-      message,
-      action,
-      {
-        duration: 3000,
-        panelClass: ['info-snackbar'],
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      }
-    );
+    this.snackBar.open(message, action, {
+      duration: 3000,
+      panelClass: ['info-snackbar'],
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+    });
   }
 
   /**
@@ -342,7 +314,7 @@ export class ErrorHandlingService {
   handleValidationErrors(errors: { [key: string]: string[] }): string[] {
     const errorMessages: string[] = [];
 
-    Object.keys(errors).forEach(field => {
+    Object.keys(errors).forEach((field) => {
       const fieldErrors = errors[field];
       if (Array.isArray(fieldErrors)) {
         errorMessages.push(...fieldErrors);

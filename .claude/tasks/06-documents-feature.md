@@ -1,10 +1,13 @@
 # Documents Feature Implementation
 
 ## Overview
+
 Implement document management within the companies context. Documents are accessed and managed through the company details page, with ZapSign integration, AI analysis, and signer management. Note: Documents don't support PUT/PATCH operations.
 
 ## Architecture Changes
+
 Documents are now managed within the companies context:
+
 - No standalone documents list - documents are viewed per company
 - Company details page includes a documents section
 - Document creation is initiated from company context with pre-filled company_id
@@ -13,6 +16,7 @@ Documents are now managed within the companies context:
 ## Components to Update/Create
 
 ### 1. Company Detail Component Enhancement
+
 - [ ] Add documents section to company-detail component
 - [ ] Display company documents as clickable items
 - [ ] Show document status and signer count
@@ -20,6 +24,7 @@ Documents are now managed within the companies context:
 - [ ] Remove "Recent Documents" placeholder section
 
 ### 2. Document Section Component (New)
+
 - [ ] Display documents list within company context
 - [ ] Show document status and details for the specific company
 - [ ] Actions: View (navigate to details), Delete, Create New
@@ -27,6 +32,7 @@ Documents are now managed within the companies context:
 - [ ] Handle empty state when company has no documents
 
 ### 3. Document Form Component (Create Only)
+
 - [ ] Reactive form for document creation
 - [ ] Pre-filled company context (no dropdown needed)
 - [ ] Document name input
@@ -36,6 +42,7 @@ Documents are now managed within the companies context:
 - [ ] Loading states during ZapSign API calls
 
 ### 4. Document Detail Component
+
 - [ ] Display document information
 - [ ] Show ZapSign status and details
 - [ ] List all signers with their status
@@ -43,12 +50,14 @@ Documents are now managed within the companies context:
 - [ ] Actions: Delete, Analyze, Manage Signers
 
 ### 5. Document Analysis Component
+
 - [ ] Display AI analysis results
 - [ ] Generate new analysis button
 - [ ] Analysis history if multiple analyses
 - [ ] Export analysis functionality
 
 ### 6. Document Signers Component
+
 - [ ] List signers for specific document
 - [ ] Add/remove signers
 - [ ] Show signing status
@@ -57,7 +66,9 @@ Documents are now managed within the companies context:
 ## API Integration
 
 ### Company Details Endpoint
+
 Company details now includes documents:
+
 ```json
 {
   "success": true,
@@ -81,6 +92,7 @@ Company details now includes documents:
 ```
 
 ### Document Creation Flow
+
 1. User clicks "Create Document" from company details page
 2. Document form opens with company_id pre-filled
 3. User fills document form with signers
@@ -92,8 +104,8 @@ Company details now includes documents:
      "company_id": 10,
      "url_pdf": "https://example.com/document.pdf",
      "signers": [
-       {"name": "John Doe", "email": "john@example.com"},
-       {"name": "Jane Smith", "email": "jane@example.com"}
+       { "name": "John Doe", "email": "john@example.com" },
+       { "name": "Jane Smith", "email": "jane@example.com" }
      ]
    }
    ```
@@ -102,6 +114,7 @@ Company details now includes documents:
 8. Success feedback and redirect to company details or document details
 
 ### AI Analysis Flow
+
 1. User clicks "Generate AI Analysis" on document
 2. POST to `/api/documents/{id}/analyze/`
 3. Backend processes document with AI
@@ -111,6 +124,7 @@ Company details now includes documents:
 ## Features Implementation
 
 ### Updated User Flow
+
 1. **Company Navigation**: User navigates to Companies list (`/companies`)
 2. **Company Selection**: User selects a company to view details (`/companies/{id}`)
 3. **Company Details**: Company details page displays company info + documents section
@@ -119,6 +133,7 @@ Company details now includes documents:
 6. **Document Management**: Document creation form pre-fills company_id from context
 
 ### CRUD Operations
+
 ```typescript
 // Get Company with Documents (replaces standalone list)
 getCompany(id: number) -> Company & { documents: Document[] }
@@ -137,6 +152,7 @@ analyzeDocument(id: number) -> DocumentAnalysis
 ```
 
 ### Form Structure
+
 ```typescript
 interface DocumentFormValue {
   name: string;
@@ -152,6 +168,7 @@ interface DocumentFormValue {
 ## User Interface
 
 ### Company Details with Documents Section
+
 ```
 +---------------------------------------------------+
 |  Company Details - Acme Inc                      |
@@ -173,6 +190,7 @@ interface DocumentFormValue {
 ```
 
 ### Document Creation Form (Company Context)
+
 ```
 +---------------------------------------------------+
 |  Create Document for Acme Inc                    |
@@ -191,6 +209,7 @@ interface DocumentFormValue {
 ```
 
 ### Document Detail
+
 ```
 +---------------------------------------------------+
 |  Document Details                [Analyze] [Delete]|
@@ -214,6 +233,7 @@ interface DocumentFormValue {
 ```
 
 ### AI Analysis View
+
 ```
 +---------------------------------------------------+
 |  AI Analysis - Important Contract                 |
@@ -236,6 +256,7 @@ interface DocumentFormValue {
 ```
 
 ## File Structure
+
 ```
 src/app/features/documents/
 ├── components/
@@ -273,6 +294,7 @@ src/app/features/companies/
 ## Routing Changes
 
 ### Updated Routes
+
 ```typescript
 // Remove standalone documents list route
 // OLD: { path: 'documents', component: DocumentsListComponent }
@@ -288,6 +310,7 @@ src/app/features/companies/
 ## Tasks
 
 ### 1. Architecture Updates
+
 - [ ] Remove standalone documents list component and route
 - [ ] Update company-detail component to include documents section
 - [ ] Create document-section component for company details integration
@@ -295,6 +318,7 @@ src/app/features/companies/
 - [ ] Update navigation to remove documents from main menu
 
 ### 2. Component Updates
+
 - [ ] Enhance company-detail component with documents section
 - [ ] Create document-section component with company-specific document list
 - [ ] Update document-form component to work with company context
@@ -303,36 +327,42 @@ src/app/features/companies/
 - [ ] Keep document-signers component for signer management
 
 ### 3. ZapSign Integration
+
 - [ ] Implement document creation with ZapSign API in company context
 - [ ] Handle ZapSign responses and errors
 - [ ] Display ZapSign document status in company documents section
 - [ ] Implement proper loading states
 
 ### 4. AI Analysis Feature
+
 - [ ] Create AI analysis trigger
 - [ ] Display analysis results
 - [ ] Handle analysis loading and errors
 - [ ] Implement analysis history
 
 ### 5. Signer Management
+
 - [ ] Dynamic signer form array
 - [ ] Signer validation (email format, required fields)
 - [ ] Display signer status from ZapSign
 - [ ] Signer CRUD operations
 
 ### 6. Form Implementation
+
 - [ ] Setup reactive forms with FormArray for signers
 - [ ] PDF URL validation
 - [ ] Remove company selection (use context instead)
 - [ ] Form submission with proper error handling and company context
 
 ### 7. API Integration Updates
+
 - [ ] Update company service to handle documents in company details
 - [ ] Implement document creation with company context
 - [ ] Handle document deletion and refresh company view
 - [ ] Implement proper error handling for company-document operations
 
 ## Acceptance Criteria
+
 - Documents are accessed only through company context (no standalone list)
 - Company details page displays documents section with company's documents
 - Document creation works from company context with pre-filled company_id

@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, of, forkJoin } from 'rxjs';
-import { map, tap, catchError, shareReplay, filter, switchMap } from 'rxjs/operators';
+import { map, tap, catchError, shareReplay, switchMap } from 'rxjs/operators';
 import { HttpParams } from '@angular/common/http';
 import { BaseApiService, RequestOptions } from './base-api.service';
 import { CacheService } from './cache.service';
@@ -9,7 +9,7 @@ import {
   CreateSignerRequest,
   UpdateSignerRequest,
   SignerStatus,
-  Document
+  Document,
 } from '../models';
 
 /**
@@ -40,10 +40,9 @@ export interface SignerStats {
  * caching, filtering, and real-time state management.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SignersService extends BaseApiService {
-
   // State management for signers
   private signersSubject = new BehaviorSubject<Signer[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
@@ -58,7 +57,7 @@ export class SignersService extends BaseApiService {
 
   // Cache configuration
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-  private readonly SIGNERS_CACHE_KEY = 'signers:list';
+  // private readonly SIGNERS_CACHE_KEY = 'signers:list';
 
   /**
    * Get signers with optional filtering and caching
@@ -71,11 +70,11 @@ export class SignersService extends BaseApiService {
       cache: !forceRefresh,
       cacheOptions: {
         ttl: this.CACHE_TTL,
-        staleWhileRevalidate: true
+        staleWhileRevalidate: true,
       },
       cacheKey,
       retry: true,
-      params
+      params,
     };
 
     if (forceRefresh) {
@@ -85,7 +84,7 @@ export class SignersService extends BaseApiService {
     this.loadingSubject.next(true);
 
     return this.get<Signer[]>('/signers/', options).pipe(
-      tap(signers => {
+      tap((signers) => {
         // Update the main signers subject if no specific filters
         if (!query.documentId && !query.status && !query.search) {
           this.signersSubject.next(signers);
@@ -98,7 +97,7 @@ export class SignersService extends BaseApiService {
 
         this.loadingSubject.next(false);
       }),
-      catchError(error => {
+      catchError((error) => {
         this.loadingSubject.next(false);
         // Return cached data if available on error
         const cached = this.cacheService.get<Signer[]>(cacheKey);
@@ -107,7 +106,7 @@ export class SignersService extends BaseApiService {
         }
         throw error;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -134,11 +133,11 @@ export class SignersService extends BaseApiService {
       cache: useCache,
       cacheOptions: { ttl: this.CACHE_TTL },
       cacheKey,
-      retry: true
+      retry: true,
     };
 
     return this.get<Signer>(`/signers/${id}/`, options).pipe(
-      tap(signer => {
+      tap((signer) => {
         // Update selected signer if it matches
         const current = this.selectedSignerSubject.value;
         if (current?.id === id) {
@@ -148,7 +147,7 @@ export class SignersService extends BaseApiService {
         // Update signer in the list if loaded
         this.updateSignerInList(signer);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -157,7 +156,7 @@ export class SignersService extends BaseApiService {
    */
   createSigner(signerData: CreateSignerRequest): Observable<Signer> {
     return this.post<Signer>('/signers/', signerData, { retry: true }).pipe(
-      tap(newSigner => {
+      tap((newSigner) => {
         // Add to current list
         const currentSigners = this.signersSubject.value;
         this.signersSubject.next([...currentSigners, newSigner]);
@@ -169,7 +168,7 @@ export class SignersService extends BaseApiService {
 
         // Invalidate related caches
         this.invalidateSignerListCaches();
-      })
+      }),
     );
   }
 
@@ -178,7 +177,7 @@ export class SignersService extends BaseApiService {
    */
   updateSigner(id: number, signerData: UpdateSignerRequest): Observable<Signer> {
     return this.patch<Signer>(`/signers/${id}/update-external/`, signerData, { retry: true }).pipe(
-      tap(updatedSigner => {
+      tap((updatedSigner) => {
         // Update in current list
         this.updateSignerInList(updatedSigner);
 
@@ -190,7 +189,7 @@ export class SignersService extends BaseApiService {
 
         // Invalidate related caches
         this.invalidateSignerCache(id);
-      })
+      }),
     );
   }
 
@@ -199,7 +198,7 @@ export class SignersService extends BaseApiService {
    */
   patchSigner(id: number, signerData: Partial<UpdateSignerRequest>): Observable<Signer> {
     return this.patch<Signer>(`/signers/${id}/`, signerData, { retry: true }).pipe(
-      tap(updatedSigner => {
+      tap((updatedSigner) => {
         this.updateSignerInList(updatedSigner);
 
         const current = this.selectedSignerSubject.value;
@@ -208,7 +207,7 @@ export class SignersService extends BaseApiService {
         }
 
         this.invalidateSignerCache(id);
-      })
+      }),
     );
   }
 
@@ -220,10 +219,10 @@ export class SignersService extends BaseApiService {
       tap(() => {
         // Get signer before removal to update document lists
         const currentSigners = this.signersSubject.value;
-        const signerToDelete = currentSigners.find(s => s.id === id);
+        const signerToDelete = currentSigners.find((s) => s.id === id);
 
         // Remove from current list
-        const updatedSigners = currentSigners.filter(signer => signer.id !== id);
+        const updatedSigners = currentSigners.filter((signer) => signer.id !== id);
         this.signersSubject.next(updatedSigners);
 
         // Update document-specific lists
@@ -239,7 +238,7 @@ export class SignersService extends BaseApiService {
 
         // Invalidate caches
         this.invalidateSignerCache(id);
-      })
+      }),
     );
   }
 
@@ -265,22 +264,16 @@ export class SignersService extends BaseApiService {
    * Get signers count
    */
   getSignersCount(documentId?: number): Observable<number> {
-    const relevantSigners$ = documentId
-      ? this.getSignersByDocument(documentId)
-      : this.signers$;
+    const relevantSigners$ = documentId ? this.getSignersByDocument(documentId) : this.signers$;
 
-    return relevantSigners$.pipe(
-      map((signers: Signer[]) => signers.length)
-    );
+    return relevantSigners$.pipe(map((signers: Signer[]) => signers.length));
   }
 
   /**
    * Get signer statistics
    */
   getSignerStats(documentId?: number): Observable<SignerStats> {
-    const relevantSigners$ = documentId
-      ? this.getSignersByDocument(documentId)
-      : this.signers$;
+    const relevantSigners$ = documentId ? this.getSignersByDocument(documentId) : this.signers$;
 
     return relevantSigners$.pipe(
       map((signers: Signer[]) => {
@@ -289,7 +282,7 @@ export class SignersService extends BaseApiService {
           pending: 0,
           signed: 0,
           declined: 0,
-          expired: 0
+          expired: 0,
         };
 
         signers.forEach((signer: Signer) => {
@@ -313,21 +306,24 @@ export class SignersService extends BaseApiService {
         });
 
         return stats;
-      })
+      }),
     );
   }
 
   /**
    * Check if a signer email exists for a specific document
    */
-  signerEmailExistsInDocument(email: string, documentId: number, excludeId?: number): Observable<boolean> {
+  signerEmailExistsInDocument(
+    email: string,
+    documentId: number,
+    excludeId?: number,
+  ): Observable<boolean> {
     return this.getSignersByDocument(documentId).pipe(
-      map(signers =>
-        signers.some(signer =>
-          signer.email.toLowerCase() === email.toLowerCase() &&
-          signer.id !== excludeId
-        )
-      )
+      map((signers) =>
+        signers.some(
+          (signer) => signer.email.toLowerCase() === email.toLowerCase() && signer.id !== excludeId,
+        ),
+      ),
     );
   }
 
@@ -336,18 +332,17 @@ export class SignersService extends BaseApiService {
    * Includes NEW, PENDING, and INVITED statuses
    */
   getPendingSigners(documentId?: number): Observable<Signer[]> {
-    const relevantSigners$ = documentId
-      ? this.getSignersByDocument(documentId)
-      : this.signers$;
+    const relevantSigners$ = documentId ? this.getSignersByDocument(documentId) : this.signers$;
 
     return relevantSigners$.pipe(
       map((signers: Signer[]) =>
-        signers.filter((signer: Signer) =>
-          signer.status === SignerStatus.NEW ||
-          signer.status === SignerStatus.PENDING ||
-          signer.status === SignerStatus.INVITED
-        )
-      )
+        signers.filter(
+          (signer: Signer) =>
+            signer.status === SignerStatus.NEW ||
+            signer.status === SignerStatus.PENDING ||
+            signer.status === SignerStatus.INVITED,
+        ),
+      ),
     );
   }
 
@@ -355,19 +350,18 @@ export class SignersService extends BaseApiService {
    * Get completed signers (signed, declined, error, or expired)
    */
   getCompletedSigners(documentId?: number): Observable<Signer[]> {
-    const relevantSigners$ = documentId
-      ? this.getSignersByDocument(documentId)
-      : this.signers$;
+    const relevantSigners$ = documentId ? this.getSignersByDocument(documentId) : this.signers$;
 
     return relevantSigners$.pipe(
       map((signers: Signer[]) =>
-        signers.filter((signer: Signer) =>
-          signer.status === SignerStatus.SIGNED ||
-          signer.status === SignerStatus.DECLINED ||
-          signer.status === SignerStatus.ERROR ||
-          signer.status === SignerStatus.EXPIRED
-        )
-      )
+        signers.filter(
+          (signer: Signer) =>
+            signer.status === SignerStatus.SIGNED ||
+            signer.status === SignerStatus.DECLINED ||
+            signer.status === SignerStatus.ERROR ||
+            signer.status === SignerStatus.EXPIRED,
+        ),
+      ),
     );
   }
 
@@ -383,7 +377,7 @@ export class SignersService extends BaseApiService {
    */
   syncSigner(id: number): Observable<Signer> {
     return this.put<Signer>(`/signers/${id}/sync/`, {}, { retry: true }).pipe(
-      tap(updatedSigner => {
+      tap((updatedSigner) => {
         // Update in current list
         this.updateSignerInList(updatedSigner);
 
@@ -395,7 +389,7 @@ export class SignersService extends BaseApiService {
 
         // Invalidate related caches
         this.invalidateSignerCache(id);
-      })
+      }),
     );
   }
 
@@ -404,7 +398,7 @@ export class SignersService extends BaseApiService {
    */
   updateSignerExternal(id: number, data: { name: string; email: string }): Observable<Signer> {
     return this.patch<Signer>(`/signers/${id}/update-external/`, data, { retry: true }).pipe(
-      tap(updatedSigner => {
+      tap((updatedSigner) => {
         // Update in current list
         this.updateSignerInList(updatedSigner);
 
@@ -416,7 +410,7 @@ export class SignersService extends BaseApiService {
 
         // Invalidate related caches
         this.invalidateSignerCache(id);
-      })
+      }),
     );
   }
 
@@ -428,10 +422,10 @@ export class SignersService extends BaseApiService {
       tap(() => {
         // Get signer before removal to update document lists
         const currentSigners = this.signersSubject.value;
-        const signerToDelete = currentSigners.find(s => s.id === id);
+        const signerToDelete = currentSigners.find((s) => s.id === id);
 
         // Remove from current list
-        const updatedSigners = currentSigners.filter(signer => signer.id !== id);
+        const updatedSigners = currentSigners.filter((signer) => signer.id !== id);
         this.signersSubject.next(updatedSigners);
 
         // Update document-specific lists
@@ -447,7 +441,7 @@ export class SignersService extends BaseApiService {
 
         // Invalidate caches
         this.invalidateSignerCache(id);
-      })
+      }),
     );
   }
 
@@ -455,16 +449,18 @@ export class SignersService extends BaseApiService {
    * Bulk delete signers
    */
   bulkDeleteSigners(ids: number[]): Observable<void[]> {
-    const deleteRequests = ids.map(id => this.deleteSigner(id));
+    const deleteRequests = ids.map((id) => this.deleteSigner(id));
     return forkJoin(deleteRequests);
   }
 
   /**
    * Bulk update signer status (for admin operations)
    */
-  bulkUpdateSignerStatus(ids: number[], status: SignerStatus): Observable<Signer[]> {
-    const updateRequests = ids.map(id =>
-      this.patchSigner(id, { /* status updates would need to be part of the API */ })
+  bulkUpdateSignerStatus(ids: number[], _status: SignerStatus): Observable<Signer[]> {
+    const updateRequests = ids.map((id) =>
+      this.patchSigner(id, {
+        /* status updates would need to be part of the API */
+      }),
     );
     return forkJoin(updateRequests);
   }
@@ -503,21 +499,21 @@ export class SignersService extends BaseApiService {
     }
 
     // Fetch all documents for this signer in parallel using the base API service
-    const documentRequests = signer.document_ids.map(documentId =>
+    const documentRequests = signer.document_ids.map((documentId) =>
       this.get<Document>(`/documents/${documentId}/`, {
         retry: true,
         cache: true,
-        cacheOptions: { ttl: this.CACHE_TTL }
+        cacheOptions: { ttl: this.CACHE_TTL },
       }).pipe(
-        catchError(error => {
+        catchError((error) => {
           console.warn(`Failed to load document ${documentId}:`, error);
           return of(null); // Return null for failed requests
-        })
-      )
+        }),
+      ),
     );
 
     return forkJoin(documentRequests).pipe(
-      map(documents => documents.filter(doc => doc !== null) as Document[])
+      map((documents) => documents.filter((doc) => doc !== null) as Document[]),
     );
   }
 
@@ -527,7 +523,7 @@ export class SignersService extends BaseApiService {
    */
   getDocumentsForSignerId(signerId: number): Observable<Document[]> {
     return this.getSigner(signerId).pipe(
-      switchMap(signer => this.getDocumentsForSigner(signer))
+      switchMap((signer: Signer) => this.getDocumentsForSigner(signer)),
     );
   }
 
@@ -566,7 +562,7 @@ export class SignersService extends BaseApiService {
    */
   private updateSignerInList(updatedSigner: Signer): void {
     const currentSigners = this.signersSubject.value;
-    const index = currentSigners.findIndex(signer => signer.id === updatedSigner.id);
+    const index = currentSigners.findIndex((signer) => signer.id === updatedSigner.id);
 
     if (index !== -1) {
       const updatedSigners = [...currentSigners];
@@ -597,7 +593,7 @@ export class SignersService extends BaseApiService {
     let updated = false;
 
     for (const [documentId, signers] of currentMap.entries()) {
-      const index = signers.findIndex(s => s.id === updatedSigner.id);
+      const index = signers.findIndex((s) => s.id === updatedSigner.id);
       if (index !== -1) {
         const updatedSigners = [...signers];
         updatedSigners[index] = updatedSigner;
@@ -614,7 +610,11 @@ export class SignersService extends BaseApiService {
   /**
    * Update signer in document list (add or update)
    */
-  private updateSignerInDocumentList(documentId: number, signer: Signer, action: 'add' | 'update'): void {
+  private updateSignerInDocumentList(
+    documentId: number,
+    signer: Signer,
+    action: 'add' | 'update',
+  ): void {
     const currentMap = this.signersByDocumentSubject.value;
     const currentSigners = currentMap.get(documentId) || [];
 
@@ -623,7 +623,7 @@ export class SignersService extends BaseApiService {
     if (action === 'add') {
       updatedSigners = [...currentSigners, signer];
     } else {
-      const index = currentSigners.findIndex(s => s.id === signer.id);
+      const index = currentSigners.findIndex((s) => s.id === signer.id);
       if (index !== -1) {
         updatedSigners = [...currentSigners];
         updatedSigners[index] = signer;
@@ -646,7 +646,7 @@ export class SignersService extends BaseApiService {
     let updated = false;
 
     for (const [documentId, signers] of currentMap.entries()) {
-      const filteredSigners = signers.filter(s => s.id !== signer.id);
+      const filteredSigners = signers.filter((s) => s.id !== signer.id);
       if (filteredSigners.length !== signers.length) {
         updatedMap.set(documentId, filteredSigners);
         updated = true;

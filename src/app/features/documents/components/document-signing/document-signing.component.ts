@@ -5,6 +5,6 @@ import { CommonModule } from '@angular/common';
   selector: 'app-document-signing',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './document-signing.component.html'
+  templateUrl: './document-signing.component.html',
 })
 export class DocumentSigningComponent {}

@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Subject, takeUntil, switchMap, from, of } from 'rxjs';
+import { Subject, takeUntil, switchMap, of } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SignersService } from '../../../../core/services/signers.service';
-import { DocumentsService } from '../../../../core/services/documents.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Signer, Document } from '../../../../core/models';
 import { SignerStatusComponent } from '../signer-status/signer-status.component';
@@ -13,13 +12,12 @@ import { ModalComponent } from '../../../../shared/components/modal/modal.compon
   selector: 'app-signer-detail',
   standalone: true,
   imports: [CommonModule, SignerStatusComponent, ModalComponent],
-  templateUrl: './signer-detail.component.html'
+  templateUrl: './signer-detail.component.html',
 })
 export class SignerDetailComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly signersService = inject(SignersService);
-  private readonly documentsService = inject(DocumentsService);
   private readonly notificationService = inject(NotificationService);
   private readonly destroy$ = new Subject<void>();
 
@@ -45,7 +43,9 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
     const email = this.editSignerEmail().trim();
     return name.length >= 2 && this.isValidEmail(email);
   });
-  canEditSigner = computed(() => this.isEditFormValid() && !this.isEditingSigner() && this.hasSigner());
+  canEditSigner = computed(
+    () => this.isEditFormValid() && !this.isEditingSigner() && this.hasSigner(),
+  );
 
   // Computed properties
   hasSigner = computed(() => !!this.signer());
@@ -83,10 +83,11 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.signersService.getSigner(+signerId)
+    this.signersService
+      .getSigner(+signerId)
       .pipe(
         takeUntil(this.destroy$),
-        switchMap(signer => {
+        switchMap((signer) => {
           this.signer.set(signer);
 
           // Load associated documents using the new method
@@ -96,7 +97,7 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
           } else {
             return of([]);
           }
-        })
+        }),
       )
       .subscribe({
         next: (documents) => {
@@ -107,7 +108,9 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
           // Log warning if some documents couldn't be loaded
           const signer = this.signer();
           if (signer && signer.document_ids && signer.document_ids.length > documents.length) {
-            console.warn(`Some documents could not be loaded. Expected ${signer.document_ids.length}, loaded ${documents.length}`);
+            console.warn(
+              `Some documents could not be loaded. Expected ${signer.document_ids.length}, loaded ${documents.length}`,
+            );
           }
         },
         error: (error) => {
@@ -115,10 +118,9 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
           this.error.set('Failed to load signer details. Please try again.');
           this.isLoading.set(false);
           this.isLoadingDocuments.set(false);
-        }
+        },
       });
   }
-
 
   /**
    * Open edit signer modal
@@ -142,14 +144,15 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
     if (!signer) return;
 
     const confirmed = confirm(
-      `Tem certeza de que deseja remover o signatário "${signer.name}" do sistema ZapSign? Esta ação não pode ser desfeita.`
+      `Tem certeza de que deseja remover o signatário "${signer.name}" do sistema ZapSign? Esta ação não pode ser desfeita.`,
     );
 
     if (confirmed) {
       this.isDeleting.set(true);
       this.error.set(null);
 
-      this.signersService.removeSignerExternal(signer.id)
+      this.signersService
+        .removeSignerExternal(signer.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -167,7 +170,7 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
             this.error.set('Falha ao remover signatário do ZapSign. Tente novamente.');
             this.notificationService.showError('Falha ao remover signatário do ZapSign');
             this.isDeleting.set(false);
-          }
+          },
         });
     }
   }
@@ -231,7 +234,8 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
     this.isSyncing.set(true);
     this.error.set(null);
 
-    this.signersService.syncSigner(signer.id)
+    this.signersService
+      .syncSigner(signer.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedSigner) => {
@@ -244,7 +248,7 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
           this.error.set('Falha ao sincronizar signatário. Tente novamente.');
           this.notificationService.showError('Falha ao sincronizar signatário');
           this.isSyncing.set(false);
-        }
+        },
       });
   }
 
@@ -254,11 +258,14 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
   onCopyToken(): void {
     const signer = this.signer();
     if (signer?.token) {
-      navigator.clipboard.writeText(signer.token).then(() => {
-        this.notificationService.showSuccess('Token copied to clipboard');
-      }).catch(() => {
-        this.notificationService.showError('Failed to copy token');
-      });
+      navigator.clipboard
+        .writeText(signer.token)
+        .then(() => {
+          this.notificationService.showSuccess('Token copied to clipboard');
+        })
+        .catch(() => {
+          this.notificationService.showError('Failed to copy token');
+        });
     }
   }
 
@@ -268,11 +275,14 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
   onCopyExternalId(): void {
     const signer = this.signer();
     if (signer?.external_id) {
-      navigator.clipboard.writeText(signer.external_id).then(() => {
-        this.notificationService.showSuccess('External ID copied to clipboard');
-      }).catch(() => {
-        this.notificationService.showError('Failed to copy external ID');
-      });
+      navigator.clipboard
+        .writeText(signer.external_id)
+        .then(() => {
+          this.notificationService.showSuccess('External ID copied to clipboard');
+        })
+        .catch(() => {
+          this.notificationService.showError('Failed to copy external ID');
+        });
     }
   }
 
@@ -292,11 +302,14 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
   onCopySignUrl(): void {
     const signer = this.signer();
     if (signer?.sign_url) {
-      navigator.clipboard.writeText(signer.sign_url).then(() => {
-        this.notificationService.showSuccess('Sign URL copied to clipboard');
-      }).catch(() => {
-        this.notificationService.showError('Failed to copy sign URL');
-      });
+      navigator.clipboard
+        .writeText(signer.sign_url)
+        .then(() => {
+          this.notificationService.showSuccess('Sign URL copied to clipboard');
+        })
+        .catch(() => {
+          this.notificationService.showError('Failed to copy sign URL');
+        });
     }
   }
 
@@ -330,10 +343,11 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
 
     const update = {
       name: this.editSignerName().trim(),
-      email: this.editSignerEmail().trim().toLowerCase()
+      email: this.editSignerEmail().trim().toLowerCase(),
     };
 
-    this.signersService.updateSigner(signer.id, update)
+    this.signersService
+      .updateSigner(signer.id, update)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedSigner) => {
@@ -346,9 +360,9 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
           console.error('Error updating signer:', error);
           this.isEditingSigner.set(false);
           this.signerEditError.set(
-            error?.error?.message || 'Falha ao atualizar signatário. Tente novamente.'
+            error?.error?.message || 'Falha ao atualizar signatário. Tente novamente.',
           );
-        }
+        },
       });
   }
 
@@ -367,7 +381,7 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -380,7 +394,7 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 
@@ -390,7 +404,7 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
   getSignerInitials(name: string): string {
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -407,7 +421,7 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
   /**
    * TrackBy function for documents list
    */
-  trackByDocumentId(index: number, document: Document): number {
+  trackByDocumentId(_index: number, document: Document): number {
     return document.id;
   }
 }

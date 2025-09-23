@@ -5,13 +5,16 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { DocumentsService } from '../../../../core/services/documents.service';
 import { CompaniesService } from '../../../../core/services/companies.service';
-import { Company, CreateDocumentRequest, CreateDocumentSignerRequest } from '../../../../core/models';
+import {
+  Company,
+  CreateDocumentRequest,
+} from '../../../../core/models';
 
 @Component({
   selector: 'app-document-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './document-form.component.html'
+  templateUrl: './document-form.component.html',
 })
 export class DocumentFormComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
@@ -48,7 +51,7 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
       name: ['', [Validators.required, Validators.minLength(3)]],
       company_id: ['', [Validators.required]],
       url_pdf: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+\.pdf$/i)]],
-      signers: this.fb.array([this.createSignerFormGroup()], [Validators.required])
+      signers: this.fb.array([this.createSignerFormGroup()], [Validators.required]),
     });
   }
 
@@ -58,7 +61,7 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
   private createSignerFormGroup(): FormGroup {
     return this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
     });
   }
 
@@ -73,7 +76,8 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
    * Load companies for selection
    */
   private loadCompanies(): void {
-    this.companiesService.getCompanies()
+    this.companiesService
+      .getCompanies()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (companies) => {
@@ -82,7 +86,7 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error loading companies:', error);
           this.error.set('Falhou ao carregar empresas');
-        }
+        },
       });
   }
 
@@ -126,10 +130,11 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
         name: formValue.name,
         company_id: formValue.company_id,
         url_pdf: formValue.url_pdf,
-        signers: formValue.signers
+        signers: formValue.signers,
       };
 
-      this.documentsService.createDocument(request)
+      this.documentsService
+        .createDocument(request)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (document) => {
@@ -139,7 +144,7 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
             console.error('Error creating document:', error);
             this.error.set('Falhou ao criar documento. Tente novamente.');
             this.isSubmitting.set(false);
-          }
+          },
         });
     } else {
       this.markFormGroupTouched(this.documentForm);
@@ -162,12 +167,12 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
    * Mark all form controls as touched to show validation errors
    */
   private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach(field => {
+    Object.keys(formGroup.controls).forEach((field) => {
       const control = formGroup.get(field);
       if (control instanceof FormGroup) {
         this.markFormGroupTouched(control);
       } else if (control instanceof FormArray) {
-        control.controls.forEach(item => {
+        control.controls.forEach((item) => {
           if (item instanceof FormGroup) {
             this.markFormGroupTouched(item);
           } else {
@@ -236,7 +241,7 @@ export class DocumentFormComponent implements OnInit, OnDestroy {
   getSelectedCompanyName(): string {
     const companyId = this.preselectedCompanyId();
     if (companyId) {
-      const company = this.companies().find(c => c.id === companyId);
+      const company = this.companies().find((c) => c.id === companyId);
       return company ? company.name : 'Unknown Company';
     }
     return '';

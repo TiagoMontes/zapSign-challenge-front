@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { BehaviorSubject, Observable, filter, map } from 'rxjs';
+import { BehaviorSubject, Observable, filter } from 'rxjs';
 
 export interface BreadcrumbItem {
   label: string;
@@ -19,7 +19,7 @@ export interface NavigationItem {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NavigationService {
   private breadcrumbsSubject = new BehaviorSubject<BreadcrumbItem[]>([]);
@@ -31,7 +31,7 @@ export class NavigationService {
   constructor(
     private router: Router,
     private location: Location,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
   ) {
     this.initializeNavigation();
   }
@@ -39,7 +39,7 @@ export class NavigationService {
   private initializeNavigation(): void {
     // Track route changes
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.currentRouteSubject.next(event.url);
         this.updateBreadcrumbsFromRoute();
@@ -60,7 +60,7 @@ export class NavigationService {
   navigateTo(route: string | string[], queryParams?: any, fragment?: string): Promise<boolean> {
     const navigationExtras = {
       ...(queryParams && { queryParams }),
-      ...(fragment && { fragment })
+      ...(fragment && { fragment }),
     };
 
     if (Array.isArray(route)) {
@@ -105,7 +105,7 @@ export class NavigationService {
         label: 'Painel',
         icon: 'dashboard',
         route: '/dashboard',
-        active: this.isRouteActive('/dashboard')
+        active: this.isRouteActive('/dashboard'),
       },
       {
         label: 'Empresas',
@@ -117,15 +117,15 @@ export class NavigationService {
             label: 'Todas as Empresas',
             icon: 'list',
             route: '/companies',
-            active: currentRoute === '/companies'
+            active: currentRoute === '/companies',
           },
           {
             label: 'Criar Empresa',
             icon: 'add',
             route: '/companies/create',
-            active: currentRoute === '/companies/create'
-          }
-        ]
+            active: currentRoute === '/companies/create',
+          },
+        ],
       },
     ];
   }
@@ -202,7 +202,7 @@ export class NavigationService {
       breadcrumbs.push({
         label: 'Painel',
         url: '/dashboard',
-        active: false
+        active: false,
       });
 
       // Build breadcrumbs from route hierarchy
@@ -210,7 +210,7 @@ export class NavigationService {
         currentRoute = currentRoute.children[0];
 
         if (currentRoute.snapshot?.url?.length > 0) {
-          url += '/' + currentRoute.snapshot.url.map(segment => segment.path).join('/');
+          url += '/' + currentRoute.snapshot.url.map((segment) => segment.path).join('/');
 
           const routeData = currentRoute.snapshot.data;
           const breadcrumbLabel = routeData['breadcrumb'];
@@ -219,7 +219,7 @@ export class NavigationService {
             breadcrumbs.push({
               label: breadcrumbLabel,
               url: url,
-              active: false
+              active: false,
             });
           }
         }
@@ -234,85 +234,19 @@ export class NavigationService {
     } catch (error) {
       console.warn('Error updating breadcrumbs:', error);
       // Fallback to basic breadcrumb
-      this.breadcrumbsSubject.next([{
-        label: 'Dashboard',
-        url: '/dashboard',
-        active: true
-      }]);
+      this.breadcrumbsSubject.next([
+        {
+          label: 'Dashboard',
+          url: '/dashboard',
+          active: true,
+        },
+      ]);
     }
   }
 
-  /**
-   * Update breadcrumbs based on current route (legacy method)
-   */
-  private updateBreadcrumbs(url: string): void {
-    const urlSegments = url.split('/').filter(segment => segment);
-    const breadcrumbs: BreadcrumbItem[] = [];
+  // Legacy breadcrumb method removed (not used)
 
-    // Always add dashboard as home
-    breadcrumbs.push({
-      label: 'Painel',
-      url: '/dashboard',
-      active: false
-    });
-
-    let currentUrl = '';
-
-    for (let i = 0; i < urlSegments.length; i++) {
-      const segment = urlSegments[i];
-      currentUrl += '/' + segment;
-      const isLast = i === urlSegments.length - 1;
-
-      const label = this.getSegmentLabel(segment, urlSegments, i);
-
-      breadcrumbs.push({
-        label,
-        url: currentUrl,
-        active: isLast
-      });
-    }
-
-    this.breadcrumbsSubject.next(breadcrumbs);
-  }
-
-  /**
-   * Get human-readable label for route segment
-   */
-  private getSegmentLabel(segment: string, allSegments: string[], index: number): string {
-    // Check if it's a known route segment
-    const routeLabels: Record<string, string> = {
-      'companies': 'Empresas',
-      'documents': 'Documentos',
-      'signers': 'Signatários',
-      'dashboard': 'Painel',
-      'create': 'Criar',
-      'edit': 'Editar',
-      'analysis': 'Análise',
-      'sign': 'Assinar'
-    };
-
-    if (routeLabels[segment]) {
-      return routeLabels[segment];
-    }
-
-    // Check if it's an ID parameter (UUID-like format)
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (uuidPattern.test(segment) || /^\d+$/.test(segment)) {
-      // Try to determine the type based on the parent segment
-      const parentSegment = allSegments[index - 1];
-      if (parentSegment === 'companies') {
-        return 'Detalhes da Empresa';
-      } else if (parentSegment === 'documents') {
-        return 'Detalhes do Documento';
-      } else if (parentSegment === 'signers') {
-        return 'Detalhes do Signatário';
-      }
-      return 'Detalhes';
-    }
-
-    // Fallback: capitalize the segment
-    return segment.charAt(0).toUpperCase() + segment.slice(1);
-  }
+  // Removed legacy segment label helper (not used)
 
   /**
    * Set custom breadcrumbs (useful for dynamic content)
@@ -327,7 +261,7 @@ export class NavigationService {
   addBreadcrumb(item: BreadcrumbItem): void {
     const current = this.breadcrumbsSubject.value;
     // Set all existing items as inactive
-    const updated = current.map(b => ({ ...b, active: false }));
+    const updated = current.map((b) => ({ ...b, active: false }));
     updated.push(item);
     this.breadcrumbsSubject.next(updated);
   }

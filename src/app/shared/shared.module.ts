@@ -72,17 +72,7 @@ const ANGULAR_MATERIAL_MODULES = [
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    ...ANGULAR_MATERIAL_MODULES,
-  ],
-  exports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    ...ANGULAR_MATERIAL_MODULES,
-  ]
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ...ANGULAR_MATERIAL_MODULES],
+  exports: [CommonModule, ReactiveFormsModule, FormsModule, ...ANGULAR_MATERIAL_MODULES],
 })
-export class SharedModule { }
+export class SharedModule {}

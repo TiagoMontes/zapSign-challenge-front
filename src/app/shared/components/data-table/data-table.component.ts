@@ -29,7 +29,7 @@ export interface SortEvent {
   standalone: true,
   imports: [CommonModule, LoadingSpinnerComponent],
   templateUrl: './data-table.component.html',
-  styles: []
+  styles: [],
 })
 export class DataTableComponent implements OnInit {
   @Input() columns: DataTableColumn[] = [];
@@ -73,7 +73,7 @@ export class DataTableComponent implements OnInit {
 
     this.sort.emit({
       column: this.sortColumn || '',
-      direction: this.sortDirection
+      direction: this.sortDirection,
     });
   }
 
@@ -88,7 +88,7 @@ export class DataTableComponent implements OnInit {
   }
 
   onSelectRow(row: any) {
-    const index = this.selectedRows.findIndex(selected => selected === row);
+    const index = this.selectedRows.findIndex((selected) => selected === row);
     if (index > -1) {
       this.selectedRows.splice(index, 1);
     } else {
@@ -137,14 +137,15 @@ export class DataTableComponent implements OnInit {
   getSortIcon(column: DataTableColumn): string {
     if (this.sortColumn === column.key) {
       return this.sortDirection === 'asc'
-        ? 'M5 15l7-7 7 7'  // up arrow
+        ? 'M5 15l7-7 7 7' // up arrow
         : 'M19 9l-7 7-7-7'; // down arrow
     }
     return 'M8 9l4-4 4 4m0 6l-4 4-4-4'; // up/down arrows
   }
 
   getActionButtonClasses(action: DataTableAction): string {
-    const baseClasses = 'px-2 py-1 text-xs font-medium rounded hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-1 transition-colors';
+    const baseClasses =
+      'px-2 py-1 text-xs font-medium rounded hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-1 transition-colors';
 
     switch (action.color) {
       case 'danger':
@@ -157,20 +158,18 @@ export class DataTableComponent implements OnInit {
   }
 
   getBadgeClasses(value: string): string {
-    const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
-
     // Common status mappings
     const statusClasses: { [key: string]: string } = {
-      'active': 'bg-green-100 text-green-800',
-      'inactive': 'bg-gray-100 text-gray-800',
-      'pending': 'bg-yellow-100 text-yellow-800',
-      'completed': 'bg-green-100 text-green-800',
-      'cancelled': 'bg-red-100 text-red-800',
-      'draft': 'bg-gray-100 text-gray-800',
-      'published': 'bg-blue-100 text-blue-800',
-      'signed': 'bg-green-100 text-green-800',
-      'unsigned': 'bg-yellow-100 text-yellow-800',
-      'expired': 'bg-red-100 text-red-800'
+      active: 'bg-green-100 text-green-800',
+      inactive: 'bg-gray-100 text-gray-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      completed: 'bg-green-100 text-green-800',
+      cancelled: 'bg-red-100 text-red-800',
+      draft: 'bg-gray-100 text-gray-800',
+      published: 'bg-blue-100 text-blue-800',
+      signed: 'bg-green-100 text-green-800',
+      unsigned: 'bg-yellow-100 text-yellow-800',
+      expired: 'bg-red-100 text-red-800',
     };
 
     const lowerValue = value?.toLowerCase();

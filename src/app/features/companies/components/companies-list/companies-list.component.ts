@@ -10,7 +10,7 @@ import { Company } from '../../../../core/models/company.interface';
   selector: 'app-companies-list',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './companies-list.component.html'
+  templateUrl: './companies-list.component.html',
 })
 export class CompaniesListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
@@ -29,8 +29,8 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
   // Computed properties
   hasCompanies = computed(() => this.companies().length > 0);
   hasFilteredResults = computed(() => this.filteredCompanies().length > 0);
-  showNoResults = computed(() =>
-    this.hasCompanies() && !this.hasFilteredResults() && this.searchControl.value?.trim()
+  showNoResults = computed(
+    () => this.hasCompanies() && !this.hasFilteredResults() && this.searchControl.value?.trim(),
   );
 
   // Table configuration
@@ -54,7 +54,8 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set(null);
 
-    this.companiesService.getCompanies()
+    this.companiesService
+      .getCompanies()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (companies) => {
@@ -66,7 +67,7 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
           console.error('Error loading companies:', error);
           this.error.set('Falhou ao carregar empresas. Tente novamente.');
           this.loading.set(false);
-        }
+        },
       });
   }
 
@@ -75,13 +76,8 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
    */
   private setupSearch(): void {
     this.searchControl.valueChanges
-      .pipe(
-        startWith(''),
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(searchTerm => {
+      .pipe(startWith(''), debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((searchTerm) => {
         this.applyFilter(searchTerm || '');
       });
   }
@@ -102,9 +98,10 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
    * Apply search filter to companies
    */
   private applyFilter(searchTerm: string): void {
-    const filtered = this.companies().filter(company =>
-      company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.api_token.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = this.companies().filter(
+      (company) =>
+        company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.api_token.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     this.filteredCompanies.set(filtered);
   }
@@ -113,15 +110,14 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
    * Refresh companies data
    */
   onRefresh(): void {
-    this.companiesService.refreshCompanies()
+    this.companiesService
+      .refreshCompanies()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
-          console.log('Companies refreshed successfully');
-        },
+        next: () => {},
         error: () => {
           console.error('Failed to refresh companies');
-        }
+        },
       });
   }
 
@@ -157,7 +153,9 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
    * Delete company with confirmation
    */
   onDeleteCompany(company: Company): void {
-    const confirmed = confirm(`Are you sure you want to delete "${company.name}"? This action cannot be undone.`);
+    const confirmed = confirm(
+      `Are you sure you want to delete "${company.name}"? This action cannot be undone.`,
+    );
     if (confirmed) {
       this.deleteCompany(company);
     }
@@ -167,16 +165,15 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
    * Execute company deletion
    */
   private deleteCompany(company: Company): void {
-    this.companiesService.deleteCompany(company.id)
+    this.companiesService
+      .deleteCompany(company.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
-          console.log(`Company "${company.name}" deleted successfully`);
-        },
+        next: () => {},
         error: (error) => {
           console.error('Error deleting company:', error);
           alert('Falhou ao excluir empresa. Tente novamente.');
-        }
+        },
       });
   }
 
@@ -187,7 +184,7 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -204,17 +201,18 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
    */
   copyToken(token: string, event: Event): void {
     event.stopPropagation();
-    navigator.clipboard.writeText(token).then(() => {
-      console.log('Token copied to clipboard');
-    }).catch(err => {
-      console.error('Failed to copy token:', err);
-    });
+    navigator.clipboard
+      .writeText(token)
+      .then(() => {})
+      .catch((err) => {
+        console.error('Failed to copy token:', err);
+      });
   }
 
   /**
    * Track by function for company list
    */
-  trackByCompany(index: number, company: Company): number {
+  trackByCompany(_index: number, company: Company): number {
     return company.id;
   }
 }

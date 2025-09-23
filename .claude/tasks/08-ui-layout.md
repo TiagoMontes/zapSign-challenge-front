@@ -1,17 +1,20 @@
 # UI Layout and Design System
 
 ## Overview
+
 Create a responsive and user-friendly layout with consistent design patterns, navigation, and user feedback systems.
 
 ## Layout Components
 
 ### 1. Main Layout Component
+
 - [ ] App shell with header, sidebar, and main content area
 - [ ] Responsive navigation drawer for mobile
 - [ ] Consistent spacing and typography
 - [ ] Theme support (light/dark if needed)
 
 ### 2. Header Component
+
 - [ ] Application title and logo
 - [ ] Main navigation menu
 - [ ] User actions and settings
@@ -19,6 +22,7 @@ Create a responsive and user-friendly layout with consistent design patterns, na
 - [ ] Responsive hamburger menu for mobile
 
 ### 3. Sidebar Navigation
+
 - [ ] Main navigation links (Companies, Documents, Signers)
 - [ ] Active route highlighting
 - [ ] Collapsible navigation groups
@@ -26,6 +30,7 @@ Create a responsive and user-friendly layout with consistent design patterns, na
 - [ ] Mobile-friendly drawer behavior
 
 ### 4. Content Layout
+
 - [ ] Consistent page layouts
 - [ ] Proper spacing and grid system
 - [ ] Card-based layouts for content sections
@@ -35,6 +40,7 @@ Create a responsive and user-friendly layout with consistent design patterns, na
 ## Design System
 
 ### Typography Scale
+
 ```scss
 // Headings
 h1: 2.5rem (40px) - Page titles
@@ -51,6 +57,7 @@ caption: 0.75rem (12px) - Captions
 ```
 
 ### Color Palette
+
 ```scss
 // Primary colors
 $primary: #1976d2;
@@ -82,13 +89,14 @@ $gray-900: #212121;
 ```
 
 ### Spacing System
+
 ```scss
 // Spacing scale (based on 8px grid)
-$spacing-xs: 4px;   // 0.25rem
-$spacing-sm: 8px;   // 0.5rem
-$spacing-md: 16px;  // 1rem
-$spacing-lg: 24px;  // 1.5rem
-$spacing-xl: 32px;  // 2rem
+$spacing-xs: 4px; // 0.25rem
+$spacing-sm: 8px; // 0.5rem
+$spacing-md: 16px; // 1rem
+$spacing-lg: 24px; // 1.5rem
+$spacing-xl: 32px; // 2rem
 $spacing-2xl: 48px; // 3rem
 $spacing-3xl: 64px; // 4rem
 ```
@@ -96,6 +104,7 @@ $spacing-3xl: 64px; // 4rem
 ## Responsive Design
 
 ### Breakpoints
+
 ```scss
 $breakpoints: (
   xs: 0,
@@ -103,11 +112,12 @@ $breakpoints: (
   md: 768px,
   lg: 992px,
   xl: 1200px,
-  xxl: 1400px
+  xxl: 1400px,
 );
 ```
 
 ### Mobile-First Approach
+
 - [ ] Design for mobile first, enhance for larger screens
 - [ ] Touch-friendly interface elements (44px minimum touch targets)
 - [ ] Optimized navigation for mobile devices
@@ -116,24 +126,28 @@ $breakpoints: (
 ## User Feedback System
 
 ### Success Messages
+
 - [ ] Toast notifications for successful operations
 - [ ] Success states in forms
 - [ ] Visual confirmation for completed actions
 - [ ] Auto-dismiss with manual dismiss option
 
 ### Error Handling
+
 - [ ] User-friendly error messages
 - [ ] Field-level validation feedback
 - [ ] Global error boundaries
 - [ ] Retry mechanisms for failed operations
 
 ### Loading States
+
 - [ ] Skeleton loaders for content
 - [ ] Spinner indicators for operations
 - [ ] Progress bars for file uploads
 - [ ] Button loading states with disabled state
 
 ### Confirmation Dialogs
+
 - [ ] Delete confirmations
 - [ ] Unsaved changes warnings
 - [ ] Destructive action confirmations
@@ -142,6 +156,7 @@ $breakpoints: (
 ## Component Library
 
 ### Reusable Components
+
 ```
 src/app/shared/components/
 ├── data-table/
@@ -156,6 +171,7 @@ src/app/shared/components/
 ```
 
 ### Data Display Components
+
 - [ ] Data tables with sorting and filtering
 - [ ] Card layouts for list items
 - [ ] Status badges and indicators
@@ -163,6 +179,7 @@ src/app/shared/components/
 - [ ] Pagination controls
 
 ### Form Components
+
 - [ ] Consistent form field styling
 - [ ] Custom form controls
 - [ ] Validation message displays
@@ -170,6 +187,7 @@ src/app/shared/components/
 - [ ] Multi-step form controls
 
 ## File Structure
+
 ```
 src/app/
 ├── layout/
@@ -195,42 +213,49 @@ src/app/
 ## Tasks
 
 ### 1. Layout Structure
+
 - [ ] Create main layout component with responsive design
 - [ ] Implement header component with navigation
 - [ ] Create sidebar navigation with routing integration
 - [ ] Setup breadcrumb navigation system
 
 ### 2. Design System
+
 - [ ] Define typography scale and implement
 - [ ] Create color palette and CSS variables
 - [ ] Implement spacing system with utility classes
 - [ ] Create responsive breakpoints and mixins
 
 ### 3. Shared Components
+
 - [ ] Create reusable data table component
 - [ ] Implement toast notification system
 - [ ] Create confirmation dialog component
 - [ ] Build loading and empty state components
 
 ### 4. User Feedback
+
 - [ ] Implement global error handling
 - [ ] Create success message system
 - [ ] Add loading states to all operations
 - [ ] Setup form validation feedback
 
 ### 5. Responsive Design
+
 - [ ] Optimize layouts for mobile devices
 - [ ] Implement responsive navigation
 - [ ] Create mobile-friendly data displays
 - [ ] Test across different screen sizes
 
 ### 6. Accessibility
+
 - [ ] Implement ARIA labels and roles
 - [ ] Ensure keyboard navigation support
 - [ ] Add focus management
 - [ ] Test with screen readers
 
 ## Acceptance Criteria
+
 - Responsive design works on all screen sizes
 - Consistent visual design across all components
 - Proper user feedback for all operations

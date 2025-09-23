@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { CanDeactivate } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { map, switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 /**
  * Interface that components should implement to work with UnsavedChangesGuard
@@ -13,14 +13,12 @@ export interface CanComponentDeactivate {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UnsavedChangesGuard implements CanDeactivate<CanComponentDeactivate> {
   constructor(private dialog: MatDialog) {}
 
-  canDeactivate(
-    component: CanComponentDeactivate
-  ): Observable<boolean> {
+  canDeactivate(component: CanComponentDeactivate): Observable<boolean> {
     // If the component doesn't implement the interface, allow navigation
     if (!component.canDeactivate || !component.hasUnsavedChanges) {
       return of(true);
@@ -36,18 +34,19 @@ export class UnsavedChangesGuard implements CanDeactivate<CanComponentDeactivate
   }
 
   private confirmDialog(): Observable<boolean> {
-    return this.dialog.open(UnsavedChangesDialogComponent, {
-      width: '400px',
-      disableClose: true,
-      data: {
-        title: 'Alterações não Salvas',
-        message: 'Você tem alterações não salvas. Tem certeza que deseja sair desta página?',
-        confirmText: 'Sair da Página',
-        cancelText: 'Permanecer na Página'
-      }
-    }).afterClosed().pipe(
-      map(result => !!result)
-    );
+    return this.dialog
+      .open(UnsavedChangesDialogComponent, {
+        width: '400px',
+        disableClose: true,
+        data: {
+          title: 'Alterações não Salvas',
+          message: 'Você tem alterações não salvas. Tem certeza que deseja sair desta página?',
+          confirmText: 'Sair da Página',
+          cancelText: 'Permanecer na Página',
+        },
+      })
+      .afterClosed()
+      .pipe(map((result) => !!result));
   }
 }
 
@@ -70,16 +69,10 @@ interface DialogData {
 @Component({
   selector: 'app-unsaved-changes-dialog',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule
-  ],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
   template: `
     <div class="dialog-container">
       <div class="dialog-header">
-        
         <h2 mat-dialog-title>{{ data.title }}</h2>
       </div>
 
@@ -88,79 +81,74 @@ interface DialogData {
       </mat-dialog-content>
 
       <mat-dialog-actions class="dialog-actions">
-        <button
-          mat-button
-          (click)="onCancel()"
-          class="cancel-button">
+        <button mat-button (click)="onCancel()" class="cancel-button">
           {{ data.cancelText }}
         </button>
-        <button
-          mat-raised-button
-          color="warn"
-          (click)="onConfirm()"
-          class="confirm-button">
+        <button mat-raised-button color="warn" (click)="onConfirm()" class="confirm-button">
           {{ data.confirmText }}
         </button>
       </mat-dialog-actions>
     </div>
   `,
-  styles: [`
-    .dialog-container {
-      padding: 8px 0;
-    }
-
-    .dialog-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-
-      .warning-icon {
-        color: #ff9800;
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
+  styles: [
+    `
+      .dialog-container {
+        padding: 8px 0;
       }
 
-      h2 {
+      .dialog-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+
+        .warning-icon {
+          color: #ff9800;
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+        }
+
+        h2 {
+          margin: 0;
+          font-size: 20px;
+          font-weight: 500;
+        }
+      }
+
+      .dialog-content {
+        margin: 0 0 24px 0;
+
+        p {
+          margin: 0;
+          font-size: 14px;
+          line-height: 1.5;
+          color: var(--text-secondary);
+        }
+      }
+
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
         margin: 0;
-        font-size: 20px;
-        font-weight: 500;
+        padding: 0;
+
+        .cancel-button {
+          min-width: 100px;
+        }
+
+        .confirm-button {
+          min-width: 100px;
+        }
       }
-    }
-
-    .dialog-content {
-      margin: 0 0 24px 0;
-
-      p {
-        margin: 0;
-        font-size: 14px;
-        line-height: 1.5;
-        color: var(--text-secondary);
-      }
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin: 0;
-      padding: 0;
-
-      .cancel-button {
-        min-width: 100px;
-      }
-
-      .confirm-button {
-        min-width: 100px;
-      }
-    }
-  `]
+    `,
+  ],
 })
 export class UnsavedChangesDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<UnsavedChangesDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
   ) {}
 
   onCancel(): void {

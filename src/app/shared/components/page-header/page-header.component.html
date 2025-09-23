@@ -8,9 +8,15 @@
         type="button"
         class="inline-flex items-center p-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
         (click)="onBack()"
-        [title]="backLabel">
+        [title]="backLabel"
+      >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          ></path>
         </svg>
         <span class="ml-2 hidden sm:inline">{{ backLabel }}</span>
       </button>
@@ -33,21 +39,22 @@
         type="button"
         [ngClass]="getActionClasses(action)"
         [disabled]="action.disabled"
-        (click)="executeAction(action)">
-
+        (click)="executeAction(action)"
+      >
         <!-- Icon -->
         <svg
           *ngIf="getIconPath(action.icon)"
           class="w-4 h-4 mr-2"
           fill="none"
           stroke="currentColor"
-          viewBox="0 0 24 24">
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            [attr.d]="getIconPath(action.icon)">
-          </path>
+            [attr.d]="getIconPath(action.icon)"
+          ></path>
         </svg>
 
         {{ action.label }}

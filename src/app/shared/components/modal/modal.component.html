@@ -1,21 +1,22 @@
-<div *ngIf="open"
-     class="fixed inset-0 z-50 overflow-y-auto"
-     (click)="onBackdropClick($event)">
+<div *ngIf="open" class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
   <!-- Overlay -->
   <div class="fixed inset-0 bg-black/60"></div>
 
   <!-- Modal container -->
   <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
-    <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden border-1 transform transition-all sm:my-8 sm:align-middle w-full sm:p-6 z-10"
-         [ngClass]="containerMaxWidth"
-         (click)="$event.stopPropagation()">
-
+    <div
+      class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden border-1 transform transition-all sm:my-8 sm:align-middle w-full sm:p-6 z-10"
+      [ngClass]="containerMaxWidth"
+      (click)="$event.stopPropagation()"
+    >
       <!-- Header -->
       <div class="flex items-center justify-between mb-6" *ngIf="title || subtitle || true">
         <div class="flex items-center">
           <!-- Optional icon slot -->
-          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-gray-100"
-               *ngIf="false">
+          <div
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-gray-100"
+            *ngIf="false"
+          >
             <!-- Keep slot API simple; consumers place their own icon block if desired -->
           </div>
           <div class="ml-0">
@@ -27,9 +28,15 @@
         <button
           (click)="onCloseClick()"
           [disabled]="closeDisabled"
-          class="rounded-md text-gray-400 hover:text-gray-600 focus:outline-none disabled:opacity-50">
+          class="rounded-md text-gray-400 hover:text-gray-600 focus:outline-none disabled:opacity-50"
+        >
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -46,4 +53,3 @@
     </div>
   </div>
 </div>
-

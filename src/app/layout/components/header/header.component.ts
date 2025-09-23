@@ -1,5 +1,4 @@
 import { Component, Output, EventEmitter, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NavigationService } from '../../../core/services/navigation.service';
 
@@ -8,7 +7,7 @@ import { NavigationService } from '../../../core/services/navigation.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './header.component.html',
-  styles: []
+  styles: [],
 })
 export class HeaderComponent {
   @Output() sidebarToggle = new EventEmitter<void>();
@@ -18,10 +17,7 @@ export class HeaderComponent {
   sidebarCollapsed = false;
   notificationCount = 0; // This could be connected to a notifications service
 
-  constructor(
-    private router: Router,
-    private navigationService: NavigationService
-  ) {}
+  constructor(private navigationService: NavigationService) {}
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
@@ -73,19 +69,16 @@ export class HeaderComponent {
   navigateToProfile(): void {
     this.showUserMenu = false;
     // TODO: Implement when profile route is available
-    console.log('Navigate to profile');
   }
 
   navigateToSettings(): void {
     this.showUserMenu = false;
     // TODO: Implement when settings route is available
-    console.log('Navigate to settings');
   }
 
   signOut(): void {
     this.showUserMenu = false;
     // TODO: Implement sign out functionality
-    console.log('Sign out');
   }
 
   // Quick action methods

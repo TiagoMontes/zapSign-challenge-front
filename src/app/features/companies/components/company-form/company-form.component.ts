@@ -1,17 +1,28 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, AbstractControl, AsyncValidatorFn, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  AbstractControl,
+  AsyncValidatorFn,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, map, of } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { CompaniesService } from '../../../../core/services/companies.service';
-import { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../../../../core/models/company.interface';
+import {
+  Company,
+  CreateCompanyRequest,
+  UpdateCompanyRequest,
+} from '../../../../core/models/company.interface';
 import { CanComponentDeactivate } from '../../../../core/guards/unsaved-changes.guard';
 
 @Component({
   selector: 'app-company-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './company-form.component.html'
+  templateUrl: './company-form.component.html',
 })
 export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeactivate {
   private readonly router = inject(Router);
@@ -29,8 +40,8 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
   error = signal<string | null>(null);
 
   // Computed properties
-  pageTitle = computed(() => this.isEditMode() ? 'Editar Empresa' : 'Criar Empresa');
-  submitButtonText = computed(() => this.isEditMode() ? 'Atualizar Empresa' : 'Criar Empresa');
+  pageTitle = computed(() => (this.isEditMode() ? 'Editar Empresa' : 'Criar Empresa'));
+  submitButtonText = computed(() => (this.isEditMode() ? 'Atualizar Empresa' : 'Criar Empresa'));
   hasUnsavedChanges = computed(() => this.companyForm?.dirty && !this.isSubmitting());
 
   // Form validation messages
@@ -39,14 +50,14 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
       required: 'Nome da empresa é obrigatório',
       minlength: 'Nome da empresa deve ter pelo menos 2 caracteres',
       maxlength: 'Nome da empresa não pode exceder 100 caracteres',
-      nameExists: 'Já existe uma empresa com este nome'
+      nameExists: 'Já existe uma empresa com este nome',
     },
     api_token: {
       required: 'Token da API é obrigatório',
       minlength: 'Token da API deve ter pelo menos 8 caracteres',
       maxlength: 'Token da API não pode exceder 255 caracteres',
-      pattern: 'Token da API contém caracteres inválidos'
-    }
+      pattern: 'Token da API contém caracteres inválidos',
+    },
   };
 
   ngOnInit(): void {
@@ -75,21 +86,23 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
    */
   private initializeForm(): void {
     this.companyForm = this.fb.group({
-      name: ['', {
-        validators: [
+      name: [
+        '',
+        {
+          validators: [Validators.required, Validators.minLength(2), Validators.maxLength(100)],
+          asyncValidators: [this.uniqueNameValidator()],
+          updateOn: 'blur',
+        },
+      ],
+      api_token: [
+        '',
+        [
           Validators.required,
-          Validators.minLength(2),
-          Validators.maxLength(100)
+          Validators.minLength(8),
+          Validators.maxLength(255),
+          Validators.pattern(/^[a-zA-Z0-9_-]+$/),
         ],
-        asyncValidators: [this.uniqueNameValidator()],
-        updateOn: 'blur'
-      }],
-      api_token: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.maxLength(255),
-        Validators.pattern(/^[a-zA-Z0-9_-]+$/)
-      ]]
+      ],
     });
   }
 
@@ -112,7 +125,8 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.companiesService.getCompany(id)
+    this.companiesService
+      .getCompany(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (company) => {
@@ -125,7 +139,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
           this.error.set('Falhou ao carregar dados da empresa. Tente novamente.');
           this.isLoading.set(false);
           console.error('Failed to load company data');
-        }
+        },
       });
   }
 
@@ -135,7 +149,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
   private populateForm(company: Company): void {
     this.companyForm.patchValue({
       name: company.name,
-      api_token: company.api_token
+      api_token: company.api_token,
     });
 
     // Mark form as pristine after loading data
@@ -147,11 +161,9 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
    */
   private setupFormValidation(): void {
     // Setup real-time validation feedback
-    this.companyForm.statusChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.error.set(null);
-      });
+    this.companyForm.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.error.set(null);
+    });
   }
 
   /**
@@ -168,12 +180,11 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
       return of(control.value).pipe(
         debounceTime(500),
         distinctUntilChanged(),
-        switchMap(name =>
-          this.companiesService.companyExistsByName(name, currentCompanyId)
-            .pipe(
-              map(exists => exists ? { nameExists: true } : null)
-            )
-        )
+        switchMap((name) =>
+          this.companiesService
+            .companyExistsByName(name, currentCompanyId)
+            .pipe(map((exists) => (exists ? { nameExists: true } : null))),
+        ),
       );
     };
   }
@@ -203,11 +214,11 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
     this.isSubmitting.set(true);
     this.error.set(null);
 
-    this.companiesService.createCompany(data)
+    this.companiesService
+      .createCompany(data)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (company) => {
-          console.log(`Company "${company.name}" created successfully`);
           this.companyForm.markAsPristine();
           this.router.navigate(['/companies', company.id]);
         },
@@ -217,7 +228,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
         },
         complete: () => {
           this.isSubmitting.set(false);
-        }
+        },
       });
   }
 
@@ -229,12 +240,12 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
     this.isSubmitting.set(true);
     this.error.set(null);
 
-    this.companiesService.updateCompany(companyId, data)
+    this.companiesService
+      .updateCompany(companyId, data)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (company) => {
           this.company.set(company);
-          console.log(`Company "${company.name}" updated successfully`);
           this.companyForm.markAsPristine();
           this.router.navigate(['/companies', company.id]);
         },
@@ -244,7 +255,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
         },
         complete: () => {
           this.isSubmitting.set(false);
-        }
+        },
       });
   }
 
@@ -356,12 +367,11 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
    * Mark all form fields as touched to show validation errors
    */
   private markFormGroupTouched(): void {
-    Object.keys(this.companyForm.controls).forEach(key => {
+    Object.keys(this.companyForm.controls).forEach((key) => {
       const control = this.companyForm.get(key);
       control?.markAsTouched();
     });
   }
-
 
   /**
    * Copy API token to clipboard
@@ -370,11 +380,12 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
     const token = this.companyForm.get('api_token')?.value;
 
     if (token && navigator.clipboard) {
-      navigator.clipboard.writeText(token).then(() => {
-        console.log('API token copied to clipboard');
-      }).catch(() => {
-        console.error('Failed to copy token to clipboard');
-      });
+      navigator.clipboard
+        .writeText(token)
+        .then(() => {})
+        .catch(() => {
+          console.error('Failed to copy token to clipboard');
+        });
     }
   }
 
