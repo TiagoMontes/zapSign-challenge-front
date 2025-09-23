@@ -69,7 +69,7 @@ interface AnalysisSection {
             <div class="document-meta">
               <span><strong>Status:</strong> {{ document.status | titlecase }}</span>
               <span><strong>Created:</strong> {{ document.created_at | date: 'medium' }}</span>
-              <span><strong>Token:</strong> {{ document.token }}</span>
+              
             </div>
           </mat-card-content>
         </mat-card>

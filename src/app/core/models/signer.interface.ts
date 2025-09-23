@@ -23,14 +23,13 @@ export interface Signer {
   name: string;
   /** Email address of the signer */
   email: string;
-  /** ZapSign token for this signer */
-  token: string;
+  /** ZapSign URL for signing the document (may be omitted by API) */
+  sign_url?: string;
   /** Current signing status */
   status: SignerStatus;
   /** External ID for additional reference */
   external_id: string | null;
-  /** ZapSign URL for signing the document */
-  sign_url: string;
+  // token may be write-only on some APIs; omitted here
   /** Array of document IDs this signer belongs to */
   document_ids: number[];
   /** ISO timestamp when the document was signed (if signed) */

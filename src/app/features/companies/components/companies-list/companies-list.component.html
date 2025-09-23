@@ -261,11 +261,12 @@
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center gap-2">
               <code class="text-sm bg-gray-100 px-2 py-1 rounded font-mono">{{
-                getTruncatedToken(company.api_token)
+                getTruncatedToken(company.api_token || '')
               }}</code>
               <button
-                (click)="copyToken(company.api_token, $event)"
-                class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                (click)="copyToken(company.api_token || '', $event)"
+                [disabled]="!company.api_token"
+                class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Copiar token completo"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,8 +1,19 @@
 import { Routes } from '@angular/router';
+import { authGuard, authMatchGuard } from './core/guards/auth.guard';
+import { guestGuard, guestMatchGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    canMatch: [guestMatchGuard],
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/auth/login.component').then((m) => m.LoginComponent),
+    title: 'Login - ZapSign',
+  },
+  {
     path: '',
+    canMatch: [authMatchGuard],
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./layout/components/main-layout/main-layout.component').then(
         (m) => m.MainLayoutComponent,
@@ -10,15 +21,8 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: '/dashboard',
+        redirectTo: '/companies',
         pathMatch: 'full',
-      },
-      {
-        path: 'dashboard',
-        loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
-        title: 'Painel - ZapSign',
-        data: { breadcrumb: 'Painel' },
       },
       {
         path: 'companies',
@@ -42,6 +46,8 @@ export const routes: Routes = [
   },
   {
     path: '**',
+    canMatch: [authMatchGuard],
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./shared/components/not-found/not-found.component').then((m) => m.NotFoundComponent),
     title: 'Página Não Encontrada - ZapSign',

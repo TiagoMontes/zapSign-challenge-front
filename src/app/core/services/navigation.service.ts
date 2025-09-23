@@ -102,12 +102,6 @@ export class NavigationService {
 
     return [
       {
-        label: 'Painel',
-        icon: 'dashboard',
-        route: '/dashboard',
-        active: this.isRouteActive('/dashboard'),
-      },
-      {
         label: 'Empresas',
         icon: 'business',
         route: '/companies',
@@ -198,10 +192,10 @@ export class NavigationService {
         return;
       }
 
-      // Always add dashboard as home
+      // Always add companies as home
       breadcrumbs.push({
-        label: 'Painel',
-        url: '/dashboard',
+        label: 'Empresas',
+        url: '/companies',
         active: false,
       });
 
@@ -236,8 +230,8 @@ export class NavigationService {
       // Fallback to basic breadcrumb
       this.breadcrumbsSubject.next([
         {
-          label: 'Dashboard',
-          url: '/dashboard',
+          label: 'Empresas',
+          url: '/companies',
           active: true,
         },
       ]);

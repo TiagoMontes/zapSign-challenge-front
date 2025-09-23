@@ -256,3 +256,69 @@ body {
     border: 1px solid #ddd !important;
   }
 }
+
+// Angular Material SnackBar theming and layering
+// Ensure solid backgrounds (avoid transparency) and consistent contrast
+.mat-mdc-snack-bar-container.error-snackbar {
+  // MDC tokens
+  --mdc-snackbar-container-color: var(--error);
+  --mdc-snackbar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #fff;
+}
+
+.mat-mdc-snack-bar-container.success-snackbar {
+  --mdc-snackbar-container-color: var(--success);
+  --mdc-snackbar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #fff;
+}
+
+.mat-mdc-snack-bar-container.warning-snackbar {
+  --mdc-snackbar-container-color: var(--warning);
+  --mdc-snackbar-supporting-text-color: #111827; // gray-900 for contrast
+  --mat-snack-bar-button-color: #111827;
+}
+
+.mat-mdc-snack-bar-container.info-snackbar {
+  --mdc-snackbar-container-color: var(--info);
+  --mdc-snackbar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #fff;
+}
+
+// Fallbacks for browsers not honoring the tokens (or if MDC structure changes)
+.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__surface { background-color: var(--error) !important; color: #fff !important; }
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__surface { background-color: var(--success) !important; color: #fff !important; }
+.mat-mdc-snack-bar-container.warning-snackbar .mdc-snackbar__surface { background-color: var(--warning) !important; color: #111827 !important; }
+.mat-mdc-snack-bar-container.info-snackbar .mdc-snackbar__surface { background-color: var(--info) !important; color: #fff !important; }
+
+// Minor polish
+.mat-mdc-snack-bar-container {
+  border-radius: 0.5rem; /* 8px */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Fix action hover contrast inside snackbars */
+.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__actions .mdc-button:hover,
+.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__actions .mdc-button:focus,
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__actions .mdc-button:hover,
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__actions .mdc-button:focus,
+.mat-mdc-snack-bar-container.info-snackbar .mdc-snackbar__actions .mdc-button:hover,
+.mat-mdc-snack-bar-container.info-snackbar .mdc-snackbar__actions .mdc-button:focus {
+  background-color: rgba(255, 255, 255, 0.16) !important;
+  color: #fff !important;
+}
+
+.mat-mdc-snack-bar-container.warning-snackbar .mdc-snackbar__actions .mdc-button,
+.mat-mdc-snack-bar-container.warning-snackbar .mdc-snackbar__actions .mdc-button .mdc-button__label {
+  color: #111827 !important; /* gray-900 */
+}
+
+.mat-mdc-snack-bar-container.warning-snackbar .mdc-snackbar__actions .mdc-button:hover,
+.mat-mdc-snack-bar-container.warning-snackbar .mdc-snackbar__actions .mdc-button:focus {
+  background-color: rgba(17, 24, 39, 0.08) !important; /* subtle dark overlay */
+  color: #111827 !important;
+}
+
+// Make sure overlays sit above app shell elements
+.cdk-overlay-container {
+  z-index: 1200; // higher than typical headers/sidebars
+}

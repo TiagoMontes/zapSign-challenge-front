@@ -573,10 +573,7 @@
               <span class="text-sm text-gray-500">Empresa</span>
               <p class="text-sm text-gray-900">{{ document()?.company_id }}</p>
             </div>
-            <div>
-              <span class="text-sm text-gray-500">ZapSign Token</span>
-              <p class="text-sm text-gray-900 font-mono break-all">{{ document()?.token }}</p>
-            </div>
+            <!-- token is write-only; not returned by API -->
             <div>
               <span class="text-sm text-gray-500">Open ID</span>
               <p class="text-sm text-gray-900 font-mono break-all">{{ document()?.open_id }}</p>

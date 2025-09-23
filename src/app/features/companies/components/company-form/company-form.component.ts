@@ -114,6 +114,15 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
 
     if (companyId && companyId !== 'create') {
       this.isEditMode.set(true);
+      // In edit mode, api_token is optional (write-only). Relax validators.
+      const tokenCtrl = this.companyForm.get('api_token');
+      tokenCtrl?.clearValidators();
+      tokenCtrl?.setValidators([
+        Validators.minLength(8),
+        Validators.maxLength(255),
+        Validators.pattern(/^[a-zA-Z0-9_-]+$/),
+      ]);
+      tokenCtrl?.updateValueAndValidity();
       this.loadCompany(+companyId);
     }
   }
@@ -149,7 +158,7 @@ export class CompanyFormComponent implements OnInit, OnDestroy, CanComponentDeac
   private populateForm(company: Company): void {
     this.companyForm.patchValue({
       name: company.name,
-      api_token: company.api_token,
+      api_token: '', // write-only: don't expect or display existing token
     });
 
     // Mark form as pristine after loading data

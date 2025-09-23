@@ -1,6 +1,8 @@
 import { Component, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationService } from '../../../core/services/navigation.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -17,7 +19,11 @@ export class HeaderComponent {
   sidebarCollapsed = false;
   notificationCount = 0; // This could be connected to a notifications service
 
-  constructor(private navigationService: NavigationService) {}
+  constructor(
+    private navigationService: NavigationService,
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
@@ -62,7 +68,7 @@ export class HeaderComponent {
   }
 
   navigateToHome(): void {
-    this.navigationService.navigateTo('/dashboard');
+    this.navigationService.navigateTo('/companies');
   }
 
   // User menu actions
@@ -78,7 +84,8 @@ export class HeaderComponent {
 
   signOut(): void {
     this.showUserMenu = false;
-    // TODO: Implement sign out functionality
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   // Quick action methods

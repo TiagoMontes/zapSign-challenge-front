@@ -12,7 +12,7 @@ import { SharedModule } from '../../shared.module';
         <h1>404 - Página não encontrada</h1>
         <p class="not-found-message">A página que você procura não existe ou foi movida.</p>
         <div class="not-found-actions">
-          <button mat-raised-button color="primary" (click)="goHome()">Ir para o Painel</button>
+          <button mat-raised-button color="primary" (click)="goHome()">Ir para Empresas</button>
           <button mat-button (click)="goBack()">Voltar</button>
         </div>
       </div>
@@ -77,7 +77,7 @@ export class NotFoundComponent {
   constructor(private router: Router) {}
 
   goHome(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/companies']);
   }
 
   goBack(): void {

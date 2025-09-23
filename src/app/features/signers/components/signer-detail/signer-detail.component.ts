@@ -53,9 +53,8 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
   canEdit = computed(() => this.hasSigner() && !this.isDeleting() && !this.isSyncing());
   canDelete = computed(() => this.hasSigner() && !this.isDeleting() && !this.isSyncing());
   canSync = computed(() => this.hasSigner() && !this.isDeleting() && !this.isSyncing());
-  hasToken = computed(() => !!this.signer()?.token);
-  hasExternalId = computed(() => !!this.signer()?.external_id);
   hasSignUrl = computed(() => !!this.signer()?.sign_url);
+  hasExternalId = computed(() => !!this.signer()?.external_id);
   hasCreatedAt = computed(() => !!this.signer()?.created_at);
   hasUpdatedAt = computed(() => !!this.signer()?.last_updated_at);
   primaryDocument = computed(() => this.associatedDocuments()[0] || null);
@@ -252,22 +251,6 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Copy token to clipboard
-   */
-  onCopyToken(): void {
-    const signer = this.signer();
-    if (signer?.token) {
-      navigator.clipboard
-        .writeText(signer.token)
-        .then(() => {
-          this.notificationService.showSuccess('Token copied to clipboard');
-        })
-        .catch(() => {
-          this.notificationService.showError('Failed to copy token');
-        });
-    }
-  }
 
   /**
    * Copy external ID to clipboard
@@ -290,9 +273,9 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
    * Open sign URL in new tab
    */
   onOpenSignUrl(): void {
-    const signer = this.signer();
-    if (signer?.sign_url) {
-      window.open(signer.sign_url, '_blank', 'noopener,noreferrer');
+    const url = this.signer()?.sign_url;
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   }
 
@@ -300,10 +283,10 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
    * Copy sign URL to clipboard
    */
   onCopySignUrl(): void {
-    const signer = this.signer();
-    if (signer?.sign_url) {
+    const url = this.signer()?.sign_url;
+    if (url) {
       navigator.clipboard
-        .writeText(signer.sign_url)
+        .writeText(url)
         .then(() => {
           this.notificationService.showSuccess('Sign URL copied to clipboard');
         })
@@ -312,6 +295,8 @@ export class SignerDetailComponent implements OnInit, OnDestroy {
         });
     }
   }
+
+  // token and sign_url are write-only; UI and actions removed
 
   /**
    * Close edit signer modal

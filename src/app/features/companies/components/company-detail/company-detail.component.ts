@@ -93,8 +93,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   // Edit company form computed properties
   isEditFormValid = computed(() => {
     const name = this.editCompanyName().trim();
-    const apiToken = this.editCompanyApiToken().trim();
-    return name.length > 0 && apiToken.length > 0;
+    return name.length > 0;
   });
 
   canEditCompany = computed(
@@ -188,7 +187,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     if (company) {
       // Pre-fill form with current company data
       this.editCompanyName.set(company.name);
-      this.editCompanyApiToken.set(company.api_token);
+      this.editCompanyApiToken.set(company.api_token || '');
       this.companyEditError.set(null);
       this.showEditCompanyModal.set(true);
     }
@@ -253,12 +252,12 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
    * Copy API token to clipboard
    */
   onCopyApiToken(): void {
-    const company = this.company();
-    if (!company) return;
+    const token = this.company()?.api_token;
+    if (!token) return;
 
     if (navigator.clipboard) {
       navigator.clipboard
-        .writeText(company.api_token)
+        .writeText(token)
         .then(() => {})
         .catch(() => {
           console.error('Failed to copy token to clipboard');
@@ -266,7 +265,7 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     } else {
       // Fallback for browsers without clipboard API
       const textArea = document.createElement('textarea');
-      textArea.value = company.api_token;
+      textArea.value = token;
       document.body.appendChild(textArea);
       textArea.select();
 
@@ -494,10 +493,11 @@ export class CompanyDetailComponent implements OnInit, OnDestroy, AfterViewInit 
     this.isEditingCompany.set(true);
     this.companyEditError.set(null);
 
-    const updateData: UpdateCompanyRequest = {
-      name: this.editCompanyName().trim(),
-      api_token: this.editCompanyApiToken().trim(),
-    };
+    const updateData: UpdateCompanyRequest = { name: this.editCompanyName().trim() };
+    const apiToken = this.editCompanyApiToken().trim();
+    if (apiToken) {
+      updateData.api_token = apiToken;
+    }
 
     this.companiesService
       .updateCompany(company.id, updateData)

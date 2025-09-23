@@ -38,8 +38,6 @@ export interface Document {
   signers: Signer[];
   /** Current status of the document in ZapSign */
   status: DocumentStatus;
-  /** ZapSign document token for integration */
-  token: string;
   /** ZapSign open ID for public access */
   open_id: string;
   /** ID of the user who created the document */

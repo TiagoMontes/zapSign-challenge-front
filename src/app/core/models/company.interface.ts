@@ -7,8 +7,8 @@ export interface Company {
   id: number;
   /** Display name of the company */
   name: string;
-  /** API token used for ZapSign integration */
-  api_token: string;
+  /** API token used for ZapSign integration (may be omitted by API) */
+  api_token?: string;
   /** Array of documents associated with this company */
   documents?: CompanyDocument[];
   /** ISO timestamp when the company was created */

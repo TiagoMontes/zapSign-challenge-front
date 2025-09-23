@@ -98,11 +98,11 @@ export class CompaniesListComponent implements OnInit, OnDestroy {
    * Apply search filter to companies
    */
   private applyFilter(searchTerm: string): void {
-    const filtered = this.companies().filter(
-      (company) =>
-        company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.api_token.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+    const term = searchTerm.toLowerCase();
+    const filtered = this.companies().filter((company) => {
+      const token = (company.api_token || '').toLowerCase();
+      return company.name.toLowerCase().includes(term) || token.includes(term);
+    });
     this.filteredCompanies.set(filtered);
   }
 
